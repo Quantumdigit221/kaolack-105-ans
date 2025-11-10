@@ -1,0 +1,1006 @@
+// Service API pour remplacer Supabase
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+class ApiService {
+  private baseUrl: string;
+  private token: string | null = null;
+
+  constructor() {
+    this.baseUrl = API_BASE_URL;
+    this.token = localStorage.getItem('auth_token');
+  }
+
+  // Méthode pour définir le token d'authentification
+  setToken(token: string | null) {
+    this.token = token;
+    if (token) {
+      localStorage.setItem('auth_token', token);
+    } else {
+      localStorage.removeItem('auth_token');
+    }
+  }
+
+  // Méthode pour obtenir les headers avec authentification
+  private getHeaders(): HeadersInit {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    return headers;
+  }
+
+  // Méthode générique pour les requêtes
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    
+    const config: RequestInit = {
+      ...options,
+      headers: {
+        ...this.getHeaders(),
+        ...options.headers,
+      },
+    };
+
+    // Log de la requête pour debug
+    console.log(`🌐 [API] ${options.method || 'GET'} ${url}`);
+    console.log('🌐 [API] Headers:', config.headers);
+    if (config.body) {
+      console.log('🌐 [API] Body:', config.body);
+    }
+
+    try {
+      const response = await fetch(url, config);
+      
+      console.log(`🌐 [API] Réponse: ${response.status} ${response.statusText}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`🌐 [API] Erreur ${response.status}:`, errorData);
+        
+        // Gestion spéciale des erreurs d'authentification
+        if (response.status === 403 && errorData.error?.includes('Token expiré')) {
+          // Token expiré - déconnexion automatique
+          console.warn('🚨 Token expiré - déconnexion automatique');
+          this.logout();
+          
+          // Émettre un événement personnalisé pour informer l'application
+          window.dispatchEvent(new CustomEvent('auth:token-expired', {
+            detail: { message: 'Votre session a expiré. Veuillez vous reconnecter.' }
+          }));
+          
+          // Créer une erreur spécifique pour cette situation
+          const error = new Error('Session expirée') as any;
+          error.code = 'TOKEN_EXPIRED';
+          error.response = { status: 403, data: errorData };
+          throw error;
+        }
+        
+        if (response.status === 401) {
+          console.warn('🚨 Non autorisé - token invalide ou manquant');
+          this.logout();
+          
+          // Émettre un événement pour non autorisé
+          window.dispatchEvent(new CustomEvent('auth:unauthorized', {
+            detail: { message: 'Accès non autorisé. Veuillez vous connecter.' }
+          }));
+          
+          const error = new Error('Non autorisé') as any;
+          error.code = 'UNAUTHORIZED';
+          error.response = { status: 401, data: errorData };
+          throw error;
+        }
+        
+        // Créer une erreur avec plus de détails
+        const error = new Error(errorData.error || `HTTP ${response.status}`) as any;
+        error.response = {
+          status: response.status,
+          data: errorData
+        };
+        throw error;
+      }
+
+      const data = await response.json();
+      console.log(`🌐 [API] Succès:`, data);
+      return data;
+    } catch (error) {
+      console.error(`🌐 [API] Erreur (${endpoint}):`, error);
+      throw error;
+    }
+  }
+
+  // ===== AUTHENTIFICATION =====
+
+  async register(userData: {
+    email: string;
+    password: string;
+    full_name: string;
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+    city?: string;
+    address?: string;
+    bio?: string;
+  }) {
+    const response = await this.request<{
+      message: string;
+      token: string;
+      user: {
+        id: number;
+        email: string;
+        full_name: string;
+        city?: string;
+        role: string;
+      };
+    }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+
+    this.setToken(response.token);
+    return response;
+  }
+
+  async login(credentials: { email: string; password: string }) {
+    const response = await this.request<{
+      message: string;
+      token: string;
+      user: {
+        id: number;
+        email: string;
+        full_name: string;
+        avatar_url?: string;
+        city?: string;
+        role: string;
+      };
+    }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+
+    this.setToken(response.token);
+    return response;
+  }
+
+  async logout() {
+    this.setToken(null);
+    return Promise.resolve();
+  }
+
+  async getCurrentUser() {
+    return this.request<{
+      id: number;
+      email: string;
+      full_name: string;
+      avatar_url?: string;
+      city?: string;
+      role: string;
+      created_at: string;
+      posts_count?: number;
+      comments_count?: number;
+    }>('/auth/me');
+  }
+
+  // ===== POSTS =====
+
+  async getPosts(params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.category) searchParams.append('category', params.category);
+
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/posts?${queryString}` : '/posts';
+
+    return this.request<{
+      posts: Array<{
+        id: number;
+        user_id: number;
+        title: string;
+        content: string;
+        category: string;
+        image_url?: string;
+        likes_count: number;
+        comments_count: number;
+        created_at: string;
+        updated_at: string;
+        author_name: string;
+        author_avatar?: string;
+        is_liked: boolean;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(endpoint);
+  }
+
+  async getPost(id: number) {
+    return this.request<{
+      id: number;
+      user_id: number;
+      title: string;
+      content: string;
+      category: string;
+      image_url?: string;
+      likes_count: number;
+      comments_count: number;
+      created_at: string;
+      updated_at: string;
+      author_name: string;
+      author_avatar?: string;
+      is_liked: boolean;
+    }>(`/posts/${id}`);
+  }
+
+  async createPost(postData: {
+    title: string;
+    content: string;
+    category: string;
+    image_url?: string;
+  }) {
+    return this.request<{
+      message: string;
+      post: {
+        id: number;
+        user_id: number;
+        title: string;
+        content: string;
+        category: string;
+        image_url?: string;
+        likes_count: number;
+        comments_count: number;
+        created_at: string;
+        author_name: string;
+        author_avatar?: string;
+        is_liked: boolean;
+      };
+    }>('/posts', {
+      method: 'POST',
+      body: JSON.stringify(postData),
+    });
+  }
+
+  async updatePost(id: number, postData: {
+    title: string;
+    content: string;
+    category: string;
+    image_url?: string;
+  }) {
+    return this.request<{ message: string }>(`/posts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(postData),
+    });
+  }
+
+  async deletePost(id: number) {
+    return this.request<{ message: string }>(`/posts/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async likePost(id: number) {
+    return this.request<{ message: string; liked: boolean }>(`/posts/${id}/like`, {
+      method: 'POST',
+    });
+  }
+
+  // ===== COMMENTAIRES =====
+
+  async getComments(postId: number, params?: {
+    page?: number;
+    limit?: number;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/comments/${postId}?${queryString}` : `/comments/${postId}`;
+
+    return this.request<{
+      comments: Array<{
+        id: number;
+        post_id: number;
+        user_id: number;
+        content: string;
+        created_at: string;
+        updated_at: string;
+        author_name: string;
+        author_avatar?: string;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(endpoint);
+  }
+
+  async createComment(commentData: {
+    post_id: number;
+    content: string;
+  }) {
+    return this.request<{
+      message: string;
+      comment: {
+        id: number;
+        post_id: number;
+        user_id: number;
+        content: string;
+        created_at: string;
+        author_name: string;
+        author_avatar?: string;
+      };
+    }>('/comments', {
+      method: 'POST',
+      body: JSON.stringify(commentData),
+    });
+  }
+
+  async updateComment(id: number, content: string) {
+    return this.request<{ message: string }>(`/comments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ content }),
+    });
+  }
+
+  async deleteComment(id: number) {
+    return this.request<{ message: string }>(`/comments/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ===== UPLOAD D'IMAGES =====
+
+  async uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${this.baseUrl}/upload/image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await fetch(`${this.baseUrl}/upload/avatar`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  // ===== ADMIN =====
+
+  async getAdminDashboard() {
+    return this.request<{
+      statistics: {
+        users: {
+          total: number;
+          active: number;
+          recent: number;
+        };
+        posts: {
+          total: number;
+          published: number;
+          recent: number;
+        };
+        comments: {
+          total: number;
+          approved: number;
+        };
+      };
+    }>('/admin/dashboard');
+  }
+
+  async getAdminUsers(params?: { page?: number; limit?: number }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/admin/users?${queryString}` : '/admin/users';
+
+    return this.request<{
+      users: Array<{
+        id: number;
+        email: string;
+        full_name: string;
+        role: string;
+        is_active: boolean;
+        created_at: string;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(endpoint);
+  }
+
+  async updateUserStatus(userId: number, data: { is_active?: boolean; role?: string }) {
+    return this.request<{
+      message: string;
+      user: {
+        id: number;
+        email: string;
+        full_name: string;
+        role: string;
+        is_active: boolean;
+      };
+    }>(`/admin/users/${userId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getAdminPosts(params?: { page?: number; limit?: number }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/admin/posts?${queryString}` : '/admin/posts';
+
+    return this.request<{
+      posts: Array<{
+        id: number;
+        title: string;
+        content: string;
+        category: string;
+        created_at: string;
+        author: {
+          id: number;
+          full_name: string;
+          email: string;
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(endpoint);
+  }
+
+  async deleteAdminPost(postId: number) {
+    return this.request<{ message: string }>(`/admin/posts/${postId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updatePostStatus(postId: number, status: 'published' | 'blocked' | 'archived') {
+    return this.request<{
+      message: string;
+      post: {
+        id: number;
+        title: string;
+        status: string;
+        author: {
+          id: number;
+          full_name: string;
+          email: string;
+        };
+      };
+    }>(`/admin/posts/${postId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  // ===== ACTUALITÉS/NEWS =====
+
+  async getNews(params?: { 
+    page?: number; 
+    limit?: number; 
+    category?: string; 
+    status?: string; 
+    featured?: boolean 
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.category) searchParams.append('category', params.category);
+    if (params?.status) searchParams.append('status', params.status);
+    if (params?.featured) searchParams.append('featured', params.featured.toString());
+
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/news?${queryString}` : '/news';
+
+    return this.request<{
+      news: Array<{
+        id: number;
+        title: string;
+        content: string;
+        excerpt?: string;
+        category: string;
+        status: string;
+        priority: number;
+        featured: boolean;
+        image_url?: string;
+        publication_date?: string;
+        views_count: number;
+        created_at: string;
+        updated_at: string;
+        author: {
+          id: number;
+          full_name: string;
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(endpoint);
+  }
+
+  async getFeaturedNews() {
+    return this.request<{
+      news: Array<{
+        id: number;
+        title: string;
+        content: string;
+        excerpt?: string;
+        category: string;
+        image_url?: string;
+        publication_date?: string;
+        author: {
+          id: number;
+          full_name: string;
+        };
+      }>;
+    }>('/news/featured');
+  }
+
+  async getNewsById(id: number) {
+    return this.request<{
+      id: number;
+      title: string;
+      content: string;
+      excerpt?: string;
+      category: string;
+      status: string;
+      priority: number;
+      featured: boolean;
+      image_url?: string;
+      publication_date?: string;
+      views_count: number;
+      created_at: string;
+      updated_at: string;
+      author: {
+        id: number;
+        full_name: string;
+      };
+    }>(`/news/${id}`);
+  }
+
+  // Admin News
+  async getAdminNews(params?: { page?: number; limit?: number; status?: string; category?: string }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.status) searchParams.append('status', params.status);
+    if (params?.category) searchParams.append('category', params.category);
+
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/news/admin/all?${queryString}` : '/news/admin/all';
+
+    return this.request<{
+      news: Array<{
+        id: number;
+        title: string;
+        content: string;
+        excerpt?: string;
+        category: string;
+        status: string;
+        priority: number;
+        featured: boolean;
+        image_url?: string;
+        publication_date?: string;
+        views_count: number;
+        created_at: string;
+        updated_at: string;
+        author: {
+          id: number;
+          full_name: string;
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(endpoint);
+  }
+
+  // ===== NEWS =====
+
+  async getAllNews() {
+    return this.request<{
+      message: string;
+      data: Array<{
+        id: number;
+        title: string;
+        content: string;
+        category: string;
+        status: string;
+        priority: number;
+        featured: boolean;
+        publishedAt: string | null;
+        scheduledAt: string | null;
+        image?: string;
+        createdAt: string;
+        updatedAt: string;
+      }>;
+    }>('/news/admin');
+  }
+
+  async getPublicNews() {
+    return this.request<{
+      message: string;
+      data: Array<{
+        id: number;
+        title: string;
+        content: string;
+        category: string;
+        priority: number;
+        featured: boolean;
+        publishedAt: string;
+        image?: string;
+      }>;
+    }>('/news');
+  }
+
+  async getNewsStats() {
+    return this.request<{
+      total: number;
+      published: number;
+      draft: number;
+      featured: number;
+      categories: Array<{
+        category: string;
+        count: number;
+      }>;
+    }>('/news/admin/stats');
+  }
+
+  // ===== UTILISATEURS =====
+
+  async getUserProfile() {
+    return this.request<{
+      id: number;
+      email: string;
+      full_name: string;
+      avatar_url?: string;
+      city?: string;
+      role: string;
+      created_at: string;
+      posts_count: number;
+      comments_count: number;
+    }>('/users/profile');
+  }
+
+  async updateProfile(profileData: {
+    full_name: string;
+    city?: string;
+    avatar_url?: string;
+  }) {
+    return this.request<{ message: string }>('/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async changePassword(passwordData: {
+    current_password: string;
+    new_password: string;
+  }) {
+    return this.request<{ message: string }>('/users/password', {
+      method: 'PUT',
+      body: JSON.stringify(passwordData),
+    });
+  }
+
+  async getUserPosts(userId: number, params?: {
+    page?: number;
+    limit?: number;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/users/${userId}/posts?${queryString}` : `/users/${userId}/posts`;
+
+    return this.request<{
+      posts: Array<{
+        id: number;
+        user_id: number;
+        title: string;
+        content: string;
+        category: string;
+        image_url?: string;
+        likes_count: number;
+        comments_count: number;
+        created_at: string;
+        author_name: string;
+        author_avatar?: string;
+        is_liked: boolean;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(endpoint);
+  }
+
+  // ===== ADMIN POSTS =====
+  async getAllPostsForAdmin() {
+    const response = await this.request<any>('/admin/posts');
+    // Support pour les deux formats: tableau direct ou objet avec posts
+    return Array.isArray(response) ? response : (response.posts || []);
+  }
+
+  // ===== ADMIN USERS =====
+  async getAllUsersForAdmin() {
+    const response = await this.request<{
+      users: Array<{
+        id: number;
+        email: string;
+        full_name: string;
+        role: string;
+        is_active: boolean;
+        created_at: string;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>('/admin/users');
+    return response.users;
+  }
+
+  // ===== ADMIN NEWS =====
+  async getAllNewsForAdmin() {
+    const response = await this.request<{
+      news: Array<{
+        id: number;
+        title: string;
+        content: string;
+        excerpt?: string;
+        category: string;
+        status: 'draft' | 'published' | 'archived';
+        priority: number;
+        featured: boolean;
+        image_url?: string;
+        publication_date?: string;
+        views_count: number;
+        created_at: string;
+        updated_at: string;
+        author: {
+          id: number;
+          full_name: string;
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>('/news/admin/all');
+    return response.news;
+  }
+
+  async createNews(data: {
+    title: string;
+    content: string;
+    excerpt?: string;
+    category?: string;
+    status?: 'draft' | 'published' | 'archived';
+    priority?: number;
+    featured?: boolean;
+    image_url?: string;
+    publication_date?: string;
+  }) {
+    // Nettoyer les données avant envoi
+    const cleanedData: any = {
+      title: data.title.trim(),
+      content: data.content.trim(),
+      excerpt: data.excerpt ? data.excerpt.trim() : null,
+      category: data.category || 'actualite',
+      status: data.status || 'draft',
+      priority: data.priority || 0,
+      featured: data.featured || false,
+      publication_date: data.publication_date || null
+    };
+    
+    // Pour image_url, seulement envoyer si c'est une URL valide ou null
+    if (data.image_url && data.image_url.trim() && (data.image_url.startsWith('http://') || data.image_url.startsWith('https://'))) {
+      cleanedData.image_url = data.image_url.trim();
+    } else {
+      cleanedData.image_url = null;
+    }
+
+    return this.request<{
+      message: string;
+      news: any;
+    }>('/news/admin', {
+      method: 'POST',
+      body: JSON.stringify(cleanedData),
+    });
+  }
+
+  async updateNews(newsId: number, data: {
+    title?: string;
+    content?: string;
+    excerpt?: string;
+    category?: string;
+    status?: 'draft' | 'published' | 'archived';
+    priority?: number;
+    featured?: boolean;
+    image_url?: string;
+    publication_date?: string;
+  }) {
+    // Nettoyer les données avant envoi
+    const cleanedData: any = {};
+    
+    if (data.title && data.title.trim().length >= 5) {
+      cleanedData.title = data.title.trim();
+    }
+    
+    if (data.content && data.content.trim().length >= 10) {
+      cleanedData.content = data.content.trim();
+    }
+    
+    if (data.excerpt !== undefined) {
+      cleanedData.excerpt = data.excerpt ? data.excerpt.trim() : null;
+    }
+    
+    if (data.category) {
+      cleanedData.category = data.category;
+    }
+    
+    if (data.status) {
+      cleanedData.status = data.status;
+    }
+    
+    if (data.priority !== undefined) {
+      cleanedData.priority = data.priority;
+    }
+    
+    if (data.featured !== undefined) {
+      cleanedData.featured = data.featured;
+    }
+    
+    // Pour image_url, seulement envoyer si c'est une URL valide ou null
+    if (data.image_url !== undefined) {
+      if (data.image_url && data.image_url.trim() && (data.image_url.startsWith('http://') || data.image_url.startsWith('https://'))) {
+        cleanedData.image_url = data.image_url.trim();
+      } else {
+        cleanedData.image_url = null;
+      }
+    }
+    
+    if (data.publication_date !== undefined) {
+      cleanedData.publication_date = data.publication_date || null;
+    }
+
+    return this.request<{
+      message: string;
+      news: any;
+    }>(`/news/admin/${newsId}`, {
+      method: 'PUT',
+      body: JSON.stringify(cleanedData),
+    });
+  }
+
+  async deleteNews(newsId: number) {
+    return this.request<{ message: string }>(`/news/admin/${newsId}`, {
+      method: 'DELETE',
+    });
+  }
+
+
+}
+
+// Instance singleton
+export const apiService = new ApiService();
+
+// Types pour TypeScript
+export interface User {
+  id: number;
+  email: string;
+  full_name: string;
+  avatar_url?: string;
+  city?: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+  posts_count?: number;
+  comments_count?: number;
+}
+
+export interface Post {
+  id: number;
+  user_id: number;
+  title: string;
+  content: string;
+  category: string;
+  status?: 'draft' | 'published' | 'blocked' | 'archived';
+  image_url?: string;
+  imageUrl?: string; // Support pour le format backend
+  likes_count: number;
+  likesCount?: number; // Support pour le format backend
+  comments_count: number;
+  commentsCount?: number; // Support pour le format backend
+  created_at: string;
+  updated_at: string;
+  author?: {
+    id: number;
+    full_name: string;
+    avatar_url?: string;
+  };
+  // Anciens champs pour compatibilité
+  author_name?: string;
+  author_avatar?: string;
+  is_liked?: boolean;
+}
+
+export interface Comment {
+  id: number;
+  post_id: number;
+  user_id: number;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  author_name: string;
+  author_avatar?: string;
+}
+
+export default apiService;

@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Couleurs inspirées du logo de la Commune de Kaolack */
+    --background: 120 15% 97%;
+    --foreground: 140 60% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 140 60% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 140 60% 15%;
+
+    /* Vert principal (couleur dominante du logo) */
+    --primary: 140 55% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Orange/Rouge (partie supérieure du blason) */
+    --secondary: 15 75% 58%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 120 15% 92%;
+    --muted-foreground: 140 20% 45%;
+
+    /* Jaune/Or (bande décorative) */
+    --accent: 45 90% 58%;
+    --accent-foreground: 140 60% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 120 15% 88%;
+    --input: 120 15% 88%;
+    --ring: 140 55% 35%;
+
+    --radius: 0.75rem;
+
+    /* Gradients inspirés des couleurs du logo */
+    --gradient-warm: linear-gradient(135deg, hsl(140 55% 35%), hsl(45 90% 58%));
+    --gradient-sunset: linear-gradient(180deg, hsl(15 75% 58%) 0%, hsl(140 55% 35%) 100%);
+    --gradient-kaolack: linear-gradient(135deg, hsl(140 55% 35%) 0%, hsl(45 90% 58%) 50%, hsl(15 75% 58%) 100%);
+    --gradient-pride: linear-gradient(135deg, hsl(140 55% 35%) 0%, hsl(120 45% 40%) 35%, hsl(45 90% 58%) 70%, hsl(15 75% 58%) 100%);
+    --shadow-soft: 0 4px 20px -4px hsl(140 55% 35% / 0.15);
+    --shadow-hover: 0 8px 30px -6px hsl(140 55% 35% / 0.25);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    /* Mode sombre avec les couleurs de Kaolack */
+    --background: 140 35% 8%;
+    --foreground: 120 25% 95%;
+
+    --card: 140 30% 12%;
+    --card-foreground: 120 25% 95%;
+
+    --popover: 140 30% 12%;
+    --popover-foreground: 120 25% 95%;
+
+    --primary: 140 50% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 15 70% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 140 25% 18%;
+    --muted-foreground: 120 15% 60%;
+
+    --accent: 45 85% 65%;
+    --accent-foreground: 140 60% 15%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 120 25% 95%;
+
+    --border: 140 25% 18%;
+    --input: 140 25% 18%;
+    --ring: 140 50% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Classes utilitaires pour le thème Kaolack */
+  .gradient-kaolack {
+    background: var(--gradient-kaolack);
+  }
+
+  .gradient-warm {
+    background: var(--gradient-warm);
+  }
+
+  .gradient-sunset {
+    background: var(--gradient-sunset);
+  }
+
+  .shadow-kaolack-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-kaolack-hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  .transition-kaolack {
+    transition: var(--transition-smooth);
+  }
+
+  /* Bordure avec les couleurs du logo */
+  .border-kaolack {
+    border-image: linear-gradient(135deg, hsl(140 55% 35%), hsl(45 90% 58%), hsl(15 75% 58%)) 1;
+  }
+
+  /* Badge avec les couleurs de Kaolack */
+  .badge-kaolack {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+    background: linear-gradient(135deg, hsl(140 55% 35%), hsl(140 45% 40%));
+    color: white;
+  }
+
+  .badge-kaolack-gold {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+    background: hsl(45 90% 58%);
+    color: hsl(140 60% 15%);
+  }
+
+  .badge-kaolack-orange {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+    background: hsl(15 75% 58%);
+    color: white;
+  }
+
+  /* Boutons avec style Kaolack */
+  .btn-kaolack-primary {
+    @apply bg-kaolack-green hover:bg-kaolack-green-dark text-white transition-kaolack shadow-kaolack-soft hover:shadow-kaolack-hover;
+  }
+
+  .btn-kaolack-secondary {
+    @apply bg-kaolack-orange hover:bg-kaolack-orange-dark text-white transition-kaolack shadow-kaolack-soft hover:shadow-kaolack-hover;
+  }
+
+  .btn-kaolack-gold {
+    @apply bg-kaolack-gold hover:bg-kaolack-gold-light text-kaolack-green-dark transition-kaolack shadow-kaolack-soft hover:shadow-kaolack-hover;
+  }
+
+  /* Styles pour le menu mobile responsive */
+  .mobile-nav-trigger {
+    @apply inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .mobile-nav-content {
+    @apply flex flex-col space-y-3 px-4 py-6;
+  }
+
+  .mobile-nav-section {
+    @apply space-y-2;
+  }
+
+  .mobile-nav-heading {
+    @apply text-sm font-semibold text-muted-foreground px-2 py-1;
+  }
+
+  .mobile-nav-item {
+    @apply flex items-center justify-between w-full px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .mobile-nav-item.active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  /* Amélioration du touch target pour mobile */
+  @media (max-width: 768px) {
+    .touch-target {
+      @apply min-h-[44px] min-w-[44px];
+    }
+    
+    /* Espacement adapté pour mobile */
+    .mobile-spacing {
+      @apply px-4 py-3;
+    }
+    
+    /* Texte adapté pour mobile */
+    .mobile-text {
+      @apply text-base leading-relaxed;
+    }
+  }
+
+  /* Animation pour le menu mobile */
+  .mobile-menu-enter {
+    @apply opacity-0 translate-x-full;
+  }
+
+  .mobile-menu-enter-active {
+    @apply opacity-100 translate-x-0 transition-all duration-300;
+  }
+
+  .mobile-menu-exit {
+    @apply opacity-100 translate-x-0;
+  }
+
+  .mobile-menu-exit-active {
+    @apply opacity-0 translate-x-full transition-all duration-300;
+  }
+}
