@@ -1,0 +1,23 @@
+/* 
+ * BANNER EVENT - Enhanced Version
+ * 
+ * This file contains an enhanced SVG banner for the 105-year celebration
+ * The banner is responsive and includes:
+ * - Gradient background (blue → purple → pink)
+ * - Large celebratory "105" number
+ * - Celebration emoji
+ * - Main title and subtitle
+ * - Call-to-action text
+ * - Timeline visualization on the right
+ * - Decorative elements
+ * 
+ * Usage in React:
+ * import eventBannerSvg from "@/assets/event-105-banner.svg";
+ * <img src={eventBannerSvg} alt="Event Banner" />
+ */
+
+/* For PNG export, use this SVG in an online converter or generate with:
+ * - Online tools: convertio.co, online-convert.com
+ * - Command line: inkscape, ImageMagick, or similar
+ * - Resolution: 1200x300px at 96 DPI
+ */
