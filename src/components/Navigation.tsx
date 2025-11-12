@@ -21,12 +21,9 @@ const DEFAULT_MENU = [
 // Éléments du menu "LA COMMUNE"
 const COMMUNE_MENU_ITEMS = [
   { 
-    path: "#", 
+    path: "/mots-du-maire", 
     label: "Mots du Maire", 
-    icon: "MessageSquare",
-    onClick: () => {
-      alert("💬 Mots du Maire\n\nCher(es) concitoyens de Kaolack,\n\nBienvenue sur notre plateforme digitale ! Cette année marque les 105 ans de notre belle ville. Ensemble, construisons un avenir moderne tout en préservant notre riche patrimoine.\n\n— Le Maire de Kaolack");
-    }
+    icon: "MessageSquare"
   },
   { 
     path: "https://demat.kaolack.mairie.sn/terrain/", 

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Building2, FileText, Landmark, TrendingUp } from "lucide-react";
@@ -156,6 +157,15 @@ const MainHome = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
+      <AnnouncementBanner
+        title="🎉 Célébration des 105 ans de Kaolack"
+        message="Rejoignez-nous pour célébrer 105 ans d'histoire, de fierté et d'avenir ! Participez à la plateforme participative et partagez vos histoires."
+        type="announcement"
+        action={{
+          label: "Découvrir",
+          href: "/kaolack-105"
+        }}
+      />
       <main>
         {/* Hero Section with Slider */}
         <section className="relative h-[400px] overflow-hidden">

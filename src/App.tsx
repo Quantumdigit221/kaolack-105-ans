@@ -20,6 +20,7 @@ import Maintenance from "./pages/Maintenance";
 import Admin from "./pages/Admin";
 import Actualites from "./pages/Actualites";
 import PostDetail from "./pages/PostDetail";
+import MaireMessage from "./pages/MaireMessage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import MobileMenuDemo from "./components/MobileMenuDemo";
@@ -60,6 +61,7 @@ const App = () => {
             <Route path="/actualites" element={<Actualites />} />
             <Route path="/actualites/:id" element={<Actualites />} />
             <Route path="/etat-civil" element={<Maintenance />} />
+            <Route path="/mots-du-maire" element={<MaireMessage />} />
             <Route path="/mobile-demo" element={<MobileMenuDemo />} />
             
             {/* Module 105 de Kaolack - Protected routes */}

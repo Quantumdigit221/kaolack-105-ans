@@ -63,9 +63,8 @@ const Kaolack105Home = () => {
             <div className="max-w-3xl text-white">
              
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                105 ans de Kaolack, Une Histoire,
-                Une fierté et d'avenir !
-              </h1>
+                105 ans de Kaolack,
+              </h1> <h2 className="text-4xl md:text-6xl font-bold mb-6"> Une Histoire, Une fierté et d'avenir ! </h2>
               <p className="text-xl md:text-2xl mb-8 text-white/90">
                 Une histoire à célébrer, une économie à développer, une fierté à exposer
               </p>
