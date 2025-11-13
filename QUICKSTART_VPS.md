@@ -51,8 +51,8 @@ sudo ./deploy.sh
 docker-compose ps
 
 # Tester l'application
-curl -k https://mairiekaolack.sn
-curl -k https://api.mairiekaolack.sn/api/health
+curl -k https://kaolackcommune.sn
+curl -k https://api.kaolackcommune.sn/api/health
 ```
 
 ---
@@ -84,8 +84,8 @@ curl -k https://api.mairiekaolack.sn/api/health
   - `SESSION_SECRET`
 
 - ✅ Configurer votre domaine DNS:
-  - `mairiekaolack.sn` → your_vps_ip
-  - `api.mairiekaolack.sn` → your_vps_ip
+  - `kaolackcommune.sn` → your_vps_ip
+  - `api.kaolackcommune.sn` → your_vps_ip
 
 - ✅ Ouvrir les ports firewall:
   - 22 (SSH)
@@ -109,9 +109,9 @@ Le déploiement crée 5 services:
 ## 🎯 Accès après déploiement
 
 ```
-Frontend:     https://mairiekaolack.sn
-API:          https://api.mairiekaolack.sn/api
-Health Check: https://api.mairiekaolack.sn/api/health
+Frontend:     https://kaolackcommune.sn
+API:          https://api.kaolackcommune.sn/api
+Health Check: https://api.kaolackcommune.sn/api/health
 ```
 
 ---
@@ -152,8 +152,8 @@ docker-compose up -d
 - [ ] Secrets générés (JWT_SECRET, SESSION_SECRET)
 - [ ] Script `deploy.sh` exécuté avec succès
 - [ ] Tests passés (exécuter `./test-deployment.sh`)
-- [ ] Application accessible sur https://mairiekaolack.sn
-- [ ] API accessible sur https://api.mairiekaolack.sn/api
+- [ ] Application accessible sur https://kaolackcommune.sn
+- [ ] API accessible sur https://api.kaolackcommune.sn/api
 - [ ] SSL certificate valide (Let's Encrypt)
 - [ ] Backups configurés et testés
 
@@ -182,7 +182,7 @@ docker-compose exec mysql mysql -u root -p -e "SELECT 1;"
 ```bash
 # Renouveler le certificat
 certbot renew --force-renewal
-cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/kaolackcommune.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
 docker-compose restart nginx
 ```
 

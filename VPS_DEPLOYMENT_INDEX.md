@@ -200,7 +200,7 @@ Before running `deploy.sh`:
 ```
 ┌─────────────────────────────────────────────┐
 │         Internet Users                      │
-│  (https://mairiekaolack.sn & api.mairiekaolack.sn)    │
+│  (https://kaolackcommune.sn & api.kaolackcommune.sn)    │
 └──────────────────┬──────────────────────────┘
                    │
                    │ HTTPS (443)
