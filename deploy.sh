@@ -36,9 +36,9 @@ APP_DIR="/var/www/kaolack"
 
 REPO_URL="https://github.com/Quantumdigit221/kaolack-105-ans.git"# 4. Copie des fichiers backend
 
-DOMAIN="kaolackcommune.sn"echo "📂 Copie des fichiers backend..."
+DOMAIN="portail.kaolackcommune.sn"echo "📂 Copie des fichiers backend..."
 
-API_DOMAIN="api.kaolackcommune.sn"cp -r backend/* deploy/backend/
+API_DOMAIN="api.portail.kaolackcommune.sn"cp -r backend/* deploy/backend/
 
 USER="kaolack"cp backend/.env.production deploy/backend/.env
 

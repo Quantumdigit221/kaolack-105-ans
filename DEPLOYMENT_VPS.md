@@ -17,9 +17,9 @@ Déploiement complet de l'application **Kaolack Stories Connect** sur un serveur
 ---
 
 ## 📦 Prérequis
-
-### Serveur VPS recommandé
-- **OS**: Ubuntu 22.04 LTS ou Ubuntu 24.04 LTS
+ `portail.kaolackcommune.sn` (frontend - cPanel)
+ `api.kaolackcommune.sn` (backend API)
+ `www.kaolackcommune.sn` (alias for the main domain, if used)
 - **Processeur**: 2+ cores
 - **RAM**: 4GB minimum (8GB recommandé)
 - **Stockage**: 50GB SSD minimum
@@ -30,6 +30,9 @@ Déploiement complet de l'application **Kaolack Stories Connect** sur un serveur
 - `kaolackcommune.sn` (frontend)
 - `api.kaolackcommune.sn` (backend API)
 - `www.kaolackcommune.sn` (alias)
+ # For cPanel portal deployment, ensure the subdomain points to your cPanel account
+ portail.kaolackcommune.sn  A  your_cpanel_server_ip (or configure in cPanel Zones)
+ api.kaolackcommune.sn      A  your_api_host_ip (or CNAME to external API host)
 
 ### Connexion SSH
 - Accès SSH avec permissions root ou sudo
@@ -38,18 +41,21 @@ Déploiement complet de l'application **Kaolack Stories Connect** sur un serveur
 ---
 
 ## 🛠️ Configuration du serveur VPS
+ - Étape 4: Déployer (cPanel)
 
-### Étape 1: Connexion au serveur
+ ```bash
+ # Build frontend locally
+ npm run build
 
-```bash
-# Connexion SSH (remplacer IP et port si nécessaire)
-ssh -i ~/.ssh/your_key.pem root@your_vps_ip
+ # Zip for upload (PowerShell)
+ Compress-Archive -Path .\dist\* -DestinationPath .\dist-cpanel.zip
+ ```
 
-# Ou avec mot de passe
-ssh root@your_vps_ip
-```
-
-### Étape 2: Mise à jour du système
+ Le workflow recommandé:
+ - ✅ Build frontend (local)
+ - ✅ Upload frontend via cPanel File Manager
+ - ✅ Backend: deploy via cPanel Node manager or external host
+ - ✅ Database: create MySQL database in cPanel and configure credentials
 
 ```bash
 # Mettre à jour les paquets
