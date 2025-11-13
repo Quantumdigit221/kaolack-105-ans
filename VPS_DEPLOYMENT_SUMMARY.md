@@ -208,8 +208,8 @@ sudo ./deploy.sh
 **Après le déploiement:**
 
 - [ ] Tests passés (`./test-deployment.sh`)
-- [ ] Frontend accessible (https://kaolack.sn)
-- [ ] API accessible (https://api.kaolack.sn/api)
+- [ ] Frontend accessible (https://mairiekaolack.sn)
+- [ ] API accessible (https://api.mairiekaolack.sn/api)
 - [ ] SSL certificate valide
 - [ ] Database initialisée
 - [ ] Backups testés
@@ -256,9 +256,9 @@ docker stats
 ## 🎯 Résultats attendus après déploiement
 
 ```
-✅ Frontend:     https://kaolack.sn
-✅ API:          https://api.kaolack.sn/api
-✅ Health:       https://api.kaolack.sn/api/health (returns "ok")
+✅ Frontend:     https://mairiekaolack.sn
+✅ API:          https://api.mairiekaolack.sn/api
+✅ Health:       https://api.mairiekaolack.sn/api/health (returns "ok")
 ✅ Database:     Connected and initialized
 ✅ SSL:          Valid (Let's Encrypt)
 ✅ Backups:      Automated daily
@@ -305,7 +305,7 @@ sudo ./deploy.sh
 
 ./test-deployment.sh
 
-# 5. C'est bon! Accéder à https://kaolack.sn
+# 5. C'est bon! Accéder à https://mairiekaolack.sn
 ```
 
 **Bonne chance! 🚀**

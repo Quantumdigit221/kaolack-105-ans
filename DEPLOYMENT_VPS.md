@@ -27,9 +27,9 @@ Déploiement complet de l'application **Kaolack Stories Connect** sur un serveur
 - **Fournisseurs recommandés**: DigitalOcean, Linode, Vultr, OVH, Hetzner
 
 ### Domaines
-- `kaolack.sn` (frontend)
-- `api.kaolack.sn` (backend API)
-- `www.kaolack.sn` (alias)
+- `mairiekaolack.sn` (frontend)
+- `api.mairiekaolack.sn` (backend API)
+- `www.mairiekaolack.sn` (alias)
 
 ### Connexion SSH
 - Accès SSH avec permissions root ou sudo
@@ -75,15 +75,15 @@ sysctl -p
 Chez votre registrar DNS, pointez:
 
 ```
-kaolack.sn          A  your_vps_ip
-www.kaolack.sn      A  your_vps_ip
-api.kaolack.sn      A  your_vps_ip
+mairiekaolack.sn          A  your_vps_ip
+www.mairiekaolack.sn      A  your_vps_ip
+api.mairiekaolack.sn      A  your_vps_ip
 ```
 
 Vérifier:
 ```bash
-dig kaolack.sn
-nslookup api.kaolack.sn
+dig mairiekaolack.sn
+nslookup api.mairiekaolack.sn
 ```
 
 ---
@@ -120,11 +120,11 @@ nano .env.production
 
 ```ini
 # Domaines
-VITE_API_URL=https://api.kaolack.sn/api
-APP_URL=https://kaolack.sn
-API_URL=https://api.kaolack.sn
-FRONTEND_URL=https://kaolack.sn
-CORS_ORIGIN=https://kaolack.sn
+VITE_API_URL=https://api.mairiekaolack.sn/api
+APP_URL=https://mairiekaolack.sn
+API_URL=https://api.mairiekaolack.sn
+FRONTEND_URL=https://mairiekaolack.sn
+CORS_ORIGIN=https://mairiekaolack.sn
 
 # Base de données (générer des mots de passe forts!)
 DB_PASSWORD=generate_strong_password_here
@@ -165,8 +165,8 @@ systemctl status kaolack
 docker-compose -f /var/www/kaolack/docker-compose.yml logs -f
 
 # Accéder à l'application
-# Frontend: https://kaolack.sn
-# API: https://api.kaolack.sn/api
+# Frontend: https://mairiekaolack.sn
+# API: https://api.mairiekaolack.sn/api
 ```
 
 ---
@@ -207,17 +207,17 @@ apt-get install -y certbot python3-certbot-nginx
 
 # Générer le certificat
 certbot certonly --standalone \
-    -d kaolack.sn \
-    -d www.kaolack.sn \
-    -d api.kaolack.sn \
-    --email admin@kaolack.sn \
+    -d mairiekaolack.sn \
+    -d www.mairiekaolack.sn \
+    -d api.mairiekaolack.sn \
+    --email admin@mairiekaolack.sn \
     --agree-tos \
     --non-interactive
 
 # Copier les certificats
 mkdir -p /var/www/kaolack/ssl
-cp /etc/letsencrypt/live/kaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
-cp /etc/letsencrypt/live/kaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
 ```
 
 ### 4. Configuration des variables d'environnement
@@ -279,17 +279,17 @@ docker-compose logs -f nginx
 
 ```bash
 # Frontend
-curl -k https://kaolack.sn
+curl -k https://mairiekaolack.sn
 
 # API
-curl -k https://api.kaolack.sn/api/health
+curl -k https://api.mairiekaolack.sn/api/health
 
 # Domaine API
-curl -k https://api.kaolack.sn
+curl -k https://api.mairiekaolack.sn
 
 # Vérifier les certificats SSL
-openssl s_client -connect kaolack.sn:443
-openssl s_client -connect api.kaolack.sn:443
+openssl s_client -connect mairiekaolack.sn:443
+openssl s_client -connect api.mairiekaolack.sn:443
 ```
 
 ### Vérifier les certificats SSL
@@ -299,7 +299,7 @@ openssl s_client -connect api.kaolack.sn:443
 certbot certificates
 
 # Tester la date d'expiration SSL
-openssl s_client -connect kaolack.sn:443 -servername kaolack.sn 2>/dev/null | \
+openssl s_client -connect mairiekaolack.sn:443 -servername mairiekaolack.sn 2>/dev/null | \
     openssl x509 -noout -dates
 ```
 
@@ -368,8 +368,8 @@ docker-compose exec -T mysql mysql \
 certbot renew --force-renewal
 
 # Copier les nouveaux certificats
-cp /etc/letsencrypt/live/kaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
-cp /etc/letsencrypt/live/kaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
 
 # Redémarrer Nginx
 docker-compose exec nginx nginx -s reload
@@ -451,14 +451,14 @@ docker volume prune
 
 ```bash
 # Vérifier l'expiration
-openssl x509 -in /etc/letsencrypt/live/kaolack.sn/cert.pem -noout -dates
+openssl x509 -in /etc/letsencrypt/live/mairiekaolack.sn/cert.pem -noout -dates
 
 # Renouveler
 certbot renew --force-renewal
 
 # Copier et redémarrer
-cp /etc/letsencrypt/live/kaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
-cp /etc/letsencrypt/live/kaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
 docker-compose restart nginx
 ```
 
@@ -469,7 +469,7 @@ docker-compose restart nginx
 Si vous rencontrez des problèmes:
 
 1. **Vérifiez les logs**: `docker-compose logs -f`
-2. **Testez la connectivité**: `curl -v https://api.kaolack.sn/api/health`
+2. **Testez la connectivité**: `curl -v https://api.mairiekaolack.sn/api/health`
 3. **Consultez la documentation Docker**: https://docs.docker.com
 4. **Contactez votre fournisseur VPS**: Pour les problèmes serveur
 
@@ -538,9 +538,9 @@ Si vous rencontrez des problèmes:
 Votre application **Kaolack Stories Connect** est maintenant en production sur votre VPS Ubuntu!
 
 **Adresses utiles:**
-- Frontend: https://kaolack.sn
-- API: https://api.kaolack.sn/api
-- Documentation API: https://api.kaolack.sn/api/docs
+- Frontend: https://mairiekaolack.sn
+- API: https://api.mairiekaolack.sn/api
+- Documentation API: https://api.mairiekaolack.sn/api/docs
 
 **Prochaines étapes:**
 1. Configurer un CDN pour les assets statiques

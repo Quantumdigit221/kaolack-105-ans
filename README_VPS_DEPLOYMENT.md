@@ -129,8 +129,8 @@ sudo ./deploy.sh
 ```
 
 **That's it!** Access:
-- Frontend: https://kaolack.sn
-- API: https://api.kaolack.sn/api
+- Frontend: https://mairiekaolack.sn
+- API: https://api.mairiekaolack.sn/api
 
 ---
 
@@ -242,7 +242,7 @@ docker-compose exec mysql mysql -u root -p -e "SELECT 1;"
 ### SSL certificate issue
 ```bash
 certbot renew --force-renewal
-cp /etc/letsencrypt/live/kaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
 docker-compose restart nginx
 ```
 

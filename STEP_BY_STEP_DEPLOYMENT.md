@@ -8,8 +8,8 @@
 ## 🎯 Objectif final
 
 Déployer l'application complète sur un serveur VPS Ubuntu avec:
-- Frontend React accessible sur https://kaolack.sn
-- Backend API accessible sur https://api.kaolack.sn/api
+- Frontend React accessible sur https://mairiekaolack.sn
+- Backend API accessible sur https://api.mairiekaolack.sn/api
 - Base de données MySQL
 - Cache Redis
 - SSL automatique
@@ -29,9 +29,9 @@ Déployer l'application complète sur un serveur VPS Ubuntu avec:
 
 ### Domaines requis
 ```
-kaolack.sn        (Frontend)
-api.kaolack.sn    (API)
-www.kaolack.sn    (Alias)
+mairiekaolack.sn        (Frontend)
+api.mairiekaolack.sn    (API)
+www.mairiekaolack.sn    (Alias)
 ```
 
 ### Accès
@@ -106,17 +106,17 @@ ufw status
 
 ```
 Créer les entrées A:
-kaolack.sn        A    YOUR_VPS_IP
-www.kaolack.sn    A    YOUR_VPS_IP
-api.kaolack.sn    A    YOUR_VPS_IP
+mairiekaolack.sn        A    YOUR_VPS_IP
+www.mairiekaolack.sn    A    YOUR_VPS_IP
+api.mairiekaolack.sn    A    YOUR_VPS_IP
 ```
 
 **Vérifier la propagation DNS (peut prendre 24-48h):**
 
 ```bash
 # Vous pouvez commencer pendant que ça se propage
-nslookup kaolack.sn
-dig kaolack.sn +short
+nslookup mairiekaolack.sn
+dig mairiekaolack.sn +short
 
 # Le résultat doit montrer votre VPS IP
 ```
@@ -203,11 +203,11 @@ nano .env.production
 
 ```ini
 # Domaines - CHANGER !
-VITE_API_URL=https://api.kaolack.sn/api
-APP_URL=https://kaolack.sn
-API_URL=https://api.kaolack.sn
-FRONTEND_URL=https://kaolack.sn
-CORS_ORIGIN=https://kaolack.sn
+VITE_API_URL=https://api.mairiekaolack.sn/api
+APP_URL=https://mairiekaolack.sn
+API_URL=https://api.mairiekaolack.sn
+FRONTEND_URL=https://mairiekaolack.sn
+CORS_ORIGIN=https://mairiekaolack.sn
 
 # Database passwords - GÉNÉRER des valeurs fortes !
 DB_USER=kaolack_user
@@ -221,7 +221,7 @@ SESSION_SECRET=CHANGE_ME_generate_with_openssl
 # Email (optionnel)
 SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
-SMTP_FROM=noreply@kaolack.sn
+SMTP_FROM=noreply@mairiekaolack.sn
 ```
 
 ### Étape 3.5: Générer les secrets
@@ -264,19 +264,19 @@ mkdir -p /var/www/kaolack/ssl
 
 # Générer les certificats pour vos domaines
 certbot certonly --standalone \
-    -d kaolack.sn \
-    -d www.kaolack.sn \
-    -d api.kaolack.sn \
-    --email admin@kaolack.sn \
+    -d mairiekaolack.sn \
+    -d www.mairiekaolack.sn \
+    -d api.mairiekaolack.sn \
+    --email admin@mairiekaolack.sn \
     --agree-tos \
     --non-interactive \
     --register-unsafely-without-email
 
 # IMPORTANT: Si DNS n'est pas encore propagé, utilisez:
 certbot certonly --manual \
-    -d kaolack.sn \
-    -d www.kaolack.sn \
-    -d api.kaolack.sn
+    -d mairiekaolack.sn \
+    -d www.mairiekaolack.sn \
+    -d api.mairiekaolack.sn
 # (Et suivre les instructions pour vérifier les DNS TXT records)
 ```
 
@@ -284,8 +284,8 @@ certbot certonly --manual \
 
 ```bash
 # Copier les certificats
-cp /etc/letsencrypt/live/kaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
-cp /etc/letsencrypt/live/kaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
 
 # Permissions
 chmod 644 /var/www/kaolack/ssl/cert.pem
@@ -400,8 +400,8 @@ curl -k https://localhost:443/api/health 2>/dev/null | head -20
 
 ```bash
 # Ouvrir dans le navigateur (depuis votre ordinateur):
-# Frontend: https://kaolack.sn
-# API: https://api.kaolack.sn/api
+# Frontend: https://mairiekaolack.sn
+# API: https://api.mairiekaolack.sn/api
 
 # Vous pouvez ignorer les avertissements SSL (certificat auto-signé)
 ```
@@ -410,17 +410,17 @@ curl -k https://localhost:443/api/health 2>/dev/null | head -20
 
 ```bash
 # Test du frontend
-curl -k https://kaolack.sn | grep -o "<title>.*</title>"
+curl -k https://mairiekaolack.sn | grep -o "<title>.*</title>"
 
 # Test de l'API
-curl -k https://api.kaolack.sn/api/health
+curl -k https://api.mairiekaolack.sn/api/health
 
 # Test de la base de données (via API)
-curl -k https://api.kaolack.sn/api/news
+curl -k https://api.mairiekaolack.sn/api/news
 
 # Test de CORS
-curl -k -i https://api.kaolack.sn/api/ \
-  -H "Origin: https://kaolack.sn" \
+curl -k -i https://api.mairiekaolack.sn/api/ \
+  -H "Origin: https://mairiekaolack.sn" \
   -H "Access-Control-Request-Method: GET"
 ```
 
@@ -487,8 +487,8 @@ systemctl status kaolack
 cat > /usr/local/bin/renew-kaolack-ssl.sh << 'EOF'
 #!/bin/bash
 certbot renew --quiet
-cp /etc/letsencrypt/live/kaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
-cp /etc/letsencrypt/live/kaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
 docker exec kaolack-nginx nginx -s reload
 EOF
 
@@ -575,7 +575,7 @@ logrotate -f /etc/logrotate.d/kaolack
 apt-get install -y mailutils
 
 # Tester
-echo "Test email" | mail -s "Test" admin@kaolack.sn
+echo "Test email" | mail -s "Test" admin@mairiekaolack.sn
 ```
 
 ### Étape 8.3: Vérification finale
@@ -607,9 +607,9 @@ docker-compose exec -T mysql mysql -u kaolack_user -p -e "SELECT 1;"
 ## ✨ Résultat final attendu
 
 ```
-✅ Frontend:            https://kaolack.sn
-✅ API:                 https://api.kaolack.sn/api
-✅ Health Check:        https://api.kaolack.sn/api/health
+✅ Frontend:            https://mairiekaolack.sn
+✅ API:                 https://api.mairiekaolack.sn/api
+✅ Health Check:        https://api.mairiekaolack.sn/api/health
 ✅ SSL Certificate:     Valid (Let's Encrypt)
 ✅ Database:            Connected (MySQL 8.0)
 ✅ Cache:               Working (Redis 7)
@@ -667,8 +667,8 @@ docker-compose logs mysql
 certbot renew --force-renewal
 
 # Copier
-cp /etc/letsencrypt/live/kaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
-cp /etc/letsencrypt/live/kaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/mairiekaolack.sn/privkey.pem /var/www/kaolack/ssl/key.pem
 
 # Redémarrer Nginx
 docker-compose restart nginx
