@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import eventBannerSvg from "@/assets/event-105-banner.svg";
+import eventBannerSvg from "@/assets/event-105-banner-kaolack-brand.svg";
 
 interface EventBannerProps {
   dismissible?: boolean;

@@ -1,0 +1,129 @@
+<svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- Définitions des gradients selon charte graphique Kaolack -->
+  <defs>
+    <!-- Gradient primaire inspiré de la charte Kaolack (or, vert, bleu marine) -->
+    <linearGradient id="kaolackGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a472a;stop-opacity:1" />
+      <!-- Vert forêt Kaolack -->
+      <stop offset="50%" style="stop-color:#2d6a4f;stop-opacity:1" />
+      <!-- Vert moyen -->
+      <stop offset="100%" style="stop-color:#1b4332;stop-opacity:1" />
+      <!-- Bleu-vert profond -->
+    </linearGradient>
+
+    <!-- Accent doré (inspiration du logo) -->
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <!-- Or -->
+      <stop offset="100%" style="stop-color:#d9a823;stop-opacity:1" />
+      <!-- Or orangé -->
+    </linearGradient>
+
+    <!-- Filtre d'ombre pour profondeur -->
+    <filter id="shadowEffect" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.25" />
+    </filter>
+
+    <!-- Filtre de brillance -->
+    <filter id="glowEffect">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+      <feMerge>
+        <feMergeNode in="coloredBlur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Motif hexagonal (symbole de Kaolack - organisation, solidarité) -->
+    <pattern id="hexPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 30 10 L 30 30 L 20 40 L 10 30 L 10 10 Z" fill="none" stroke="#d4af37" stroke-width="0.5" opacity="0.1" />
+    </pattern>
+  </defs>
+
+  <!-- Fond avec texture hexagonale Kaolack -->
+  <rect width="1200" height="300" fill="url(#kaolackGradient)" />
+  <rect width="1200" height="300" fill="url(#hexPattern)" />
+
+  <!-- Élément décoratif gauche (feuille/nature) -->
+  <circle cx="80" cy="150" r="70" fill="#ffffff" opacity="0.08" />
+  <circle cx="80" cy="150" r="50" fill="#d4af37" opacity="0.06" />
+
+  <!-- Élément décoratif droite (heritage) -->
+  <circle cx="1120" cy="150" r="90" fill="#ffffff" opacity="0.06" />
+
+  <!-- Barre accent gauche (couleur or) -->
+  <rect x="0" y="0" width="5" height="300" fill="url(#goldAccent)" />
+
+  <!-- Contenu principal -->
+  <g>
+    <!-- Logo stylisé 105 -->
+    <circle cx="150" cy="100" r="45" fill="#d4af37" opacity="0.15" filter="url(#glowEffect)" />
+    <text x="150" y="115" font-size="70" font-weight="900" fill="#d4af37" text-anchor="middle" font-family="'Arial Black', sans-serif" opacity="0.3">
+      105
+    </text>
+
+    <!-- Titre principal -->
+    <text x="300" y="75" font-size="52" font-weight="900" fill="#ffffff" font-family="'Arial', sans-serif">
+      CÉLÉBRATION
+    </text>
+    <text x="300" y="130" font-size="52" font-weight="900" fill="#d4af37" font-family="'Arial', sans-serif">
+      DES 105 ANS
+    </text>
+
+    <!-- Sous-titre -->
+    <text x="300" y="165" font-size="24" fill="#ffffff" font-weight="600" font-family="'Arial', sans-serif" opacity="0.95">
+      KAOLACK • PATRIMOINE • FIERTÉ
+    </text>
+
+    <!-- Baseline -->
+    <text x="300" y="210" font-size="15" fill="#d4af37" font-family="'Arial', sans-serif">
+      ✨ Participez à la valorisation de notre patrimoine commun
+    </text>
+  </g>
+
+  <!-- Éléments visuels droite - Timeline de la ville -->
+  <g opacity="0.85">
+    <!-- Titre Timeline -->
+    <text x="950" y="45" font-size="14" font-weight="bold" fill="#d4af37" font-family="'Arial', sans-serif">
+      KAOLACK
+    </text>
+
+    <!-- Points de timeline -->
+    <circle cx="950" cy="70" r="6" fill="#d4af37" />
+    <line x1="950" y1="78" x2="950" y2="115" stroke="#d4af37" stroke-width="2" stroke-dasharray="3,3" />
+
+    <circle cx="950" cy="140" r="6" fill="#ffffff" opacity="0.7" />
+    <line x1="950" y1="148" x2="950" y2="185" stroke="#ffffff" stroke-width="2" stroke-dasharray="3,3" opacity="0.7" />
+
+    <circle cx="950" cy="210" r="6" fill="#d4af37" />
+    <line x1="950" y1="218" x2="950" y2="255" stroke="#d4af37" stroke-width="2" stroke-dasharray="3,3" />
+
+    <circle cx="950" cy="280" r="6" fill="#ffffff" opacity="0.7" />
+
+    <!-- Libellés -->
+    <text x="970" y="75" font-size="12" fill="#ffffff" font-family="'Arial', sans-serif" font-weight="600">
+      Fondation
+    </text>
+    <text x="970" y="145" font-size="12" fill="#ffffff" font-family="'Arial', sans-serif" font-weight="600" opacity="0.8">
+      Développement
+    </text>
+    <text x="970" y="215" font-size="12" fill="#ffffff" font-family="'Arial', sans-serif" font-weight="600">
+      Modernité
+    </text>
+  </g>
+
+  <!-- Barre accent bas (couleur or) -->
+  <rect x="0" y="296" width="1200" height="4" fill="url(#goldAccent)" />
+
+  <!-- CTA visuel (coin bas droit) -->
+  <g opacity="0.7">
+    <rect x="1050" y="240" width="130" height="50" fill="none" stroke="#d4af37" stroke-width="2" rx="6" />
+    <text x="1115" y="270" font-size="13" fill="#d4af37" text-anchor="middle" font-family="'Arial', sans-serif" font-weight="bold">
+      DÉCOUVRIR →
+    </text>
+  </g>
+
+  <!-- Texte informatif petit -->
+  <text x="600" y="290" font-size="11" fill="#ffffff" text-anchor="middle" font-family="'Arial', sans-serif" opacity="0.6">
+    Plateforme participative pour célébrer notre histoire collective
+  </text>
+</svg>
