@@ -1,184 +1,365 @@
-#!/bin/bash#!/bin/bash
+#!/bin/bash#!/bin/bash#!/bin/bash
 
 
-
-# ========================================# Script de déploiement automatique
-
-# 🚀 Script de Déploiement Ubuntu VPSecho "🚀 Déploiement en cours..."
 
 # ========================================
 
-# Utilisation: ./deploy.sh# 1. Construction du frontend
+# 🚀 Automated VPS Deployment Script
 
-echo "📦 Construction du frontend..."
+# ========================================# ========================================# Script de déploiement automatique
 
-set -enpm run build
+# Deployment for: portail.kaolackcommune.sn
+
+# Infrastructure: Docker + Docker Compose# 🚀 Script de Déploiement Ubuntu VPSecho "🚀 Déploiement en cours..."
+
+# OS: Ubuntu 22.04 LTS / 24.04 LTS
+
+# ========================================# ========================================
 
 
 
-# Couleurs# 2. Création du dossier de déploiement
+set -e# Utilisation: ./deploy.sh# 1. Construction du frontend
 
-RED='\033[0;31m'mkdir -p deploy/frontend
 
-GREEN='\033[0;32m'mkdir -p deploy/backend
+
+# Color outputecho "📦 Construction du frontend..."
+
+RED='\033[0;31m'
+
+GREEN='\033[0;32m'set -enpm run build
 
 YELLOW='\033[1;33m'
 
-BLUE='\033[0;34m'# 3. Copie des fichiers frontend (dist)
+BLUE='\033[0;34m'
 
-NC='\033[0m' # No Colorecho "📂 Copie des fichiers frontend..."
+NC='\033[0m' # No Color
 
-cp -r dist/* deploy/frontend/
+# Couleurs# 2. Création du dossier de déploiement
 
-# Configurationcp .htaccess deploy/frontend/
+# Configuration
 
-APP_DIR="/var/www/kaolack"
+DOMAIN="portail.kaolackcommune.sn"RED='\033[0;31m'mkdir -p deploy/frontend
 
-REPO_URL="https://github.com/Quantumdigit221/kaolack-105-ans.git"# 4. Copie des fichiers backend
+API_DOMAIN="api.kaolackcommune.sn"
 
-DOMAIN="portail.kaolackcommune.sn"echo "📂 Copie des fichiers backend..."
+APP_DIR="/var/www/kaolack"GREEN='\033[0;32m'mkdir -p deploy/backend
 
-API_DOMAIN="api.portail.kaolackcommune.sn"cp -r backend/* deploy/backend/
+DOCKER_COMPOSE_VERSION="2.0"
+
+YELLOW='\033[1;33m'
+
+# Functions
+
+log_info() {BLUE='\033[0;34m'# 3. Copie des fichiers frontend (dist)
+
+  echo -e "${BLUE}ℹ️  $1${NC}"
+
+}NC='\033[0m' # No Colorecho "📂 Copie des fichiers frontend..."
+
+
+
+log_success() {cp -r dist/* deploy/frontend/
+
+  echo -e "${GREEN}✓ $1${NC}"
+
+}# Configurationcp .htaccess deploy/frontend/
+
+
+
+log_warn() {APP_DIR="/var/www/kaolack"
+
+  echo -e "${YELLOW}⚠️  $1${NC}"
+
+}REPO_URL="https://github.com/Quantumdigit221/kaolack-105-ans.git"# 4. Copie des fichiers backend
+
+
+
+log_error() {DOMAIN="portail.kaolackcommune.sn"echo "📂 Copie des fichiers backend..."
+
+  echo -e "${RED}✗ $1${NC}"
+
+  exit 1API_DOMAIN="api.portail.kaolackcommune.sn"cp -r backend/* deploy/backend/
+
+}
 
 USER="kaolack"cp backend/.env.production deploy/backend/.env
 
-GROUP="kaolack"
+# Check if running as root
 
-# 5. Nettoyage des fichiers de développement
+if [[ $EUID -ne 0 ]]; thenGROUP="kaolack"
 
-# ====================================echo "🧹 Nettoyage..."
+  log_error "This script must be run as root. Use: sudo ./deploy.sh"
 
-# Fonctions utilitairesrm -f deploy/backend/.env.local
-
-# ====================================rm -rf deploy/backend/node_modules
+fi# 5. Nettoyage des fichiers de développement
 
 
+
+log_info "🚀 Starting VPS Deployment for $DOMAIN"# ====================================echo "🧹 Nettoyage..."
+
+
+
+# Step 1: System Update# Fonctions utilitairesrm -f deploy/backend/.env.local
+
+log_info "Step 1/8: Updating system packages..."
+
+apt-get update# ====================================rm -rf deploy/backend/node_modules
+
+apt-get upgrade -y
+
+apt-get install -y curl wget git build-essential
+
+log_success "System updated"
 
 log_info() {echo "✅ Déploiement préparé dans le dossier 'deploy/'"
 
-    echo -e "${BLUE}[INFO]${NC} $1"echo "📝 Instructions:"
+# Step 2: Install Docker
 
-}echo "1. Uploadez 'deploy/frontend/' vers public_html/"
+log_info "Step 2/8: Installing Docker and Docker Compose..."    echo -e "${BLUE}[INFO]${NC} $1"echo "📝 Instructions:"
 
-echo "2. Uploadez 'deploy/backend/' vers un dossier backend/"
+if ! command -v docker &> /dev/null; then
 
-log_success() {echo "3. Configurez les variables d'environnement"
+  curl -fsSL https://get.docker.com -o get-docker.sh}echo "1. Uploadez 'deploy/frontend/' vers public_html/"
 
-    echo -e "${GREEN}[✓]${NC} $1"echo "4. Installez les dépendances: npm install --production"
+  bash get-docker.sh
 
-}echo "5. Exécutez les migrations: npx sequelize-cli db:migrate"
+  usermod -aG docker ${SUDO_USER}echo "2. Uploadez 'deploy/backend/' vers un dossier backend/"
 
-log_error() {
-    echo -e "${RED}[✗]${NC} $1"
-}
+  log_success "Docker installed"
 
-log_warning() {
+elselog_success() {echo "3. Configurez les variables d'environnement"
+
+  log_warn "Docker already installed"
+
+fi    echo -e "${GREEN}[✓]${NC} $1"echo "4. Installez les dépendances: npm install --production"
+
+
+
+if ! command -v docker-compose &> /dev/null; then}echo "5. Exécutez les migrations: npx sequelize-cli db:migrate"
+
+  curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+  chmod +x /usr/local/bin/docker-composelog_error() {
+
+  log_success "Docker Compose installed"    echo -e "${RED}[✗]${NC} $1"
+
+else}
+
+  log_warn "Docker Compose already installed"
+
+filog_warning() {
+
     echo -e "${YELLOW}[!]${NC} $1"
-}
 
-check_root() {
-    if [[ $EUID -ne 0 ]]; then
+# Step 3: Create application directory}
+
+log_info "Step 3/8: Creating application directory..."
+
+mkdir -p $APP_DIRcheck_root() {
+
+log_success "Directory created: $APP_DIR"    if [[ $EUID -ne 0 ]]; then
+
         log_error "Ce script doit être exécuté en tant que root (sudo)"
-        exit 1
-    fi
-}
 
-# ====================================
-# Installation des dépendances
-# ====================================
+# Step 4: Clone repository        exit 1
 
-install_dependencies() {
-    log_info "Installation des dépendances système..."
-    
+log_info "Step 4/8: Cloning repository..."    fi
+
+if [ ! -d "$APP_DIR/.git" ]; then}
+
+  cd /tmp
+
+  git clone https://github.com/Quantumdigit221/kaolack-105-ans.git temp-clone# ====================================
+
+  cp -r temp-clone/* $APP_DIR/# Installation des dépendances
+
+  rm -rf temp-clone# ====================================
+
+  log_success "Repository cloned"
+
+elseinstall_dependencies() {
+
+  log_warn "Repository already exists, skipping clone"    log_info "Installation des dépendances système..."
+
+fi    
+
     apt-get update -qq
-    
+
+cd $APP_DIR    
+
     # Docker
-    if ! command -v docker &> /dev/null; then
-        log_info "Installation de Docker..."
-        curl -fsSL https://get.docker.com -o get-docker.sh
-        bash get-docker.sh
-        rm get-docker.sh
-        usermod -aG docker root
-        log_success "Docker installé"
-    else
-        log_success "Docker déjà installé"
-    fi
-    
-    # Docker Compose
+
+# Step 5: Configure environment    if ! command -v docker &> /dev/null; then
+
+log_info "Step 5/8: Configuring environment..."        log_info "Installation de Docker..."
+
+if [ ! -f "$APP_DIR/.env.production" ]; then        curl -fsSL https://get.docker.com -o get-docker.sh
+
+  cp .env.production .env.production.backup        bash get-docker.sh
+
+  log_warn "Please configure .env.production with your values:"        rm get-docker.sh
+
+  log_warn "  - DB_PASSWORD"        usermod -aG docker root
+
+  log_warn "  - JWT_SECRET (generate: openssl rand -base64 32)"        log_success "Docker installé"
+
+  log_warn "  - SESSION_SECRET (generate: openssl rand -base64 32)"    else
+
+  log_warn "  - SMTP settings (optional)"        log_success "Docker déjà installé"
+
+  read -p "Press Enter once you've edited .env.production..."    fi
+
+fi    
+
+log_success "Environment configured"    # Docker Compose
+
     if ! command -v docker-compose &> /dev/null; then
-        log_info "Installation de Docker Compose..."
-        curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        chmod +x /usr/local/bin/docker-compose
+
+# Step 6: Install SSL Certificate        log_info "Installation de Docker Compose..."
+
+log_info "Step 6/8: Installing SSL certificates with Certbot..."        curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+apt-get install -y certbot python3-certbot-nginx        chmod +x /usr/local/bin/docker-compose
+
         log_success "Docker Compose installé"
-    else
-        log_success "Docker Compose déjà installé"
+
+certbot certonly --standalone \    else
+
+    -d $DOMAIN \        log_success "Docker Compose déjà installé"
+
+    -d www.$DOMAIN \    fi
+
+    -d $API_DOMAIN \    
+
+    --email admin@${DOMAIN%.*} \    # Git
+
+    --agree-tos \    if ! command -v git &> /dev/null; then
+
+    --non-interactive \        apt-get install -y git
+
+    --preferred-challenges http || log_warn "Certbot setup completed or already configured"        log_success "Git installé"
+
     fi
+
+mkdir -p $APP_DIR/ssl    
+
+if [ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then    # Certbot pour SSL
+
+  cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem $APP_DIR/ssl/cert.pem    if ! command -v certbot &> /dev/null; then
+
+  cp /etc/letsencrypt/live/$DOMAIN/privkey.pem $APP_DIR/ssl/key.pem        apt-get install -y certbot python3-certbot-nginx
+
+  log_success "SSL certificates copied"        log_success "Certbot installé"
+
+fi    fi
+
     
-    # Git
-    if ! command -v git &> /dev/null; then
-        apt-get install -y git
-        log_success "Git installé"
-    fi
-    
-    # Certbot pour SSL
-    if ! command -v certbot &> /dev/null; then
-        apt-get install -y certbot python3-certbot-nginx
-        log_success "Certbot installé"
-    fi
-    
-    # UFW Firewall
-    if ! command -v ufw &> /dev/null; then
-        apt-get install -y ufw
-        ufw allow 22/tcp
-        ufw allow 80/tcp
+
+# Step 7: Build and start Docker containers    # UFW Firewall
+
+log_info "Step 7/8: Building and starting Docker containers..."    if ! command -v ufw &> /dev/null; then
+
+docker-compose build        apt-get install -y ufw
+
+docker-compose up -d        ufw allow 22/tcp
+
+log_success "Containers started"        ufw allow 80/tcp
+
         ufw allow 443/tcp
-        ufw --force enable
-        log_success "Firewall configuré"
-    fi
+
+# Wait for services to be ready        ufw --force enable
+
+log_info "Waiting for services to be ready..."        log_success "Firewall configuré"
+
+sleep 10    fi
+
 }
 
-# ====================================
-# Configuration des répertoires
-# ====================================
+# Step 8: Initialize database
 
-setup_directories() {
-    log_info "Configuration des répertoires..."
-    
-    # Créer l'utilisateur
-    if ! id "$USER" &>/dev/null; then
-        useradd -m -s /bin/bash "$USER"
-        log_success "Utilisateur $USER créé"
-    fi
-    
-    # Créer les répertoires
-    mkdir -p "$APP_DIR"
-    mkdir -p "$APP_DIR/uploads"
-    mkdir -p "$APP_DIR/ssl"
-    mkdir -p "$APP_DIR/logs"
-    
-    # Permissions
-    chown -R "$USER:$GROUP" "$APP_DIR"
-    chmod -R 755 "$APP_DIR"
-    chmod -R 775 "$APP_DIR/uploads"
-    
-    log_success "Répertoires créés et configurés"
-}
+log_info "Step 8/8: Initializing database..."# ====================================
 
-# ====================================
-# Cloner le repository
-# ====================================
+if docker-compose exec -T mysql mysql -u root -proot -e "SELECT 1" &> /dev/null; then# Configuration des répertoires
 
-clone_repo() {
-    log_info "Clonage du repository..."
+  log_success "Database is ready"# ====================================
+
+else
+
+  log_warn "Database initialization failed, check docker-compose logs"setup_directories() {
+
+fi    log_info "Configuration des répertoires..."
+
     
-    if [ -d "$APP_DIR/.git" ]; then
-        log_info "Mise à jour du repository existant..."
-        cd "$APP_DIR"
-        git pull origin main
-    else
-        git clone "$REPO_URL" "$APP_DIR"
-        cd "$APP_DIR"
-    fi
+
+# Post-deployment summary    # Créer l'utilisateur
+
+log_success "🎉 Deployment completed successfully!"    if ! id "$USER" &>/dev/null; then
+
+echo ""        useradd -m -s /bin/bash "$USER"
+
+echo "========================================="        log_success "Utilisateur $USER créé"
+
+echo "📋 POST-DEPLOYMENT CHECKLIST"    fi
+
+echo "========================================="    
+
+echo ""    # Créer les répertoires
+
+echo "✅ Services running:"    mkdir -p "$APP_DIR"
+
+docker-compose ps    mkdir -p "$APP_DIR/uploads"
+
+echo ""    mkdir -p "$APP_DIR/ssl"
+
+echo "🌐 Access your application:"    mkdir -p "$APP_DIR/logs"
+
+echo "   Frontend: https://$DOMAIN"    
+
+echo "   API:      https://$API_DOMAIN/api"    # Permissions
+
+echo "   Health:   https://$API_DOMAIN/api/health"    chown -R "$USER:$GROUP" "$APP_DIR"
+
+echo ""    chmod -R 755 "$APP_DIR"
+
+echo "📊 View logs:"    chmod -R 775 "$APP_DIR/uploads"
+
+echo "   All logs:     docker-compose logs -f"    
+
+echo "   Backend only: docker-compose logs -f backend"    log_success "Répertoires créés et configurés"
+
+echo "   MySQL:        docker-compose logs -f mysql"}
+
+echo "   Nginx:        docker-compose logs -f nginx"
+
+echo ""# ====================================
+
+echo "🔄 Useful commands:"# Cloner le repository
+
+echo "   Restart:  docker-compose restart"# ====================================
+
+echo "   Stop:     docker-compose stop"
+
+echo "   Start:    docker-compose start"clone_repo() {
+
+echo "   Rebuild:  docker-compose up -d --build"    log_info "Clonage du repository..."
+
+echo ""    
+
+echo "📁 Application directory: $APP_DIR"    if [ -d "$APP_DIR/.git" ]; then
+
+echo ""        log_info "Mise à jour du repository existant..."
+
+echo "========================================="        cd "$APP_DIR"
+
+echo ""        git pull origin main
+
+log_info "For more information, see DEPLOYMENT_VPS.md"    else
+
+log_info "For troubleshooting, see DEPLOYMENT_VPS.md (Section 7)"        git clone "$REPO_URL" "$APP_DIR"
+
+echo ""        cd "$APP_DIR"
+
+log_success "Deployment ready! 🚀"    fi
+
     
     log_success "Repository préparé"
 }
