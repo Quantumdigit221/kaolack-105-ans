@@ -64,9 +64,19 @@ echo -e "${GREEN}✅ Prérequis vérifiés${NC}"
 # =========================================
 echo -e "${BLUE}📁 Étape 2: Préparation du répertoire...${NC}"
 
+# Vérifier que nous sommes dans un répertoire git
+if [ ! -d ".git" ]; then
+    echo -e "${RED}❌ Erreur: Ce script doit être exécuté depuis la racine du projet git${NC}"
+    echo -e "${YELLOW}💡 Assurez-vous d'être dans le répertoire kaolack-105-ans${NC}"
+    exit 1
+fi
+
+# Obtenir le répertoire actuel du projet
+PROJECT_DIR="$(pwd)"
+echo -e "${YELLOW}📍 Projet détecté dans: $PROJECT_DIR${NC}"
+
 sudo mkdir -p $DEPLOY_DIR
 sudo chown -R $USER:$USER $DEPLOY_DIR
-cd $DEPLOY_DIR
 
 echo -e "${GREEN}✅ Répertoire préparé${NC}"
 
@@ -75,15 +85,27 @@ echo -e "${GREEN}✅ Répertoire préparé${NC}"
 # =========================================
 echo -e "${BLUE}📦 Étape 3: Déploiement des fichiers...${NC}"
 
-# Copier tous les fichiers nécessaires
-cp -r ./dist $DEPLOY_DIR/
-cp -r ./backend $DEPLOY_DIR/
-cp -r ./src $DEPLOY_DIR/
-cp ./package.json $DEPLOY_DIR/
-cp ./package-lock.json $DEPLOY_DIR/
-cp ./docker-compose.yml $DEPLOY_DIR/
-cp ./nginx.conf $DEPLOY_DIR/
-cp ./.env.production $DEPLOY_DIR/.env
+# Copier tous les fichiers nécessaires (sauf dist qui sera créé après le build)
+cp -r $PROJECT_DIR/backend $DEPLOY_DIR/
+cp -r $PROJECT_DIR/src $DEPLOY_DIR/
+cp -r $PROJECT_DIR/public $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No public directory found"
+cp $PROJECT_DIR/package.json $DEPLOY_DIR/
+cp $PROJECT_DIR/package-lock.json $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No package-lock.json found"
+cp $PROJECT_DIR/docker-compose.yml $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No docker-compose.yml found"
+cp $PROJECT_DIR/nginx.conf $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No nginx.conf found"
+cp $PROJECT_DIR/vite.config.ts $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No vite.config.ts found"
+cp $PROJECT_DIR/tailwind.config.ts $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No tailwind.config.ts found"
+cp $PROJECT_DIR/postcss.config.js $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No postcss.config.js found"
+cp $PROJECT_DIR/tsconfig*.json $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No tsconfig files found"
+cp $PROJECT_DIR/components.json $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No components.json found"
+cp $PROJECT_DIR/eslint.config.js $DEPLOY_DIR/ 2>/dev/null || echo "ℹ️  No eslint.config.js found"
+
+# Copier le fichier .env s'il existe
+if [ -f "$PROJECT_DIR/.env.production" ]; then
+    cp $PROJECT_DIR/.env.production $DEPLOY_DIR/.env
+elif [ -f "$PROJECT_DIR/.env" ]; then
+    cp $PROJECT_DIR/.env $DEPLOY_DIR/.env
+fi
 
 echo -e "${GREEN}✅ Fichiers copiés${NC}"
 
@@ -151,9 +173,33 @@ echo -e "${GREEN}✅ Dépendances installées${NC}"
 echo -e "${BLUE}🔨 Étape 6: Build du frontend...${NC}"
 
 cd $DEPLOY_DIR
+
+# Vérifier si les fichiers de configuration existent
+if [ ! -f "vite.config.ts" ]; then
+    echo -e "${YELLOW}⚠️  vite.config.ts manquant, création d'une version basique...${NC}"
+    cat > vite.config.ts << 'EOL'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    outDir: "dist"
+  }
+});
+EOL
+fi
+
+# Build du frontend
 npm run build
 
-echo -e "${GREEN}✅ Frontend buildé${NC}"
+echo -e "${GREEN}✅ Frontend buildé dans $DEPLOY_DIR/dist${NC}"
 
 # =========================================
 # Étape 7: Configuration de la base de données
