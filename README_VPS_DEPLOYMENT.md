@@ -118,19 +118,27 @@ cp .env.vps.example .env.production
 nano .env.production  # Change values!
 ```
 
-**Step 2**: Deploy (one command!)
+**Step 3**: Deploy to cPanel (portail)
 ```bash
-sudo ./deploy.sh
+# Build frontend locally
+npm run build
+
+# Upload the contents of `dist/` to your cPanel document root for
+# the subdomain `portail.kaolackcommune.sn` (via File Manager or FTP)
 ```
 
-**Step 3**: Verify
+**Step 4**: Verify
 ```bash
-./test-deployment.sh
+# Frontend
+curl -k http://portail.kaolackcommune.sn
+
+# API (if hosted separately)
+curl -k https://api.kaolackcommune.sn/api/health
 ```
 
 **That's it!** Access:
-- Frontend: https://mairiekaolack.sn
-- API: https://api.mairiekaolack.sn/api
+- Frontend: http://portail.kaolackcommune.sn
+- API: https://api.kaolackcommune.sn/api
 
 ---
 
@@ -242,7 +250,7 @@ docker-compose exec mysql mysql -u root -p -e "SELECT 1;"
 ### SSL certificate issue
 ```bash
 certbot renew --force-renewal
-cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/kaolackcommune.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
 docker-compose restart nginx
 ```
 

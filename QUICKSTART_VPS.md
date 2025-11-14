@@ -34,25 +34,26 @@ echo "JWT_SECRET=$(openssl rand -base64 32)"
 echo "SESSION_SECRET=$(openssl rand -base64 32)"
 ```
 
-### 4️⃣ Lancer le déploiement
+### 4️⃣ Lancer le déploiement (cPanel / portail)
 
 ```bash
-# Rendre le script exécutable
-chmod +x deploy.sh
+# Build localement
+npm run build
 
-# Exécuter le déploiement (nécessite sudo)
-sudo ./deploy.sh
+# Créer une archive pour upload sur cPanel (PowerShell)
+Compress-Archive -Path .\dist\* -DestinationPath .\dist-cpanel.zip
+
+# Uploader `dist-cpanel.zip` via cPanel File Manager ou FTP et extraire
 ```
 
 ### 5️⃣ Vérifier
 
 ```bash
-# Vérifier le statut
-docker-compose ps
+# Frontend (portail)
+curl -k http://portail.kaolackcommune.sn
 
-# Tester l'application
-curl -k https://mairiekaolack.sn
-curl -k https://api.mairiekaolack.sn/api/health
+# API (si hébergée séparément)
+curl -k https://api.kaolackcommune.sn/api/health
 ```
 
 ---
@@ -67,7 +68,7 @@ curl -k https://api.mairiekaolack.sn/api/health
 | `backend/Dockerfile` | Image Docker pour le backend |
 | `frontend.Dockerfile` | Image Docker pour le frontend |
 | `nginx.conf` | Configuration Nginx (proxy + SSL) |
-| `deploy.sh` | Script d'installation automatique |
+| `deploy.sh` | (DEPRECATED) Script d'installation automatique — supprimé pour redirection vers cPanel |
 | `test-deployment.sh` | Script de test du déploiement |
 | `DEPLOYMENT_VPS.md` | Documentation complète |
 
@@ -84,8 +85,8 @@ curl -k https://api.mairiekaolack.sn/api/health
   - `SESSION_SECRET`
 
 - ✅ Configurer votre domaine DNS:
-  - `mairiekaolack.sn` → your_vps_ip
-  - `api.mairiekaolack.sn` → your_vps_ip
+  - `kaolackcommune.sn` → your_vps_ip
+  - `api.kaolackcommune.sn` → your_vps_ip
 
 - ✅ Ouvrir les ports firewall:
   - 22 (SSH)
@@ -109,9 +110,9 @@ Le déploiement crée 5 services:
 ## 🎯 Accès après déploiement
 
 ```
-Frontend:     https://mairiekaolack.sn
-API:          https://api.mairiekaolack.sn/api
-Health Check: https://api.mairiekaolack.sn/api/health
+Frontend:     http://portail.kaolackcommune.sn
+API:          https://api.kaolackcommune.sn/api
+Health Check: https://api.kaolackcommune.sn/api/health
 ```
 
 ---
@@ -152,8 +153,8 @@ docker-compose up -d
 - [ ] Secrets générés (JWT_SECRET, SESSION_SECRET)
 - [ ] Script `deploy.sh` exécuté avec succès
 - [ ] Tests passés (exécuter `./test-deployment.sh`)
-- [ ] Application accessible sur https://mairiekaolack.sn
-- [ ] API accessible sur https://api.mairiekaolack.sn/api
+- [ ] Application accessible sur https://kaolackcommune.sn
+- [ ] API accessible sur https://api.kaolackcommune.sn/api
 - [ ] SSL certificate valide (Let's Encrypt)
 - [ ] Backups configurés et testés
 
@@ -182,7 +183,7 @@ docker-compose exec mysql mysql -u root -p -e "SELECT 1;"
 ```bash
 # Renouveler le certificat
 certbot renew --force-renewal
-cp /etc/letsencrypt/live/mairiekaolack.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
+cp /etc/letsencrypt/live/kaolackcommune.sn/fullchain.pem /var/www/kaolack/ssl/cert.pem
 docker-compose restart nginx
 ```
 
@@ -194,11 +195,12 @@ Consultez `DEPLOYMENT_VPS.md` pour la documentation complète.
 
 ---
 
-**Prêt à déployer? 🚀**
+**Prêt à déployer sur cPanel (portail)? 🚀**
 
 ```bash
-cd /var/www/kaolack
-sudo ./deploy.sh
+# Build et upload
+npm run build
+# Upload `dist-cpanel.zip` via cPanel File Manager to the document root for portail.kaolackcommune.sn
 ```
 
 Bonne chance! 🎉
