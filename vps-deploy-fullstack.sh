@@ -113,7 +113,7 @@ JWT_EXPIRY=7d
 SESSION_SECRET=your_super_secure_session_secret_change_me
 
 # CORS
-CORS_ORIGIN=http://your-domain.com
+CORS_ORIGIN=https://portail.kaolackcommune.sn
 
 # Redis (optionnel)
 REDIS_HOST=localhost
@@ -124,7 +124,7 @@ REDIS_PASSWORD=
 UPLOAD_DIR=/var/www/kaolack/uploads
 
 # Frontend
-VITE_API_URL=http://your-domain.com/api
+VITE_API_URL=https://portail.kaolackcommune.sn/api
 EOF
 fi
 
@@ -187,7 +187,7 @@ echo -e "${BLUE}🌐 Étape 8: Configuration Nginx...${NC}"
 sudo tee /etc/nginx/sites-available/kaolack << EOF
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
+    server_name portail.kaolackcommune.sn;
     
     # Répertoire racine pour les fichiers statiques
     root $DEPLOY_DIR/dist;
@@ -333,8 +333,8 @@ echo "🎉 DÉPLOIEMENT TERMINÉ AVEC SUCCÈS !"
 echo "=================================================================="
 echo -e "${NC}"
 echo -e "${GREEN}📋 Résumé de l'installation:${NC}"
-echo "   • Frontend React : http://your-domain.com"
-echo "   • API Backend : http://your-domain.com/api"
+echo "   • Frontend React : https://portail.kaolackcommune.sn"
+echo "   • API Backend : https://portail.kaolackcommune.sn/api"
 echo "   • Base de données MySQL configurée"
 echo "   • PM2 process manager actif"
 echo "   • Nginx reverse proxy configuré"
@@ -346,8 +346,8 @@ echo "   • Recharger Nginx : sudo systemctl reload nginx"
 echo "   • Voir status services : pm2 status"
 echo ""
 echo -e "${BLUE}⚠️  Actions requises:${NC}"
-echo "   1. Modifier 'your-domain.com' dans /etc/nginx/sites-available/kaolack"
-echo "   2. Configurer SSL/HTTPS avec Let's Encrypt si nécessaire"
+echo "   1. Le domaine 'portail.kaolackcommune.sn' est déjà configuré"
+echo "   2. Configurer SSL/HTTPS avec Let's Encrypt : sudo certbot --nginx -d portail.kaolackcommune.sn"
 echo "   3. Modifier les mots de passe dans $DEPLOY_DIR/.env"
 echo "   4. Tester les fonctionnalités de l'application"
 echo ""

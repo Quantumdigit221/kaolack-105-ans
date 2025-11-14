@@ -54,8 +54,8 @@ sudo ./vps-deploy-fullstack.sh
 # Modifier le nom de domaine dans Nginx
 sudo nano /etc/nginx/sites-available/kaolack
 
-# Remplacer 'your-domain.com' par votre vrai domaine
-# Exemple : kaolack.sn
+# Remplacer 'your-domain.com' par 'portail.kaolackcommune.sn'
+# Configuration pour le sous-domaine officiel
 
 # Recharger Nginx
 sudo nginx -t
@@ -147,13 +147,13 @@ JWT_EXPIRY=7d
 SESSION_SECRET=votre_session_secret_tres_securise
 
 # CORS
-CORS_ORIGIN=https://votre-domaine.com
+CORS_ORIGIN=https://portail.kaolackcommune.sn
 
 # Upload
 UPLOAD_DIR=/var/www/kaolack/uploads
 
 # Frontend
-VITE_API_URL=https://votre-domaine.com/api
+VITE_API_URL=https://portail.kaolackcommune.sn/api
 ```
 
 ### Étape 5 : Configuration PM2
@@ -202,7 +202,7 @@ sudo nano /etc/nginx/sites-available/kaolack
 ```nginx
 server {
     listen 80;
-    server_name votre-domaine.com www.votre-domaine.com;
+    server_name portail.kaolackcommune.sn;
     
     root /var/www/kaolack/dist;
     index index.html;
@@ -271,7 +271,7 @@ sudo ufw enable
 sudo apt install -y certbot python3-certbot-nginx
 
 # Obtention du certificat SSL
-sudo certbot --nginx -d votre-domaine.com -d www.votre-domaine.com
+sudo certbot --nginx -d portail.kaolackcommune.sn
 
 # Test de renouvellement automatique
 sudo certbot renew --dry-run
@@ -290,8 +290,8 @@ curl http://localhost:3001/api/health
 curl http://localhost/
 
 # Test via le domaine
-curl https://votre-domaine.com/
-curl https://votre-domaine.com/api/health
+curl https://portail.kaolackcommune.sn/
+curl https://portail.kaolackcommune.sn/api/health
 ```
 
 ### Monitoring et logs
