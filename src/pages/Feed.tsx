@@ -35,10 +35,12 @@ const Feed = () => {
         category: category === "all" ? undefined : category,
       });
 
+      // N'afficher que les posts approuvés (status 'published')
+      const approvedPosts = response.posts.filter((p: any) => p.status === 'published');
       if (reset) {
-        setPosts(response.posts);
+        setPosts(approvedPosts);
       } else {
-        setPosts(prev => [...prev, ...response.posts]);
+        setPosts(prev => [...prev, ...approvedPosts]);
       }
 
       setHasMore(response.pagination.page < response.pagination.pages);

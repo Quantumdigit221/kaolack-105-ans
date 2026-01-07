@@ -1,6 +1,7 @@
 import Kaolack105Navigation from "@/components/Kaolack105Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, MapPin, Users, Award } from "lucide-react";
+import { KaolackHistoryBot } from "@/components/KaolackHistoryBot";
 
 const Timeline = () => {
   const events = [
@@ -119,6 +120,9 @@ const Timeline = () => {
           </a>
         </div>
       </main>
+      
+      {/* Bot d'histoire de Kaolack */}
+      <KaolackHistoryBot />
     </div>
   );
 };

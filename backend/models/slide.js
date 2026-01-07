@@ -16,30 +16,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(255),
       allowNull: true
     },
-    description: {
-      type: DataTypes.TEXT,
+    bg: {
+      type: DataTypes.STRING(255),
       allowNull: true
     },
-    image_url: {
-      type: DataTypes.STRING(500),
-      allowNull: false
-    },
-    link_url: {
-      type: DataTypes.STRING(500),
-      allowNull: true
-    },
-    link_text: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    order: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0
-    },
-    is_active: {
+    logo: {
       type: DataTypes.BOOLEAN,
+      allowNull: false,
       defaultValue: true
+    },
+    image: {
+      type: DataTypes.TEXT('long'), // base64 ou URL
+      allowNull: true
     },
     created_at: {
       type: DataTypes.DATE,

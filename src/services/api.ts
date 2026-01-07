@@ -1,7 +1,28 @@
 // Service API pour remplacer Supabase
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003/api';
 
 class ApiService {
+    /**
+     * Définit le token d'authentification et le stocke dans localStorage.
+     * @param token Le token JWT ou null pour supprimer
+     */
+    setToken(token: string | null) {
+      this.token = token;
+      if (token) {
+        localStorage.setItem('auth_token', token);
+      } else {
+        localStorage.removeItem('auth_token');
+      }
+    }
+
+
+  // Approuver un post (admin)
+  async approvePost(postId: number) {
+    return this.request<{ message: string; post: any }>(`/admin/posts/${postId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'published' }),
+    });
+  }
   private baseUrl: string;
   private token: string | null = null;
 
@@ -10,15 +31,30 @@ class ApiService {
     this.token = localStorage.getItem('auth_token');
   }
 
-  // Méthode pour définir le token d'authentification
-  setToken(token: string | null) {
-    this.token = token;
-    if (token) {
-      localStorage.setItem('auth_token', token);
-    } else {
-      localStorage.removeItem('auth_token');
-    }
+  // ===== SLIDES (CRUD) =====
+  async getSlides() {
+    return this.request<any[]>('/slides', { method: 'GET' });
   }
+
+  async getSlide(id: number) {
+    return this.request<any>(`/slides/${id}`, { method: 'GET' });
+  }
+
+  async createSlide(slide: { title: string; subtitle?: string; bg?: string; logo?: boolean; image?: string }) {
+    return this.request<any>('/slides', {
+      method: 'POST',
+      body: JSON.stringify(slide),
+    });
+  }
+
+  async updateSlide(id: number, slide: { title: string; subtitle?: string; bg?: string; logo?: boolean; image?: string }) {
+    return this.request<any>(`/slides/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(slide),
+    });
+  }
+
+
 
   // Méthode pour obtenir les headers avec authentification
   private getHeaders(): HeadersInit {
@@ -946,6 +982,13 @@ class ApiService {
     });
   }
 
+  // Bot - Recherche web sur Kaolack
+  async searchKaolackInfo(query: string) {
+    return this.request<{ success: boolean; answer: string; source: string }>('/bot/search', {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    });
+  }
 
 }
 

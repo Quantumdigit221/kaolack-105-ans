@@ -38,9 +38,9 @@ const Kaolack105Navigation = () => {
 
   const navItems = [
     { path: "/kaolack-105", icon: Home, label: "105 ans Kaolack" },
-    { path: "/kaolack-105/timeline", icon: Clock, label: "Histoire" },
+    { path: "/kaolack-105/timeline", icon: Clock, label: "Chronologie Historique" },
     { path: "/kaolack-105/personalities", icon: Users, label: "Personnalités" },
-    { path: "/kaolack-105/feed", icon: MessageSquare, label: "Actualité" },
+    { path: "/kaolack-105/feed", icon: MessageSquare, label: "Histoire de la ville" },
     { path: "/kaolack-105/gallery", icon: Image, label: "Galerie", className: "hidden md:inline-flex" },
     { path: "/kaolack-105/economy", icon: TrendingUp, label: "Économie", className: "hidden lg:inline-flex" },
   ];

@@ -7,13 +7,15 @@ interface Logo105Props {
   size?: "sm" | "md" | "lg" | "xl";
   showText?: boolean;
   variant?: "default" | "white-bg" | "rounded" | "shadow";
+  animate?: boolean; // Ajout pour l'animation
 }
 
 const Logo105: React.FC<Logo105Props> = ({ 
   className, 
   size = "md", 
   showText = false, 
-  variant = "default" 
+  variant = "default",
+  animate = false
 }) => {
   const sizeClasses = {
     sm: "h-8 w-auto",
@@ -33,6 +35,7 @@ const Logo105: React.FC<Logo105Props> = ({
     "object-contain transition-transform hover:scale-105",
     sizeClasses[size],
     variantClasses[variant],
+    animate && "animate-spin-slow",
     className
   );
 

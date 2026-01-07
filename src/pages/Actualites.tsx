@@ -165,7 +165,9 @@ const ActualitesPage: React.FC = () => {
                   <span>Par {selectedNews.author.full_name}</span>
                   <div className="flex items-center">
                     <Eye className="mr-1 h-4 w-4" />
-                    {selectedNews.views_count} vue{selectedNews.views_count !== 1 ? 's' : ''}
+                    {selectedNews.views_count === 0
+                      ? 'Aucune vue'
+                      : selectedNews.views_count + (selectedNews.views_count === 1 ? ' vue' : ' vues')}
                   </div>
                 </div>
               </CardHeader>

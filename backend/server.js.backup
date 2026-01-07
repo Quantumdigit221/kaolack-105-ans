@@ -17,24 +17,15 @@ const uploadRoutes = require('./routes/upload');
 const adminRoutes = require('./routes/admin-simple');
 const slidesRoutes = require('./routes/slides');
 const newsRoutes = require('./routes/news');
-const botRoutes = require('./routes/bot');
 
 const app = express();
 app.set('trust proxy', 1); // Important pour les proxies inverses
 const PORT = process.env.PORT || 3001;
 
 // Configuration CORS
-const allowedDomains = [
-  'http://portail.kaolackcommune.sn',
-  'https://portail.kaolackcommune.sn',
-  'http://localhost:8080',
-  'http://localhost:3000',
-  process.env.FRONTEND_URL
-].filter(Boolean);  // Supprime les valeurs nulles
-
 const corsOptions = {
   origin: function (origin, callback) {
-    // Autoriser les requêtes sans origine (comme les apps mobiles ou curl)
+    // Autoriser les requêtes sans origine (comme les apps mobiles)
     if (!origin) return callback(null, true);
     
     // En développement, autoriser localhost
@@ -43,6 +34,13 @@ const corsOptions = {
         return callback(null, true);
       }
     }
+    
+    // Liste des domaines autorisés
+    const allowedDomains = [
+      'http://portail.kaolackcommune.sn',
+      'https://portail.kaolackcommune.sn',
+      process.env.FRONTEND_URL
+    ].filter(Boolean); // Supprime les valeurs vides
     
     // Vérifier si l'origine est dans la liste des domaines autorisés
     if (allowedDomains.some(domain => 
@@ -56,7 +54,7 @@ const corsOptions = {
     callback(new Error('Non autorisé par CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Content-Range', 'X-Total-Count']
 };
@@ -73,7 +71,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https:"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", process.env.FRONTEND_URL].filter(Boolean),
+      connectSrc: ["'self'", process.env.FRONTEND_URL],
     },
   },
 }));
@@ -120,7 +118,6 @@ app.use('/api/news', newsRoutes);
 
 // Routes de test (temporaire)
 app.use('/api/test', require('./routes/test'));
-app.use('/api/bot', botRoutes);
 
 // Route de santé
 app.get('/api/health', (req, res) => {
@@ -179,57 +176,6 @@ app.use('*', (req, res) => {
   });
 });
 
-// Fonction pour vérifier et mettre à jour la structure de la base de données
-async function checkDatabaseStructure() {
-  try {
-    // Vérifiez si la colonne username existe
-    const [results] = await db.sequelize.query("SHOW COLUMNS FROM users LIKE 'username'");
-    if (results.length === 0) {
-      console.log('ℹ️ La colonne username n\'existe pas, création...');
-      await db.sequelize.query("ALTER TABLE users ADD COLUMN username VARCHAR(255) NULL AFTER email");
-    }
-
-    // Vérifier si la table slides existe
-    try {
-      const [tables] = await db.sequelize.query("SHOW TABLES LIKE 'slides'");
-      if (tables.length === 0) {
-        console.log('ℹ️ La table slides n\'existe pas, création...');
-        await db.sequelize.query(`
-          CREATE TABLE slides (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            subtitle VARCHAR(255) NULL,
-            bg VARCHAR(255) NULL,
-            logo BOOLEAN NOT NULL DEFAULT TRUE,
-            image LONGTEXT NULL,
-            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        `);
-        console.log('✅ Table slides créée avec succès');
-      } else {
-        console.log('✅ Table slides existe déjà');
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors de la vérification/création de la table slides:', error.message);
-      // Ne pas bloquer le démarrage si c'est juste une erreur de vérification
-    }
-
-    // Ajoutez d'autres vérifications de colonnes si nécessaire
-    // Exemple pour vérifier d'autres colonnes :
-    /*
-    const [emailResults] = await db.sequelize.query("SHOW COLUMNS FROM users LIKE 'email'");
-    if (emailResults.length === 0) {
-      console.log('ℹ️ La colonne email n\'existe pas, création...');
-      await db.sequelize.query("ALTER TABLE users ADD COLUMN email VARCHAR(255) NOT NULL UNIQUE");
-    }
-    */
-  } catch (error) {
-    console.error('Erreur lors de la vérification de la structure de la base de données:', error);
-    throw error;
-  }
-}
-
 // Démarrage du serveur
 async function startServer() {
   try {
@@ -239,9 +185,6 @@ async function startServer() {
       console.error('❌ Impossible de se connecter à la base de données');
       process.exit(1);
     }
-
-    console.log('🔄 Vérification de la structure de la base de données...');
-    await checkDatabaseStructure();
 
     console.log('🔄 Synchronisation de la base de données...');
     await syncDatabase(process.env.NODE_ENV === 'development');

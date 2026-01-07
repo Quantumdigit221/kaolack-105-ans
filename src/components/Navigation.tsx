@@ -14,20 +14,20 @@ import { Button } from "@/components/ui/button";
 
 const DEFAULT_MENU = [
   { path: "/", label: "Accueil", icon: "Home" },
-  { path: "/feed", label: "Histoires", icon: "FileText" },
+  { path: "/actualites", label: "Actualités", icon: "Newspaper" },
   { path: "/kaolack-105", label: "105 de Kaolack", icon: "Building2" },
 ];
 
 // Éléments du menu "LA COMMUNE"
 const COMMUNE_MENU_ITEMS = [
   { 
-    path: "/mots-du-maire", 
-    label: "Mots du Maire", 
+    path: "/mot-du-maire", 
+    label: "Mot du Maire", 
     icon: "MessageSquare"
   },
   { 
     path: "https://demat.kaolack.mairie.sn/terrain/", 
-    label: "Demande de terrain", 
+    label: "Affaires Domoniales", 
     icon: "MapPin",
     external: true
   },
@@ -35,6 +35,12 @@ const COMMUNE_MENU_ITEMS = [
     path: "/etat-civil", 
     label: "État civil", 
     icon: "Landmark"
+  },
+  {
+    path: "/deposer-courrier",
+    label: "Déposer un courrier",
+    icon: "FileText",
+    description: "Accédez rapidement aux services administratifs de la commune"
   },
   { 
     path: "#", 
@@ -71,17 +77,7 @@ const Navigation = () => {
     } catch (e) {}
   }, []);
 
-  const dynamicMenu = menu
-    .map((item) => {
-      if (item.path === "/feed") {
-        return {
-          ...item,
-          label: isAuthenticated ? "Actualité" : "Histoires",
-          icon: isAuthenticated ? "Newspaper" : "FileText",
-        };
-      }
-      return item;
-    });
+  const dynamicMenu = menu;
 
   const handleLogout = () => {
     logout();

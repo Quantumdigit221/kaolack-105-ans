@@ -17,6 +17,7 @@
   "author": "Commune de Kaolack",
   "license": "MIT",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "axios": "^1.13.1",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",

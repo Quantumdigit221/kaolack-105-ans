@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import Kaolack105Navigation from "@/components/Kaolack105Navigation";
-import Logo105 from "@/components/Logo105";
+import Kaolack105Slides from "@/components/Kaolack105Slides";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Users, Image, TrendingUp, MessageSquare, Calendar } from "lucide-react";
 import kaolackHero from "@/assets/kaolack-hero.jpg";
 import community from "@/assets/community.jpg";
+import { KaolackHistoryBot } from "@/components/KaolackHistoryBot";
 
 const Kaolack105Home = () => {
   const modules = [
@@ -49,28 +50,10 @@ const Kaolack105Home = () => {
   return (
     <div className="min-h-screen bg-background">
       <Kaolack105Navigation />
-      
+      <div className="container py-8">
+        <Kaolack105Slides />
+      </div>
       <main>
-        {/* Hero Section */}
-        <section className="relative h-[400px] overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${kaolackHero})` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-secondary/90 to-accent/85" />
-          </div>
-          <div className="relative container h-full flex items-center justify-center text-center">
-            <div className="max-w-3xl text-white">
-             
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                105 ans de Kaolack,
-              </h1> <h2 className="text-4xl md:text-6xl font-bold mb-6"> Une Histoire, Une fierté et d'avenir ! </h2>
-              <p className="text-xl md:text-2xl mb-8 text-white/90">
-                Une histoire à célébrer, une économie à développer, une fierté à exposer
-              </p>
-            </div>
-          </div>
-        </section>
 
         <div className="container py-16 space-y-16">
           {/* Introduction */}
@@ -184,6 +167,9 @@ const Kaolack105Home = () => {
           </section>
         </div>
       </main>
+      
+      {/* Bot d'histoire de Kaolack */}
+      <KaolackHistoryBot />
     </div>
   );
 };

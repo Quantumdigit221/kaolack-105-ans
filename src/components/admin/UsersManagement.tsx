@@ -51,6 +51,26 @@ interface UserFormData {
 }
 
 export const UsersManagement: React.FC = () => {
+  const [roleLoading, setRoleLoading] = useState<number | null>(null);
+    // Changement de rôle
+    const handleRoleChange = async (user: User, newRole: 'admin' | 'moderator' | 'user') => {
+      setRoleLoading(user.id);
+      try {
+        await fetch(`/api/users/${user.id}/role`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          },
+          body: JSON.stringify({ role: newRole })
+        });
+        toast.success('Rôle mis à jour !');
+        fetchUsers();
+      } catch (e) {
+        toast.error('Erreur lors du changement de rôle');
+      }
+      setRoleLoading(null);
+    };
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -459,6 +479,16 @@ export const UsersManagement: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Select value={user.role} onValueChange={(value: 'admin' | 'moderator' | 'user') => handleRoleChange(user, value)} disabled={roleLoading === user.id}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="moderator">Modérateur</SelectItem>
+                        <SelectItem value="user">Utilisateur</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Button
                       variant="outline"
                       size="sm"

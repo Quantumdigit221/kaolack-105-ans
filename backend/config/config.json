@@ -1,37 +1,23 @@
 {
   "development": {
     "username": "root",
-    "password": null,
-    "database": "mairiekl_1762258379671",
+    "password": "",
+    "database": "kaolack_stories",
     "host": "localhost",
-    "port": 3306,
-    "dialect": "mysql",
-    "logging": true,
-    "define": {
-      "timestamps": true,
-      "underscored": true,
-      "createdAt": "created_at",
-      "updatedAt": "updated_at"
-    }
+    "dialect": "mysql"
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "kaolack_stories_connect_test",
-    "host": "127.0.0.1",
-    "port": 3306,
-    "dialect": "mysql",
-    "logging": false
+    "username": "kaolack",
+    "password": "Kaolack2024Secure!",
+    "database": "kaolack_stories_test",
+    "host": "localhost",
+    "dialect": "mysql"
   },
   "production": {
-    "use_env_variable": "DATABASE_URL",
-    "dialect": "mysql",
-    "logging": false,
-    "define": {
-      "timestamps": true,
-      "underscored": true,
-      "createdAt": "created_at",
-      "updatedAt": "updated_at"
-    }
+    "username": "kaolack",
+    "password": "Kaolack2024Secure!",
+    "database": "kaolack_stories",
+    "host": "localhost",
+    "dialect": "mysql"
   }
 }

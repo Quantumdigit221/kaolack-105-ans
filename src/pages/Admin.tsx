@@ -5,11 +5,14 @@ import { PostsManagement } from '@/components/admin/PostsManagement';
 import { UsersManagement } from '@/components/admin/UsersManagement';
 import { NewsManagement } from '@/components/admin/NewsManagement';
 import { Button } from '@/components/ui/button';
-import { FileText, Users, Newspaper } from 'lucide-react';
+import { FileText, Users, Newspaper, UserCheck, Image as ImageIcon, UserCircle } from 'lucide-react';
+import { AdminSlidesManager } from '@/components/admin/AdminSlidesManager';
+import PersonalitiesManagement from '@/components/admin/PersonalitiesManagement';
+import { AdminMaireManager } from '@/components/admin/AdminMaireManager';
 
 const Admin = () => {
   const { user, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'posts' | 'users' | 'news'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'users' | 'news' | 'personalities' | 'slides' | 'maire'>('posts');
 
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/" replace />;
@@ -51,8 +54,39 @@ const Admin = () => {
                 <Newspaper className="h-4 w-4 mr-2" />
                 Actualités
               </Button>
+              <Button
+                variant={activeTab === 'personalities' ? 'default' : 'ghost'}
+                className="py-4 px-1 border-b-2 border-transparent data-[state=active]:border-blue-500"
+                onClick={() => setActiveTab('personalities')}
+              >
+                <UserCheck className="h-4 w-4 mr-2" />
+                Personnalités
+              </Button>
+              <Button
+                variant={activeTab === 'slides' ? 'default' : 'ghost'}
+                className="py-4 px-1 border-b-2 border-transparent data-[state=active]:border-blue-500"
+                onClick={() => setActiveTab('slides')}
+              >
+                <ImageIcon className="h-4 w-4 mr-2" />
+                Slides Accueil
+              </Button>
+              <Button
+                variant={activeTab === 'maire' ? 'default' : 'ghost'}
+                className="py-4 px-1 border-b-2 border-transparent data-[state=active]:border-blue-500"
+                onClick={() => setActiveTab('maire')}
+              >
+                <UserCircle className="h-4 w-4 mr-2" />
+                Maire
+              </Button>
             </nav>
           </div>
+          {activeTab === 'slides' && (
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Gestion des Slides d'Accueil</h2>
+              <p className="text-gray-600 mb-6">Ajoutez, modifiez ou supprimez les slides de la page d'accueil Kaolack 105</p>
+              <AdminSlidesManager />
+            </div>
+          )}
 
           <div className="p-6">
             {activeTab === 'posts' && (
@@ -76,6 +110,22 @@ const Admin = () => {
                 <h2 className="text-xl font-semibold mb-4">Gestion des Actualités</h2>
                 <p className="text-gray-600 mb-6">Actualités et annonces officielles de la mairie</p>
                 <NewsManagement />
+              </div>
+            )}
+
+            {activeTab === 'personalities' && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Gestion des Personnalités</h2>
+                <p className="text-gray-600 mb-6">Approbation des propositions de personnalités</p>
+                <PersonalitiesManagement />
+              </div>
+            )}
+
+            {activeTab === 'maire' && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Gestion de la Présentation du Maire</h2>
+                <p className="text-gray-600 mb-6">Modifiez les informations et la photo du maire affichées sur la page d'accueil</p>
+                <AdminMaireManager />
               </div>
             )}
           </div>

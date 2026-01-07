@@ -8,22 +8,18 @@ const { User } = db;
 // POST /api/auth/register - Inscription
 router.post('/register', async (req, res) => {
   try {
+
     const { 
       email, 
       password, 
       username, 
-      first_name, 
-      last_name, 
       bio, 
       full_name, 
-      city, 
-      address 
+      city 
     } = req.body;
 
-    // Adaptation pour accepter full_name du frontend et les nouveaux champs
-    const finalUsername = username || email.split('@')[0];
-    const finalFirstName = first_name || (full_name ? full_name.split(' ')[0] : null);
-    const finalLastName = last_name || (full_name ? full_name.split(' ').slice(1).join(' ') : null);
+    // Adaptation pour accepter full_name du frontend
+    const finalUsername = username || (email ? email.split('@')[0] : null);
 
     // Validation
     if (!email || !password) {
@@ -47,16 +43,14 @@ router.post('/register', async (req, res) => {
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Créer l'utilisateur
+
+    // Créer l'utilisateur (uniquement les champs existants)
     const user = await User.create({
       email,
       password_hash: passwordHash,
       username: finalUsername,
-      first_name: finalFirstName,
-      last_name: finalLastName,
-      full_name: full_name || `${finalFirstName} ${finalLastName}`.trim(),
+      full_name: full_name || finalUsername,
       city: city || null,
-      address: address || null,
       bio: bio || null,
       role: 'user',
       is_active: true
@@ -80,9 +74,13 @@ router.post('/register', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
+        username: user.username,
         full_name: user.full_name,
         city: user.city,
-        role: user.role
+        bio: user.bio,
+        role: user.role,
+        is_active: user.is_active,
+        created_at: user.created_at
       }
     });
   } catch (error) {
@@ -107,12 +105,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email et mot de passe requis' });
     }
 
-    // Récupérer l'utilisateur
+    // Récupérer l'utilisateur (uniquement les colonnes existantes)
     const user = await User.findOne({
       where: { 
         email: email,
         is_active: true 
-      }
+      },
+      attributes: ['id', 'email', 'password_hash', 'full_name', 'city', 'avatar_url', 'username', 'role', 'is_active', 'created_at', 'updated_at']
     });
 
     if (!user) {
@@ -147,11 +146,15 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
+        username: user.username,
         full_name: user.full_name,
-        avatar_url: user.avatar_url,
         city: user.city,
+        bio: user.bio,
+        avatar_url: user.avatar_url,
         role: user.role,
-        created_at: user.created_at
+        is_active: user.is_active,
+        created_at: user.created_at,
+        last_login_at: user.last_login_at
       }
     });
   } catch (error) {
@@ -187,7 +190,7 @@ router.get('/me', async (req, res) => {
         id: decoded.id || decoded.userId,
         is_active: true 
       },
-      attributes: ['id', 'email', 'full_name', 'avatar_url', 'city', 'role', 'created_at', 'last_login_at']
+      attributes: ['id', 'email', 'username', 'full_name', 'city', 'bio', 'avatar_url', 'role', 'is_active', 'created_at', 'last_login_at']
     });
 
     if (!user) {
@@ -197,11 +200,15 @@ router.get('/me', async (req, res) => {
     res.json({
       id: user.id,
       email: user.email,
+      username: user.username,
       full_name: user.full_name,
-      avatar_url: user.avatar_url,
       city: user.city,
+      bio: user.bio,
+      avatar_url: user.avatar_url,
       role: user.role,
+      is_active: user.is_active,
       created_at: user.created_at,
+      last_login_at: user.last_login_at,
       posts_count: 0, // Temporaire
       comments_count: 0 // Temporaire
     });
@@ -229,13 +236,13 @@ router.put('/profile', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { username, firstName, lastName, bio, avatar } = req.body;
+    const { username, full_name, bio, city, avatar_url } = req.body;
 
     // Vérifier si l'utilisateur existe
     const user = await User.findOne({
       where: { 
         id: decoded.userId,
-        isActive: true 
+        is_active: true 
       }
     });
 
@@ -248,19 +255,18 @@ router.put('/profile', async (req, res) => {
       const existingUser = await User.findOne({
         where: { username: username }
       });
-      
       if (existingUser) {
         return res.status(400).json({ error: 'Ce nom d\'utilisateur est déjà utilisé' });
       }
     }
 
-    // Mettre à jour les champs fournis
+    // Mettre à jour les champs fournis (uniquement ceux existants)
     const updateData = {};
     if (username !== undefined) updateData.username = username;
-    if (firstName !== undefined) updateData.firstName = firstName;
-    if (lastName !== undefined) updateData.lastName = lastName;
+    if (full_name !== undefined) updateData.full_name = full_name;
     if (bio !== undefined) updateData.bio = bio;
-    if (avatar !== undefined) updateData.avatar = avatar;
+    if (city !== undefined) updateData.city = city;
+    if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
 
     await user.update(updateData);
 
@@ -270,11 +276,14 @@ router.put('/profile', async (req, res) => {
         id: user.id,
         email: user.email,
         username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        avatar: user.avatar,
+        full_name: user.full_name,
         bio: user.bio,
-        isAdmin: user.isAdmin
+        city: user.city,
+        avatar_url: user.avatar_url,
+        role: user.role,
+        is_active: user.is_active,
+        created_at: user.created_at,
+        last_login_at: user.last_login_at
       }
     });
   } catch (error) {
@@ -312,9 +321,9 @@ router.post('/refresh', async (req, res) => {
     const user = await User.findOne({
       where: { 
         id: decoded.userId,
-        isActive: true 
+        is_active: true 
       },
-      attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'isAdmin']
+      attributes: ['id', 'email', 'username', 'full_name', 'bio', 'city', 'avatar_url', 'role', 'is_active', 'created_at', 'last_login_at']
     });
 
     if (!user) {
@@ -372,7 +381,7 @@ router.post('/change-password', async (req, res) => {
     const user = await User.findOne({
       where: { 
         id: decoded.userId,
-        isActive: true 
+        is_active: true 
       }
     });
 
@@ -381,7 +390,7 @@ router.post('/change-password', async (req, res) => {
     }
 
     // Vérifier le mot de passe actuel
-    const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+    const isValidPassword = await bcrypt.compare(currentPassword, user.password_hash);
 
     if (!isValidPassword) {
       return res.status(400).json({ error: 'Mot de passe actuel incorrect' });
@@ -392,7 +401,7 @@ router.post('/change-password', async (req, res) => {
     const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
 
     // Mettre à jour le mot de passe
-    await user.update({ password: newPasswordHash });
+    await user.update({ password_hash: newPasswordHash });
 
     res.json({ message: 'Mot de passe mis à jour avec succès' });
   } catch (error) {

@@ -1,5 +1,23 @@
 const express = require('express');
 const router = express.Router();
+const { requireAdmin } = require('../middleware/admin');
+// PATCH /api/posts/:id/approve - Approuver un post (admin uniquement)
+router.patch('/:id/approve', requireAdmin, async (req, res) => {
+  try {
+    const postId = parseInt(req.params.id);
+    const post = await db.Post.findByPk(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post non trouvé' });
+    }
+    post.status = 'published';
+    await post.save();
+    res.json({ message: 'Post approuvé avec succès', post });
+  } catch (error) {
+    console.error('Erreur lors de l\'approbation du post:', error);
+    res.status(500).json({ error: 'Erreur lors de l\'approbation du post' });
+  }
+});
+// (supprimé doublon express et router)
 const db = require('../models');
 const { authenticateToken } = require('../middleware/auth');
 const { validatePost } = require('../middleware/validation');
@@ -57,7 +75,7 @@ router.post('/', authenticateToken, validatePost, async (req, res) => {
     const { title, content, category, image_url } = req.body;
     const userId = req.user.id;
     
-    // Créer le post avec Sequelize
+    // Créer le post avec Sequelize (status par défaut : 'pending')
     const newPost = await db.Post.create({
       userId: userId,
       title: title.trim(),
@@ -66,7 +84,8 @@ router.post('/', authenticateToken, validatePost, async (req, res) => {
       imageUrl: image_url || null,
       likesCount: 0,
       commentsCount: 0,
-      isFeatured: false
+      isFeatured: false,
+      status: 'pending'
     });
 
     // Récupérer le post créé avec les informations de l'auteur

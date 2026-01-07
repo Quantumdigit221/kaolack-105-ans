@@ -20,6 +20,7 @@ interface Personality {
   image: string;
   contributions: string[];
   votes: number;
+  status: 'pending' | 'approved';
   isProposal?: boolean;
   proposedBy?: string;
 }
@@ -29,6 +30,9 @@ const Personalities = () => {
   const [proposals, setProposals] = useState<Personality[]>([]);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [likedPersonalities, setLikedPersonalities] = useState<Set<number | string>>(new Set());
+  const [selectedPersonality, setSelectedPersonality] = useState<Personality | null>(null);
+  const [readMoreOpen, setReadMoreOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -46,40 +50,20 @@ const Personalities = () => {
         console.error("Erreur lors du chargement des propositions", err);
       }
     }
+    
+    // Charger les personnalités aimées
+    const savedLikes = localStorage.getItem("personality_likes");
+    if (savedLikes) {
+      try {
+        setLikedPersonalities(new Set(JSON.parse(savedLikes)));
+      } catch (err) {
+        console.error("Erreur lors du chargement des likes", err);
+      }
+    }
   }, []);
 
-  const defaultPersonalities: Personality[] = [
-    {
-      id: 1,
-      name: "Moustapha Niasse",
-      category: "Politique",
-      role: "Ancien Premier Ministre et Président de l'Assemblée Nationale",
-      description: "Figure politique majeure du Sénégal, né à Keur Madiabel (Kaolack) en 1939. A occupé les plus hautes fonctions de l'État sénégalais.",
-      image: personnalite1,
-      contributions: [
-        "Premier Ministre (2000-2001, 2012-2013)",
-        "Président de l'Assemblée nationale (2012-2022)",
-        "Ambassadeur de l'Alliance des Civilisations de l'ONU",
-      ],
-      votes: 245,
-    },
-    {
-      id: 2,
-      name: "El Hadji Ibrahima Niasse",
-      category: "Religion",
-      role: "Guide religieux et fondateur du Faydha Tijaniyya",
-      description: "Figure religieuse majeure (1900-1975), fondateur du mouvement Faydha Tijaniyya qui compte des millions d'adeptes à travers le monde.",
-      image: personnalite2,
-      contributions: [
-        "Fondateur du Faydha Tijaniyya",
-        "Rayonnement international de l'Islam soufi",
-        "Influence spirituelle sur des millions de fidèles",
-      ],
-      votes: 312,
-    },
-  ];
-
-  const allPersonalities = [...defaultPersonalities, ...proposals];
+  // Seules les personnalités approuvées sont visibles publiquement
+  const allPersonalities = proposals.filter(p => p.status === 'approved');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -132,6 +116,7 @@ const Personalities = () => {
           .filter(line => line.trim())
           .map(line => line.trim()),
         votes: 1,
+        status: 'pending',
         isProposal: true,
         proposedBy: "Anonyme",
       };
@@ -165,6 +150,39 @@ const Personalities = () => {
     setProposals(updated);
     localStorage.setItem("personality_proposals", JSON.stringify(updated));
     toast.success("Proposition supprimée");
+  };
+
+  const handleLike = (person: Personality) => {
+    const isLiked = likedPersonalities.has(person.id);
+    const newLikedSet = new Set(likedPersonalities);
+    
+    if (isLiked) {
+      newLikedSet.delete(person.id);
+      // Décrémenter les votes
+      const updated = proposals.map(p => 
+        p.id === person.id ? { ...p, votes: Math.max(0, p.votes - 1) } : p
+      );
+      setProposals(updated);
+      localStorage.setItem("personality_proposals", JSON.stringify(updated));
+      toast.success("Vous n'aimez plus cette personnalité");
+    } else {
+      newLikedSet.add(person.id);
+      // Incrémenter les votes
+      const updated = proposals.map(p => 
+        p.id === person.id ? { ...p, votes: p.votes + 1 } : p
+      );
+      setProposals(updated);
+      localStorage.setItem("personality_proposals", JSON.stringify(updated));
+      toast.success("Vous aimez cette personnalité !");
+    }
+    
+    setLikedPersonalities(newLikedSet);
+    localStorage.setItem("personality_likes", JSON.stringify(Array.from(newLikedSet)));
+  };
+
+  const handleReadMore = (person: Personality) => {
+    setSelectedPersonality(person);
+    setReadMoreOpen(true);
   };
 
   return (
@@ -359,12 +377,20 @@ const Personalities = () => {
                 )}
 
                 <div className="flex items-center justify-between pt-4 border-t">
-                  <Button variant="outline" className="gap-2">
-                    <Heart className="h-4 w-4" />
-                    Voter ({person.votes})
+                  <Button 
+                    variant="outline" 
+                    className={`gap-2 ${likedPersonalities.has(person.id) ? 'text-red-500 border-red-500' : ''}`}
+                    onClick={() => handleLike(person)}
+                  >
+                    <Heart className={`h-4 w-4 ${likedPersonalities.has(person.id) ? 'fill-current' : ''}`} />
+                    Aimer ({person.votes})
                   </Button>
                   <div className="flex gap-2">
-                    <Button variant="ghost" className="gap-2">
+                    <Button 
+                      variant="ghost" 
+                      className="gap-2"
+                      onClick={() => handleReadMore(person)}
+                    >
                       <BookOpen className="h-4 w-4" />
                       Lire plus
                     </Button>
@@ -390,7 +416,7 @@ const Personalities = () => {
           <h3 className="text-xl font-bold mb-3">Participez à la sélection</h3>
           <p className="text-muted-foreground mb-4">
             Dans le cadre des festivités des 105 ans de Kaolack, nous constituons une galerie des personnalités 
-            qui ont marqué l'histoire de notre ville. Vous pouvez proposer des noms et voter pour les personnalités 
+            qui ont marqué l'histoire de notre ville. Vous pouvez proposer des noms et aimer les personnalités 
             que vous souhaitez voir honorées.
           </p>
           <p className="text-sm text-muted-foreground italic">
@@ -398,6 +424,65 @@ const Personalities = () => {
           </p>
         </div>
       </main>
+
+      {/* Dialog "Lire plus" */}
+      <Dialog open={readMoreOpen} onOpenChange={setReadMoreOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          {selectedPersonality && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedPersonality.name}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                <div className="relative h-64 overflow-hidden rounded-lg">
+                  <img
+                    src={selectedPersonality.image}
+                    alt={selectedPersonality.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full">
+                    <span className="text-sm font-semibold">{selectedPersonality.category}</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{selectedPersonality.role}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{selectedPersonality.description}</p>
+                </div>
+
+                {selectedPersonality.contributions.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                      <Award className="h-5 w-5 text-primary" />
+                      <span>Contributions principales</span>
+                    </div>
+                    <ul className="space-y-2 ml-6">
+                      {selectedPersonality.contributions.map((contribution, index) => (
+                        <li key={index} className="text-muted-foreground list-disc">
+                          {contribution}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <Button 
+                    variant="outline" 
+                    className={`gap-2 ${likedPersonalities.has(selectedPersonality.id) ? 'text-red-500 border-red-500' : ''}`}
+                    onClick={() => {
+                      handleLike(selectedPersonality);
+                    }}
+                  >
+                    <Heart className={`h-4 w-4 ${likedPersonalities.has(selectedPersonality.id) ? 'fill-current' : ''}`} />
+                    Aimer ({selectedPersonality.votes})
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

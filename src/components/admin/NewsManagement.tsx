@@ -157,7 +157,7 @@ export const NewsManagement = () => {
 
       // Upload via fetch
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/upload/image', {
+      const response = await fetch('http://localhost:3003/api/upload/image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -273,6 +273,17 @@ export const NewsManagement = () => {
         {news.map(newsItem => (
           <div key={newsItem.id} className="border rounded-lg p-4 bg-white shadow-sm">
             <div className="flex justify-between items-start mb-4">
+              {/* Affichage de la vignette image si présente */}
+              {newsItem.image_url && (
+                <div className="mr-4 min-w-[90px]">
+                  <img 
+                    src={newsItem.image_url}
+                    alt={newsItem.title}
+                    className="h-20 w-28 object-cover object-center rounded-md border"
+                    onError={e => (e.currentTarget.style.display = 'none')}
+                  />
+                </div>
+              )}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <h4 className="font-semibold text-lg">{newsItem.title}</h4>
@@ -283,7 +294,7 @@ export const NewsManagement = () => {
                 <p className="text-gray-600 mb-2 line-clamp-2">{newsItem.excerpt || newsItem.content.substring(0, 150) + '...'}</p>
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <span>Par: {newsItem.author.full_name}</span>
-                  <span>Vues: {newsItem.views_count}</span>
+                  <span>Vues: {newsItem.views_count === 0 ? 'Aucune vue' : newsItem.views_count + (newsItem.views_count === 1 ? ' vue' : ' vues')}</span>
                   <span>Créé: {new Date(newsItem.created_at).toLocaleDateString('fr-FR')}</span>
                   {newsItem.publication_date && (
                     <span>Publication: {new Date(newsItem.publication_date).toLocaleDateString('fr-FR')}</span>
