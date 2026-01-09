@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
-import EventBanner from "@/components/EventBanner";
 import Logo105 from "@/components/Logo105";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -251,10 +250,6 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <EventBanner
-        href="/kaolack-105"
-        dismissible={true}
-      />
       <main>
         {/* Hero Section with Slider */}
         <section className="relative overflow-hidden">
