@@ -18,9 +18,6 @@ router.post('/register', async (req, res) => {
       city 
     } = req.body;
 
-    // Adaptation pour accepter full_name du frontend
-    const finalUsername = username || (email ? email.split('@')[0] : null);
-
     // Validation
     if (!email || !password) {
       return res.status(400).json({ error: 'Email et mot de passe requis' });
@@ -30,31 +27,63 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
     }
 
-    // Vérifier si l'email existe déjà
-    const existingUser = await User.findOne({
-      where: { email: email }
-    });
+    // Vérifier si l'email existe déjà avec une requête SQL directe
+    const [existingUsers] = await db.sequelize.query(
+      'SELECT id FROM users WHERE email = ?',
+      {
+        replacements: [email.toLowerCase().trim()]
+      }
+    );
 
-    if (existingUser) {
+    if (existingUsers && existingUsers.length > 0) {
       return res.status(400).json({ error: 'Cet email est déjà utilisé' });
     }
+
+    // Générer un username unique si non fourni (mais on ne l'utilisera pas car username n'existe plus)
+    let finalUsername = username || email.split('@')[0];
 
     // Hasher le mot de passe
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
+    // Créer l'utilisateur avec une requête SQL directe pour éviter les problèmes de colonnes
+    // (first_name, last_name, username ont été supprimés dans les migrations)
+    const insertSql = `
+      INSERT INTO users (email, password_hash, full_name, city, bio, role, is_active, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    `;
 
-    // Créer l'utilisateur (uniquement les champs existants)
-    const user = await User.create({
-      email,
-      password_hash: passwordHash,
-      username: finalUsername,
-      full_name: full_name || finalUsername,
-      city: city || null,
-      bio: bio || null,
-      role: 'user',
-      is_active: true
+    const [results, metadata] = await db.sequelize.query(insertSql, {
+      replacements: [
+        email.toLowerCase().trim(),
+        passwordHash,
+        full_name || finalUsername,
+        city ? city.trim() : null,
+        bio || null,
+        'user',
+        true
+      ]
     });
+
+    const newUserId = metadata?.insertId || results?.insertId || results;
+
+    if (!newUserId) {
+      throw new Error('Impossible de récupérer l\'ID de l\'utilisateur créé');
+    }
+
+    // Récupérer l'utilisateur créé avec une requête SQL directe pour éviter les problèmes de colonnes
+    const [userRows] = await db.sequelize.query(
+      'SELECT id, email, full_name, city, bio, role, is_active, created_at FROM users WHERE id = ?',
+      {
+        replacements: [newUserId]
+      }
+    );
+
+    if (!userRows || userRows.length === 0) {
+      throw new Error('Utilisateur créé mais impossible de le récupérer');
+    }
+
+    const user = userRows[0];
 
     // Générer le token JWT
     const token = jwt.sign(
@@ -74,7 +103,7 @@ router.post('/register', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        username: user.username,
+        username: null, // username n'existe plus dans la base de données
         full_name: user.full_name,
         city: user.city,
         bio: user.bio,
@@ -85,13 +114,31 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur lors de l\'inscription:', error);
+    console.error('Détails de l\'erreur:', error.message);
+    console.error('Nom de l\'erreur:', error.name);
+    if (error.errors) {
+      console.error('Erreurs de validation:', error.errors);
+    }
+    console.error('Stack:', error.stack);
+    
     if (error.name === 'SequelizeValidationError') {
       return res.status(400).json({ 
         error: 'Données invalides', 
         details: error.errors.map(e => e.message) 
       });
     }
-    res.status(500).json({ error: 'Erreur lors de l\'inscription' });
+    
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ 
+        error: 'Cet email est déjà utilisé'
+      });
+    }
+    
+    res.status(500).json({ 
+      error: 'Erreur lors de l\'inscription',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      name: process.env.NODE_ENV === 'development' ? error.name : undefined
+    });
   }
 });
 

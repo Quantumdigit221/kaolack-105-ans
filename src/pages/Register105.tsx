@@ -8,6 +8,7 @@ const Register105 = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [city, setCity] = useState('Kaolack');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { register, isLoading, isAuthenticated } = useAuth();
@@ -31,7 +32,7 @@ const Register105 = () => {
         email,
         password,
         full_name: fullName,
-        city: 'Kaolack'
+        city: city || 'Kaolack'
       });
       navigate('/kaolack-105');
     } catch (err: any) {
@@ -66,6 +67,17 @@ const Register105 = () => {
               onChange={e => setFullName(e.target.value)}
               required
               autoFocus
+            />
+          </div>
+          <div>
+            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
+            <input
+              id="city"
+              type="text"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Kaolack"
+              value={city}
+              onChange={e => setCity(e.target.value)}
             />
           </div>
           

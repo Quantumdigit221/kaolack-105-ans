@@ -45,7 +45,20 @@ router.post('/search', async (req, res) => {
       try {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-        const prompt = `Réponds en français à la question suivante sur la mairie, l'état civil ou les services municipaux de Kaolack. Sois concis, factuel et pédagogique. Question: ${query}`;
+        
+        // Construire un prompt plus intelligent selon le type de question
+        let prompt = '';
+        const lowerQuery = query.toLowerCase();
+        
+        if (lowerQuery.includes('serigne mboup') || lowerQuery.includes('mboup')) {
+          prompt = `Réponds en français de manière détaillée et factuelle sur Serigne Mboup en relation avec Kaolack, Sénégal. Inclus son rôle, son histoire, ses contributions à la ville de Kaolack. Sois précis et informatif. Question: ${query}`;
+        } else if (lowerQuery.match(/\b(qui est|parlez-moi de|informations sur|biographie|histoire de)\s+[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß]/)) {
+          // Question sur une personnalité
+          prompt = `Réponds en français de manière détaillée et factuelle sur la personnalité mentionnée dans la question, en relation avec Kaolack, Sénégal. Inclus son rôle, son histoire, ses contributions. Sois précis et informatif. Question: ${query}`;
+        } else {
+          prompt = `Réponds en français à la question suivante sur la mairie, l'état civil, les services municipaux, l'histoire, la culture ou les personnalités de Kaolack, Sénégal. Sois concis, factuel et pédagogique. Si la question concerne une personnalité, donne des détails spécifiques sur cette personne. Question: ${query}`;
+        }
+        
         const result = await model.generateContent(prompt);
         const answer = result?.response?.text();
         if (answer && answer.trim().length > 0) {
@@ -66,7 +79,8 @@ router.post('/search', async (req, res) => {
     let result = null;
     let webSource = 'web';
     try {
-      const searchQuery = encodeURIComponent(query); // Ne pas préfixer par "Kaolack"
+      // Construire une requête intelligente pour DuckDuckGo
+      const searchQuery = encodeURIComponent(query);
       const duckDuckGoUrl = `https://api.duckduckgo.com/?q=${searchQuery}&format=json&no_html=1&skip_disambig=1`;
       const response = await fetch(duckDuckGoUrl);
       const data = await response.json();
@@ -79,16 +93,66 @@ router.post('/search', async (req, res) => {
       } else if (data.Definition) {
         result = data.Definition;
       }
+      
+      // Si DuckDuckGo n'a pas donné de résultat, essayer Wikipedia
       if (!result) {
-        const wikipediaUrl = `https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent('Kaolack')}`;
+        // Extraire le nom principal de la requête pour Wikipedia
+        let wikiSearchTerm = query;
+        
+        // Si la requête contient plusieurs mots et mentionne Kaolack, essayer d'extraire le sujet principal
+        const queryWords = query.split(/\s+/);
+        if (queryWords.length > 2 && query.toLowerCase().includes('kaolack')) {
+          // Retirer "Kaolack" et prendre les autres mots comme sujet
+          const withoutKaolack = queryWords.filter(w => w.toLowerCase() !== 'kaolack').join(' ');
+          if (withoutKaolack.trim().length > 0) {
+            wikiSearchTerm = withoutKaolack.trim();
+          }
+        }
+        
+        // Essayer d'abord avec le terme exact
         try {
+          const wikipediaUrl = `https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiSearchTerm)}`;
           const wikiResponse = await fetch(wikipediaUrl);
-          const wikiData = await wikiResponse.json();
-          if (wikiData.extract) {
-            result = wikiData.extract.substring(0, 500);
+          if (wikiResponse.ok) {
+            const wikiData = await wikiResponse.json();
+            if (wikiData.extract) {
+              result = wikiData.extract.substring(0, 800);
+              webSource = 'wikipedia';
+            }
           }
         } catch (wikiError) {
-          console.error('Erreur Wikipedia:', wikiError);
+          // Si la recherche exacte échoue, essayer avec "Kaolack" en combinaison
+          if (!result && query.toLowerCase().includes('kaolack')) {
+            try {
+              const combinedUrl = `https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
+              const combinedResponse = await fetch(combinedUrl);
+              if (combinedResponse.ok) {
+                const combinedData = await combinedResponse.json();
+                if (combinedData.extract) {
+                  result = combinedData.extract.substring(0, 800);
+                  webSource = 'wikipedia';
+                }
+              }
+            } catch (combinedError) {
+              console.error('Erreur Wikipedia combiné:', combinedError);
+            }
+          }
+          // Dernier recours : page générale de Kaolack
+          if (!result) {
+            try {
+              const kaolackUrl = `https://fr.wikipedia.org/api/rest_v1/page/summary/Kaolack`;
+              const kaolackResponse = await fetch(kaolackUrl);
+              if (kaolackResponse.ok) {
+                const kaolackData = await kaolackResponse.json();
+                if (kaolackData.extract) {
+                  result = kaolackData.extract.substring(0, 500);
+                  webSource = 'wikipedia';
+                }
+              }
+            } catch (kaolackError) {
+              console.error('Erreur Wikipedia Kaolack:', kaolackError);
+            }
+          }
         }
       }
     } catch (webError) {
@@ -118,4 +182,5 @@ router.post('/search', async (req, res) => {
 });
 
 module.exports = router;
+
 

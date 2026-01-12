@@ -82,6 +82,35 @@ const knowledgeBase: { keywords: string[]; response: string }[] = [
   {
     keywords: ['transport', 'communication', 'route', 'voie'],
     response: "Kaolack bénéficie d'une position stratégique avec de bonnes connexions routières. La ville est un carrefour important pour les transports et les communications dans la région."
+  },
+  // Personnalités importantes de Kaolack
+  {
+    keywords: ['serigne mboup', 'mboup', 'serigne'],
+    response: "Serigne Mboup est une personnalité importante liée à Kaolack. Il fait partie des figures marquantes de l'histoire religieuse et culturelle de la ville. Pour obtenir des informations plus détaillées, je peux rechercher des informations spécifiques sur lui."
+  },
+  {
+    keywords: ['cheikh ibrahima niass', 'ibrahima niass', 'el hadji ibrahima niass', 'cheikh ibra'],
+    response: "Cheikh Ibrahima Niass (1900-1975) était un éminent érudit musulman et guide spirituel sénégalais, fondateur de la confrérie Tijaniyya Ibrahimiyya. Il a eu une influence considérable sur la vie religieuse et culturelle de Kaolack et du Sénégal."
+  },
+  {
+    keywords: ['moustapha niass', 'niass'],
+    response: "Moustapha Niass est une personnalité politique sénégalaise originaire de Kaolack. Il a occupé plusieurs postes importants dans la vie politique du Sénégal."
+  },
+  {
+    keywords: ['samba ka', 'samba'],
+    response: "Samba Ka est un artiste et personnalité culturelle liée à Kaolack. Il contribue à la promotion de la culture et des arts de la région."
+  },
+  {
+    keywords: ['fatou kiné camara', 'camara'],
+    response: "Fatou Kiné Camara est une personnalité liée à Kaolack. Pour obtenir des informations plus détaillées, je peux rechercher des informations spécifiques sur elle."
+  },
+  {
+    keywords: ['alioune badara mbengue', 'mbengue'],
+    response: "Alioune Badara Mbengue est une personnalité liée à Kaolack. Pour obtenir des informations plus détaillées, je peux rechercher des informations spécifiques sur lui."
+  },
+  {
+    keywords: ['mame abdoulaye niass', 'mame bou kounta', 'kounta'],
+    response: "Ces personnalités sont liées à l'histoire religieuse et culturelle de Kaolack. Pour obtenir des informations plus détaillées, je peux rechercher des informations spécifiques sur elles."
   }
 ];
 
@@ -95,15 +124,69 @@ const defaultResponses = [
 // Ajout d'un type pour la réponse enrichie
 type BotApiResponse = { answer: string; source?: string; success?: boolean };
 
+// Fonction pour détecter si la question concerne une personnalité ou un nom propre
+const extractPersonName = (message: string): string | null => {
+  // Liste de mots-clés qui indiquent qu'on parle d'une personne
+  const personIndicators = ['qui est', 'parlez-moi de', 'connaissez-vous', 'informations sur', 'biographie', 'histoire de'];
+  const lowerMessage = message.toLowerCase();
+  
+  // Vérifier si le message contient un indicateur de personne
+  for (const indicator of personIndicators) {
+    if (lowerMessage.includes(indicator)) {
+      // Extraire le nom après l'indicateur
+      const index = lowerMessage.indexOf(indicator);
+      const afterIndicator = message.substring(index + indicator.length).trim();
+      // Prendre les 2-3 premiers mots comme nom potentiel
+      const words = afterIndicator.split(/\s+/).slice(0, 3);
+      if (words.length > 0) {
+        return words.join(' ');
+      }
+    }
+  }
+  
+  // Si le message commence directement par un nom (majuscule) ou contient des noms connus
+  const knownNames = ['serigne mboup', 'cheikh ibrahima niass', 'moustapha niass', 'samba ka', 'fatou kiné camara'];
+  for (const name of knownNames) {
+    if (lowerMessage.includes(name.toLowerCase())) {
+      return name;
+    }
+  }
+  
+  // Si le message contient des mots qui ressemblent à des noms propres (commencent par majuscule)
+  const words = message.split(/\s+/);
+  const potentialNames = words.filter(word => word.length > 2 && /^[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß]/.test(word));
+  if (potentialNames.length > 0 && potentialNames.length <= 3) {
+    return potentialNames.join(' ');
+  }
+  
+  return null;
+};
+
 const getBotResponse = async (userMessage: string): Promise<BotApiResponse> => {
   const lowerMessage = userMessage.toLowerCase();
+  
   // Recherche dans la base de connaissances locale
   for (const entry of knowledgeBase) {
     const hasKeyword = entry.keywords.some(keyword => lowerMessage.includes(keyword.toLowerCase()));
     if (hasKeyword) {
+      // Si c'est une réponse générique sur une personnalité, on peut aussi faire une recherche web
+      if (entry.response.includes('Pour obtenir des informations plus détaillées')) {
+        const personName = extractPersonName(userMessage);
+        if (personName) {
+          try {
+            const searchResult = await apiService.searchKaolackInfo(`${personName} Kaolack`);
+            if (searchResult.success && searchResult.answer) {
+              return { answer: searchResult.answer, source: searchResult.source || 'web' };
+            }
+          } catch (error) {
+            console.error('Erreur lors de la recherche web:', error);
+          }
+        }
+      }
       return { answer: entry.response, source: 'local' };
     }
   }
+  
   // Réponses pour les salutations
   if (lowerMessage.includes('bonjour') || lowerMessage.includes('salut') || lowerMessage.includes('bonsoir')) {
     return { answer: "Bonjour ! Je suis ravi de vous aider à découvrir l'histoire de Kaolack. Je peux rechercher des informations sur Internet pour répondre à vos questions. Que souhaitez-vous savoir sur notre ville ?", source: 'local' };
@@ -114,15 +197,34 @@ const getBotResponse = async (userMessage: string): Promise<BotApiResponse> => {
   if (lowerMessage.includes('au revoir') || lowerMessage.includes('bye') || lowerMessage.includes('à bientôt')) {
     return { answer: "Au revoir ! J'espère avoir pu vous renseigner sur l'histoire de Kaolack. Revenez quand vous voulez !", source: 'local' };
   }
-  // Si aucune correspondance dans la base locale, rechercher sur Internet
+  
+  // Détecter si la question concerne une personnalité
+  const personName = extractPersonName(userMessage);
+  let searchQuery = userMessage;
+  
+  // Si on a détecté un nom de personne, construire une requête plus intelligente
+  if (personName) {
+    // Si le message ne contient pas déjà "Kaolack", l'ajouter pour contextualiser
+    if (!lowerMessage.includes('kaolack')) {
+      searchQuery = `${personName} Kaolack`;
+    } else {
+      searchQuery = userMessage;
+    }
+  } else if (!lowerMessage.includes('kaolack')) {
+    // Si la question ne mentionne pas Kaolack, l'ajouter pour contextualiser
+    searchQuery = `${userMessage} Kaolack`;
+  }
+  
+  // Rechercher sur Internet avec la requête améliorée
   try {
-    const searchResult = await apiService.searchKaolackInfo(userMessage);
+    const searchResult = await apiService.searchKaolackInfo(searchQuery);
     if (searchResult.success && searchResult.answer) {
-      return { answer: searchResult.answer, source: searchResult.source };
+      return { answer: searchResult.answer, source: searchResult.source || 'web' };
     }
   } catch (error) {
     console.error('Erreur lors de la recherche web:', error);
   }
+  
   // Réponse par défaut si la recherche web échoue
   return {
     answer: "Je n'ai pas trouvé d'informations spécifiques sur ce sujet dans ma base de connaissances. Pouvez-vous reformuler votre question ou être plus précis ? Par exemple : 'Quand Kaolack a-t-elle été fondée ?' ou 'Parlez-moi de l'économie de Kaolack'.",
