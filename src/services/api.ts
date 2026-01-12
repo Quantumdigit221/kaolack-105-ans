@@ -1,5 +1,21 @@
 // Service API pour remplacer Supabase
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003/api';
+// Détection automatique de l'environnement
+const getApiBaseUrl = () => {
+  // Si VITE_API_URL est définie, l'utiliser
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Si on est en production (URL contient le domaine de production)
+  if (typeof window !== 'undefined' && window.location.hostname === 'portail.kaolackcommune.sn') {
+    return 'https://portail.kaolackcommune.sn/api';
+  }
+  
+  // Sinon, utiliser localhost pour le développement (port 3001 par défaut du backend)
+  return 'http://localhost:3001/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiService {
     /**
