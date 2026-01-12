@@ -81,11 +81,7 @@ router.post('/', authenticateToken, validatePost, async (req, res) => {
       title: title.trim(),
       content: content.trim(),
       category,
-      imageUrl: image_url || null,
-      likesCount: 0,
-      commentsCount: 0,
-      isFeatured: false,
-      status: 'pending'
+      imageUrl: image_url || null
     });
 
     // Récupérer le post créé avec les informations de l'auteur

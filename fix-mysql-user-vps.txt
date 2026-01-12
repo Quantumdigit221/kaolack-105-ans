@@ -1,0 +1,31 @@
+# ============================================
+# Commandes pour corriger l'utilisateur MySQL dans .env
+# ============================================
+
+# 1. Aller dans le dossier backend
+cd ~/kaolack-105-ans/backend
+
+# 2. Éditer le fichier .env
+nano .env
+
+# 3. Dans nano, modifier ces lignes :
+#    DB_USER=root          → DB_USER=kaolack_user
+#    DB_PASSWORD=          → DB_PASSWORD=VOTRE_MOT_DE_PASSE_kaolack_user
+#    DB_NAME=kaolack_stories_connect  → Vérifiez que c'est le bon nom de base
+
+# 4. Sauvegarder avec Ctrl+O, Entrée, puis quitter avec Ctrl+X
+
+# OU utiliser sed pour modifier automatiquement :
+sed -i 's/^DB_USER=root/DB_USER=kaolack_user/' .env
+
+# 5. Vérifier la modification
+cat .env | grep -E "DB_USER|DB_NAME|DB_PASSWORD"
+
+# 6. Redémarrer le backend avec PM2
+pm2 restart kaolack-backend
+
+# 7. Vérifier les logs pour confirmer la connexion
+pm2 logs kaolack-backend --lines 30
+
+# 8. Tester l'endpoint
+curl -I http://127.0.0.1:3001/api/health

@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/api";
+import { apiService } from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, Eye } from "lucide-react";
+import { Trash2, Eye, CheckCircle, XCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -12,17 +12,19 @@ import { fr } from "date-fns/locale";
 const AdminPosts = () => {
   const queryClient = useQueryClient();
 
-  const { data: posts, isLoading } = useQuery({
+  const { data: postsData, isLoading } = useQuery({
     queryKey: ["admin-posts"],
     queryFn: async () => {
-      const response = await api.get('/admin/posts');
-      return response.data.posts || response.data;
+      const response = await apiService.getAdminPosts();
+      return response;
     }
   });
 
+  const posts = Array.isArray(postsData) ? postsData : postsData?.posts || [];
+
   const deletePost = useMutation({
     mutationFn: async (postId: number) => {
-      await api.delete(`/admin/posts/${postId}`);
+      await apiService.deleteAdminPost(postId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
@@ -32,6 +34,29 @@ const AdminPosts = () => {
     onError: (error) => {
       console.error("Error deleting post:", error);
       toast.error("Erreur lors de la suppression");
+    }
+  });
+
+  const updatePostStatus = useMutation({
+    mutationFn: async ({ postId, status }: { postId: number; status: 'published' | 'blocked' | 'archived' | 'pending' }) => {
+      await apiService.updatePostStatus(postId, status);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+      
+      const statusMessages = {
+        published: "approuvée",
+        blocked: "bloquée", 
+        pending: "mise en attente",
+        archived: "archivée"
+      };
+      
+      toast.success(`Publication ${statusMessages[variables.status as keyof typeof statusMessages]} avec succès`);
+    },
+    onError: (error) => {
+      console.error("Error updating post status:", error);
+      toast.error("Erreur lors de la mise à jour du statut");
     }
   });
 
@@ -54,6 +79,17 @@ const AdminPosts = () => {
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold">{post.title}</h3>
                       <Badge variant="secondary">{post.category}</Badge>
+                      <Badge 
+                        variant={
+                          post.status === 'published' ? 'default' : 
+                          post.status === 'pending' ? 'secondary' :
+                          post.status === 'blocked' ? 'destructive' : 'outline'
+                        }
+                      >
+                        {post.status === 'published' ? 'Approuvé' : 
+                         post.status === 'pending' ? 'En attente' :
+                         post.status === 'blocked' ? 'Bloqué' : 'Archivé'}
+                      </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {post.content}
@@ -70,30 +106,79 @@ const AdminPosts = () => {
                     </div>
                   </div>
                   
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Êtes-vous sûr de vouloir supprimer cette publication ? Cette action est irréversible.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => deletePost.mutate(post.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  <div className="flex items-center gap-2">
+                    {post.status === 'pending' && (
+                      <>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => updatePostStatus.mutate({ postId: post.id, status: 'published' })}
+                          disabled={updatePostStatus.isPending}
                         >
-                          Supprimer
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          Approuver
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => updatePostStatus.mutate({ postId: post.id, status: 'blocked' })}
+                          disabled={updatePostStatus.isPending}
+                        >
+                          <XCircle className="h-4 w-4 mr-1" />
+                          Rejeter
+                        </Button>
+                      </>
+                    )}
+                    
+                    {post.status === 'published' && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => updatePostStatus.mutate({ postId: post.id, status: 'pending' })}
+                        disabled={updatePostStatus.isPending}
+                      >
+                        <Clock className="h-4 w-4 mr-1" />
+                        Mettre en attente
+                      </Button>
+                    )}
+                    
+                    {post.status === 'blocked' && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => updatePostStatus.mutate({ postId: post.id, status: 'published' })}
+                        disabled={updatePostStatus.isPending}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Approuver
+                      </Button>
+                    )}
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Êtes-vous sûr de vouloir supprimer cette publication ? Cette action est irréversible.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => deletePost.mutate(post.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Supprimer
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
               </CardContent>
             </Card>

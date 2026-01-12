@@ -559,7 +559,7 @@ class ApiService {
     });
   }
 
-  async updatePostStatus(postId: number, status: 'published' | 'blocked' | 'archived') {
+  async updatePostStatus(postId: number, status: 'published' | 'blocked' | 'archived' | 'pending') {
     return this.request<{
       message: string;
       post: {

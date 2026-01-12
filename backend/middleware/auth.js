@@ -27,6 +27,7 @@ const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ error: 'Utilisateur non trouvé ou inactif' });
     }
 
+    // Utiliser les données fraîches de la base de données
     req.user = user.toJSON();
     next();
   } catch (error) {

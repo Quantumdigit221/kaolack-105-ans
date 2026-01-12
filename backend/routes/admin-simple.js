@@ -10,7 +10,12 @@ const requireAdmin = (req, res, next) => {
     return res.status(401).json({ error: 'Authentification requise' });
   }
   
-  if (req.user.role !== 'admin') {
+  // Vérifier le rôle dans la base de données OU dans le token (pour compatibilité)
+  const userRole = req.user.role;
+  const tokenRole = req.user.role; // Le rôle vient déjà de la base grâce au middleware
+  
+  if (userRole !== 'admin' && tokenRole !== 'admin') {
+    console.log('Accès refusé. Rôle utilisateur:', userRole, 'Rôle token:', tokenRole);
     return res.status(403).json({ error: 'Accès refusé. Droits administrateur requis.' });
   }
   
@@ -222,8 +227,8 @@ router.put('/posts/:id/status', async (req, res) => {
     const { status } = req.body;
 
     // Valider le statut
-    if (!['published', 'blocked', 'archived'].includes(status)) {
-      return res.status(400).json({ error: 'Statut invalide. Valeurs autorisées: published, blocked, archived' });
+    if (!['pending', 'published', 'blocked', 'archived'].includes(status)) {
+      return res.status(400).json({ error: 'Statut invalide. Valeurs autorisées: pending, published, blocked, archived' });
     }
 
     const post = await db.Post.findByPk(postId, {
@@ -242,7 +247,7 @@ router.put('/posts/:id/status', async (req, res) => {
     await post.update({ status });
 
     res.json({
-      message: `Post ${status === 'blocked' ? 'bloqué' : status === 'published' ? 'publié' : 'archivé'} avec succès`,
+      message: `Post ${status === 'blocked' ? 'bloqué' : status === 'published' ? 'approuvé' : status === 'pending' ? 'mis en attente' : 'archivé'} avec succès`,
       post: {
         id: post.id,
         title: post.title,
@@ -261,13 +266,44 @@ router.delete('/posts/:id', async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
 
-    const post = await db.Post.findByPk(postId);
+    const post = await db.Post.findByPk(postId, {
+      include: [{
+        model: db.User,
+        as: 'author',
+        attributes: ['id', 'full_name', 'email']
+      }]
+    });
+    
     if (!post) {
       return res.status(404).json({ error: 'Post non trouvé' });
     }
 
+    // Supprimer les données associées en premier (likes et commentaires)
+    if (db.Like) {
+      await db.Like.destroy({
+        where: { post_id: postId }
+      });
+    }
+    
+    if (db.Comment) {
+      await db.Comment.destroy({
+        where: { post_id: postId }
+      });
+    }
+
+    // Supprimer le post
     await post.destroy();
-    res.json({ message: 'Post supprimé avec succès' });
+
+    console.log(`🗑️ [ADMIN] Post ID ${postId} (${post.title}) supprimé par admin ID ${req.user.id}`);
+    
+    res.json({ 
+      message: 'Post supprimé avec succès',
+      deletedPost: {
+        id: post.id,
+        title: post.title,
+        author: post.author
+      }
+    });
   } catch (error) {
     console.error('Erreur suppression post:', error);
     res.status(500).json({ error: 'Erreur lors de la suppression du post' });

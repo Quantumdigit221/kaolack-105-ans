@@ -15,7 +15,8 @@ router.post('/register', async (req, res) => {
       username, 
       bio, 
       full_name, 
-      city 
+      city,
+      role = 'user'
     } = req.body;
 
     // Validation
@@ -46,6 +47,10 @@ router.post('/register', async (req, res) => {
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
+    // Valider le rôle
+    const validRoles = ['user', 'moderator', 'admin'];
+    const finalRole = validRoles.includes(role) ? role : 'user';
+
     // Créer l'utilisateur avec une requête SQL directe pour éviter les problèmes de colonnes
     // (first_name, last_name, username ont été supprimés dans les migrations)
     const insertSql = `
@@ -60,7 +65,7 @@ router.post('/register', async (req, res) => {
         full_name || finalUsername,
         city ? city.trim() : null,
         bio || null,
-        'user',
+        finalRole,
         true
       ]
     });
