@@ -190,29 +190,24 @@ async function checkDatabaseStructure() {
     }
 
     // Vérifier si la table slides existe
-    try {
-      const [tables] = await db.sequelize.query("SHOW TABLES LIKE 'slides'");
-      if (tables.length === 0) {
-        console.log('ℹ️ La table slides n\'existe pas, création...');
-        await db.sequelize.query(`
-          CREATE TABLE slides (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            subtitle VARCHAR(255) NULL,
-            bg VARCHAR(255) NULL,
-            logo BOOLEAN NOT NULL DEFAULT TRUE,
-            image LONGTEXT NULL,
-            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        `);
-        console.log('✅ Table slides créée avec succès');
-      } else {
-        console.log('✅ Table slides existe déjà');
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors de la vérification/création de la table slides:', error.message);
-      // Ne pas bloquer le démarrage si c'est juste une erreur de vérification
+    const [tables] = await db.sequelize.query("SHOW TABLES LIKE 'slides'");
+    if (tables.length === 0) {
+      console.log('ℹ️ La table slides n\'existe pas, création...');
+      await db.sequelize.query(`
+        CREATE TABLE slides (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          title VARCHAR(255) NOT NULL,
+          subtitle VARCHAR(255) NULL,
+          bg VARCHAR(255) NULL,
+          logo BOOLEAN NOT NULL DEFAULT TRUE,
+          image LONGTEXT NULL,
+          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      console.log('✅ Table slides créée avec succès');
+    } else {
+      console.log('✅ Table slides existe déjà');
     }
 
     // Ajoutez d'autres vérifications de colonnes si nécessaire
@@ -226,8 +221,10 @@ async function checkDatabaseStructure() {
     */
   } catch (error) {
     console.error('Erreur lors de la vérification de la structure de la base de données:', error);
-    throw error;
+    // Ne pas bloquer le démarrage pour les erreurs de vérification
+    return false;
   }
+  return true;
 }
 
 // Démarrage du serveur

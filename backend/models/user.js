@@ -32,19 +32,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(500),
       allowNull: true
     },
-    username: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      unique: true
-    },
-    first_name: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
-    last_name: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
     address: {
       type: DataTypes.TEXT,
       allowNull: true
