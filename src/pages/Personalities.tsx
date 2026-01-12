@@ -62,8 +62,13 @@ const Personalities = () => {
     }
   }, []);
 
-  // Seules les personnalités approuvées sont visibles publiquement
-  const allPersonalities = proposals.filter(p => p.status === 'approved');
+  // Afficher toutes les personnalités : approuvées + propositions de l'utilisateur
+  const allPersonalities = [
+    // Personnalités approuvées (non-propositions)
+    ...proposals.filter(p => p.status === 'approved' && !p.isProposal),
+    // Propositions en attente (uniquement celles créées)
+    ...proposals.filter(p => p.isProposal)
+  ];
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
