@@ -110,6 +110,10 @@ update_frontend() {
     log_info "Mise à jour du frontend..."
     
     cd $DEPLOY_DIR
+    
+    # Mettre à jour le fichier .env pour le port 3001
+    echo "VITE_API_URL=http://localhost:3001/api" > .env
+    
     npm ci
     npm run build
     log_success "Frontend buildé avec succès"
