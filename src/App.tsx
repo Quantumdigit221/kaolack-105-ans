@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthEventHandler } from "@/components/auth/AuthEventHandler";
-import { useEffect } from "react";
 import MainHome from "./pages/MainHome";
 import Kaolack105Home from "./pages/Kaolack105Home";
 import Feed from "./pages/Feed";
@@ -27,21 +26,6 @@ import MobileMenuDemo from "./components/MobileMenuDemo";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Enregistrement du service worker pour PWA
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then((registration) => {
-            console.log('✅ Service Worker enregistré pour PWA "105 ans de Kaolack":', registration);
-          })
-          .catch((registrationError) => {
-            console.log('❌ Échec d\'enregistrement du Service Worker:', registrationError);
-          });
-      });
-    }
-  }, []);
-
   return (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
