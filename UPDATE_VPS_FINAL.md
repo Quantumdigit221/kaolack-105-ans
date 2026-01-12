@@ -19,6 +19,20 @@ chmod +x update-vps-final.sh
 sudo ./update-vps-final.sh
 ```
 
+### 3️⃣ Vérification du déploiement
+```bash
+# Vérifier le statut des services
+pm2 status
+pm2 logs kaolack-backend
+
+# Vérifier le site
+curl http://portail.kaolackcommune.sn
+curl http://localhost:3001/api/health
+
+# Vérifier les fichiers
+ls -la /var/www/kaolack
+```
+
 ---
 
 ## 🔄 Ce que fait le script
@@ -138,6 +152,16 @@ cd /var/www/kaolack
 rm -rf *
 tar -xzf /var/backups/kaolack/$LATEST_FILES -C .
 pm2 restart kaolack-backend
+```
+
+### Vérification manuelle du chemin :
+```bash
+# Vérifier que le projet est bien dans /var/www/kaolack
+ls -la /var/www/kaolack
+pwd  # devrait afficher /var/www/kaolack
+
+# Si le projet est ailleurs, déplacer-le :
+# mv /ancien/chemin/kaolack-105-ans/* /var/www/kaolack/
 ```
 
 ---
