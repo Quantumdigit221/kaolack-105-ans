@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../models');
+const db = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 
 // Middleware pour vérifier le rôle admin
