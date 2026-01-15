@@ -4,11 +4,11 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 // Configuration de la base de données avec Sequelize
 const sequelize = new Sequelize(
-  process.env.DB_NAME || 'mairiekl_1762258379671',
-  process.env.DB_USER || 'root',
+  process.env.DB_NAME || 'kaolack_stories',
+  process.env.DB_USER || 'kaolack_user',
   process.env.DB_PASSWORD || '',
   {
-    host: process.env.DB_HOST || 'localhost',
+    host: process.env.DB_HOST || '127.0.0.1',
     port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
