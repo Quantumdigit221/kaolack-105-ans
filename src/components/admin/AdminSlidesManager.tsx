@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiService } from '@/services/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiService } from "@/services/api";
+import { normalizeImageUrl, handleImageError } from "@/utils/imageUtils";
 import Logo105 from "@/components/Logo105";
 import { Button } from "@/components/ui/button";
 
@@ -130,10 +131,11 @@ export const AdminSlidesManager = () => {
               {/* Image d'arrière-plan en full cover */}
               {slide.image && (
                 <img
-                  src={slide.image}
+                  src={normalizeImageUrl(slide.image) || ''}
                   alt="bannière"
                   className="absolute inset-0 w-full h-full object-cover z-0"
                   style={{ borderRadius: 'inherit' }}
+                  onError={(e) => handleImageError(e, slide.image)}
                 />
               )}
               {/* Contenu du slide */}

@@ -18,6 +18,7 @@ const adminRoutes = require('./routes/admin-simple');
 const slidesRoutes = require('./routes/slides');
 const newsRoutes = require('./routes/news');
 const botRoutes = require('./routes/bot');
+const catalogueRoutes = require('./routes/catalogue');
 
 const app = express();
 app.set('trust proxy', 1); // Important pour les proxies inverses
@@ -117,6 +118,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/slides', slidesRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/catalogue', catalogueRoutes);
 
 // Routes de test (temporaire)
 app.use('/api/test', require('./routes/test'));

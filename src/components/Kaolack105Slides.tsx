@@ -2,6 +2,7 @@ import React from "react";
 import Logo105 from "@/components/Logo105";
 import { useQuery } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
+import { normalizeImageUrl, handleImageError } from '@/utils/imageUtils';
 
 
 export default function Kaolack105Slides() {
@@ -35,10 +36,11 @@ export default function Kaolack105Slides() {
           {/* Affichage image d'arrière-plan si présente */}
           {slide.image && (
             <img
-              src={slide.image}
+              src={normalizeImageUrl(slide.image) || ''}
               alt="bannière"
               className="absolute inset-0 w-full h-full object-cover z-0"
               style={{ borderRadius: 'inherit' }}
+              onError={(e) => handleImageError(e, slide.image)}
             />
           )}
           <div className="relative z-10 w-full flex flex-col items-center">

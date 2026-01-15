@@ -10,7 +10,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2, Upload, X, FileText } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
 
 import Navigation from "@/components/Navigation";
 import EventBanner from "@/components/EventBanner";
@@ -95,9 +94,13 @@ const DemandeTerrain = () => {
     const fetchLocalites = async () => {
       try {
         setLoadingLocalites(true);
-        const response = await axios.get("https://backendgl.kaolackcommune.sn/api/localite/liste-web");
-        console.log("response", response.data); 
-        setLocalites(response.data);
+        const response = await fetch("https://backendgl.kaolackcommune.sn/api/localite/liste-web");
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("response", data);
+        setLocalites(data);
       } catch (error) {
         console.error("Erreur lors du chargement des localités:", error);
         // Données de démo en cas d'erreur
@@ -285,13 +288,29 @@ const DemandeTerrain = () => {
 
       // Envoyer la demande via axios
       // Note: Ne pas définir Content-Type manuellement pour FormData, axios le fait automatiquement
-      const response = await axios.post(
+      const response = await fetch(
         "https://backendgl.kaolackcommune.sn/api/demande/nouvelle-demande",
-        formDataToSend
+        {
+          method: "POST",
+          body: formDataToSend
+        }
       );
 
-      console.log("✅ Réponse du backend:", response.data);
-      toast.success(response.data.message || "Votre demande a été créée avec succès !");
+      let responseData: any = null;
+      try {
+        responseData = await response.json();
+      } catch (_e) {
+        responseData = null;
+      }
+
+      if (!response.ok) {
+        const serverMessage =
+          responseData?.message || responseData?.error || `HTTP ${response.status}`;
+        throw new Error(serverMessage);
+      }
+
+      console.log("✅ Réponse du backend:", responseData);
+      toast.success(responseData?.message || "Votre demande a été créée avec succès !");
       
       // Réinitialiser le formulaire
       setFormData({

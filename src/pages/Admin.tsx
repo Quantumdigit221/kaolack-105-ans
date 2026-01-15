@@ -5,14 +5,15 @@ import { PostsManagement } from '@/components/admin/PostsManagement';
 import { UsersManagement } from '@/components/admin/UsersManagement';
 import { NewsManagement } from '@/components/admin/NewsManagement';
 import { Button } from '@/components/ui/button';
-import { FileText, Users, Newspaper, UserCheck, Image as ImageIcon, UserCircle } from 'lucide-react';
+import { FileText, Users, Newspaper, UserCheck, Image as ImageIcon, UserCircle, BookOpen } from 'lucide-react';
 import { AdminSlidesManager } from '@/components/admin/AdminSlidesManager';
 import PersonalitiesManagement from '@/components/admin/PersonalitiesManagement';
 import { AdminMaireManager } from '@/components/admin/AdminMaireManager';
+import AdminCatalogueManager from '@/components/admin/AdminCatalogueManager';
 
 const Admin = () => {
   const { user, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'posts' | 'users' | 'news' | 'personalities' | 'slides' | 'maire'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'users' | 'news' | 'personalities' | 'slides' | 'maire' | 'catalogue'>('posts');
 
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/" replace />;
@@ -71,12 +72,12 @@ const Admin = () => {
                 Slides Accueil
               </Button>
               <Button
-                variant={activeTab === 'maire' ? 'default' : 'ghost'}
+                variant={activeTab === 'catalogue' ? 'default' : 'ghost'}
                 className="py-4 px-1 border-b-2 border-transparent data-[state=active]:border-blue-500"
-                onClick={() => setActiveTab('maire')}
+                onClick={() => setActiveTab('catalogue')}
               >
-                <UserCircle className="h-4 w-4 mr-2" />
-                Maire
+                <BookOpen className="h-4 w-4 mr-2" />
+                Catalogue
               </Button>
             </nav>
           </div>
@@ -121,11 +122,11 @@ const Admin = () => {
               </div>
             )}
 
-            {activeTab === 'maire' && (
+            {activeTab === 'catalogue' && (
               <div>
-                <h2 className="text-xl font-semibold mb-4">Gestion de la Présentation du Maire</h2>
-                <p className="text-gray-600 mb-6">Modifiez les informations et la photo du maire affichées sur la page d'accueil</p>
-                <AdminMaireManager />
+                <h2 className="text-xl font-semibold mb-4">Gestion du Catalogue Numérique</h2>
+                <p className="text-gray-600 mb-6">Bibliothèque numérique des personnalités de Kaolack</p>
+                <AdminCatalogueManager />
               </div>
             )}
           </div>

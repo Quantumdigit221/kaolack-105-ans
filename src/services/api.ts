@@ -773,26 +773,275 @@ class ApiService {
     }>('/users/profile');
   }
 
-  async updateProfile(profileData: {
-    full_name: string;
-    city?: string;
-    avatar_url?: string;
+  // ===== CATALOGUE NUMÉRIQUE =====
+
+  async getCatalogues(params?: { 
+    page?: number; 
+    limit?: number; 
+    search?: string;
   }) {
-    return this.request<{ message: string }>('/users/profile', {
-      method: 'PUT',
-      body: JSON.stringify(profileData),
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.search) searchParams.append('search', params.search);
+
+    return this.request<{
+      catalogues: Array<{
+        id: number;
+        title: string;
+        personality: string;
+        description: string;
+        pdf_url: string;
+        status: string;
+        featured: boolean;
+        views_count: number;
+        created_at: string;
+        author?: {
+          id: number;
+          full_name: string;
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(`/catalogue?${searchParams.toString()}`);
+  }
+
+  async getCatalogueById(id: number) {
+    return this.request<{
+      id: number;
+      title: string;
+      personality: string;
+      description: string;
+      pdf_url: string;
+      status: string;
+      featured: boolean;
+      views_count: number;
+      created_at: string;
+      author?: {
+        id: number;
+        full_name: string;
+      };
+    }>(`/catalogue/${id}`);
+  }
+
+  async getAdminCatalogues(status?: string, search?: string) {
+    const searchParams = new URLSearchParams();
+    if (status && status !== 'all') searchParams.append('status', status);
+    if (search) searchParams.append('search', search);
+
+    return this.request<{
+      catalogues: Array<{
+        id: number;
+        title: string;
+        personality: string;
+        description: string;
+        pdf_url: string;
+        status: string;
+        featured: boolean;
+        views_count: number;
+        created_at: string;
+        author?: {
+          id: number;
+          full_name: string;
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    }>(`/catalogue/admin/all?${searchParams.toString()}`);
+  }
+
+  async createCatalogue(formData: FormData) {
+    return this.request<{
+      message: string;
+      catalogue: any;
+    }>('/catalogue/admin', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
   }
 
-  async changePassword(passwordData: {
-    current_password: string;
-    new_password: string;
-  }) {
-    return this.request<{ message: string }>('/users/password', {
+  async updateCatalogue(id: number, formData: FormData) {
+    return this.request<{
+      message: string;
+      catalogue: any;
+    }>(`/catalogue/admin/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(passwordData),
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
   }
+
+  async deleteCatalogue(id: number) {
+    return this.request<{ message: string }>(`/catalogue/admin/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+async getNewsById(id: number) {
+  return this.request<{
+    id: number;
+    title: string;
+    content: string;
+    excerpt?: string;
+    category: string;
+    status: string;
+    priority: number;
+    featured: boolean;
+    image_url?: string;
+    publication_date?: string;
+    views_count: number;
+    created_at: string;
+    updated_at: string;
+    author: {
+      id: number;
+      full_name: string;
+    };
+  }>(`/news/${id}`);
+}
+
+// Admin News
+async getAdminNews(params?: { page?: number; limit?: number; status?: string; category?: string }) {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.append('page', params.page.toString());
+  if (params?.limit) searchParams.append('limit', params.limit.toString());
+  if (params?.status) searchParams.append('status', params.status);
+  if (params?.category) searchParams.append('category', params.category);
+
+  const queryString = searchParams.toString();
+  const endpoint = queryString ? `/news/admin/all?${queryString}` : '/news/admin/all';
+
+  return this.request<{
+    news: Array<{
+      id: number;
+      title: string;
+      content: string;
+      excerpt?: string;
+      category: string;
+      status: string;
+      priority: number;
+      featured: boolean;
+      image_url?: string;
+      publication_date?: string;
+      views_count: number;
+      created_at: string;
+      updated_at: string;
+      author: {
+        id: number;
+        full_name: string;
+      };
+    }>;
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  }>(endpoint);
+}
+
+// ===== NEWS =====
+
+async getAllNews() {
+  return this.request<{
+    message: string;
+    data: Array<{
+      id: number;
+      title: string;
+      content: string;
+      category: string;
+      status: string;
+      priority: number;
+      featured: boolean;
+      publishedAt: string | null;
+      scheduledAt: string | null;
+      image?: string;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+  }>('/news/admin');
+}
+
+async getPublicNews() {
+  return this.request<{
+    message: string;
+    data: Array<{
+      id: number;
+      title: string;
+      content: string;
+      category: string;
+      priority: number;
+      featured: boolean;
+      publishedAt: string;
+      image?: string;
+    }>;
+  }>('/news');
+}
+
+async getNewsStats() {
+  return this.request<{
+    total: number;
+    published: number;
+    draft: number;
+    featured: number;
+    categories: Array<{
+      category: string;
+      count: number;
+    }>;
+  }>('/news/admin/stats');
+}
+
+// ===== UTILISATEURS =====
+
+async getUserProfile() {
+  return this.request<{
+    id: number;
+    email: string;
+    full_name: string;
+    avatar_url?: string;
+    city?: string;
+    role: string;
+    created_at: string;
+    posts_count: number;
+    comments_count: number;
+    followers_count: number;
+    following_count: number;
+  }>('/users/profile');
+}
+
+async updateProfile(profileData: {
+  full_name: string;
+  city?: string;
+  avatar_url?: string;
+}) {
+  return this.request<{ message: string; user: any }>('/users/profile', {
+    method: 'PUT',
+    body: JSON.stringify(profileData),
+  });
+}
+
+async updatePassword(passwordData: {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
+}) {
+  return this.request<{ message: string; user: any }>('/users/password', {
+    method: 'PUT',
+    body: JSON.stringify(passwordData),
+  });
+}
 
   async getUserPosts(userId: number, params?: {
     page?: number;

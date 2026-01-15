@@ -24,6 +24,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import MobileMenuDemo from "./components/MobileMenuDemo";
 import DemandeTerrain from "./pages/DemandeTerrain";
+import CatalogueNumerique from "./pages/CatalogueNumerique";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -49,6 +50,7 @@ const App = () => {
             <Route path="/mots-du-maire" element={<MaireMessage />} />
             <Route path="/mobile-demo" element={<MobileMenuDemo />} />
             <Route path="/affaires-domaniales" element={<DemandeTerrain />} />
+            <Route path="/catalogue-numerique" element={<CatalogueNumerique />} />
             
             {/* Module 105 de Kaolack - Protected routes */}
             <Route path="/kaolack-105" element={<ProtectedRoute><Kaolack105Home /></ProtectedRoute>} />
