@@ -663,7 +663,7 @@ class ApiService {
         id: number;
         full_name: string;
       };
-    }>(`/news/${id}`);
+    }(`/news/${id}`);
   }
 
   // Admin News
@@ -715,17 +715,77 @@ class ApiService {
         id: number;
         title: string;
         content: string;
+        excerpt?: string;
         category: string;
         status: string;
         priority: number;
         featured: boolean;
-        publishedAt: string | null;
-        scheduledAt: string | null;
-        image?: string;
-        createdAt: string;
-        updatedAt: string;
+        image_url?: string;
+        publication_date?: string;
+        views_count: number;
+        created_at: string;
+        updated_at: string;
+        author: {
+          id: number;
+          full_name: string;
+        };
       }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
     }>('/news/admin');
+  }
+
+  async getAllNewsForAdmin() {
+    return this.getAllNews();
+  }
+
+  async createNews(data: {
+    title: string;
+    content: string;
+    excerpt?: string;
+    category: string;
+    image_url?: string;
+    priority?: number;
+    featured?: boolean;
+  }) {
+    return this.request<{
+      message: string;
+      news: any;
+    }>('/news', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateNews(id: number, data: {
+    title?: string;
+    content?: string;
+    excerpt?: string;
+    category?: string;
+    image_url?: string;
+    status?: string;
+    priority?: number;
+    featured?: boolean;
+  }) {
+    return this.request<{
+      message: string;
+      news: any;
+    }>(`/news/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteNews(id: number) {
+    return this.request<{
+      message: string;
+    }>(`/news/${id}`, {
+      method: 'DELETE',
+    });
   }
 
   async getPublicNews() {
@@ -890,363 +950,6 @@ class ApiService {
     });
   }
 
-async getNewsById(id: number) {
-  return this.request<{
-    id: number;
-    title: string;
-    content: string;
-    excerpt?: string;
-    category: string;
-    status: string;
-    priority: number;
-    featured: boolean;
-    image_url?: string;
-    publication_date?: string;
-    views_count: number;
-    created_at: string;
-    updated_at: string;
-    author: {
-      id: number;
-      full_name: string;
-    };
-  }>(`/news/${id}`);
-}
-
-// Admin News
-async getAdminNews(params?: { page?: number; limit?: number; status?: string; category?: string }) {
-  const searchParams = new URLSearchParams();
-  if (params?.page) searchParams.append('page', params.page.toString());
-  if (params?.limit) searchParams.append('limit', params.limit.toString());
-  if (params?.status) searchParams.append('status', params.status);
-  if (params?.category) searchParams.append('category', params.category);
-
-  const queryString = searchParams.toString();
-  const endpoint = queryString ? `/news/admin/all?${queryString}` : '/news/admin/all';
-
-  return this.request<{
-    news: Array<{
-      id: number;
-      title: string;
-      content: string;
-      excerpt?: string;
-      category: string;
-      status: string;
-      priority: number;
-      featured: boolean;
-      image_url?: string;
-      publication_date?: string;
-      views_count: number;
-      created_at: string;
-      updated_at: string;
-      author: {
-        id: number;
-        full_name: string;
-      };
-    }>;
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      pages: number;
-    };
-  }>(endpoint);
-}
-
-// ===== NEWS =====
-
-async getAllNews() {
-  return this.request<{
-    message: string;
-    data: Array<{
-      id: number;
-      title: string;
-      content: string;
-      category: string;
-      status: string;
-      priority: number;
-      featured: boolean;
-      publishedAt: string | null;
-      scheduledAt: string | null;
-      image?: string;
-      createdAt: string;
-      updatedAt: string;
-    }>;
-  }>('/news/admin');
-}
-
-async getPublicNews() {
-  return this.request<{
-    message: string;
-    data: Array<{
-      id: number;
-      title: string;
-      content: string;
-      category: string;
-      priority: number;
-      featured: boolean;
-      publishedAt: string;
-      image?: string;
-    }>;
-  }>('/news');
-}
-
-async getNewsStats() {
-  return this.request<{
-    total: number;
-    published: number;
-    draft: number;
-    featured: number;
-    categories: Array<{
-      category: string;
-      count: number;
-    }>;
-  }>('/news/admin/stats');
-}
-
-// ===== UTILISATEURS =====
-
-async getUserProfile() {
-  return this.request<{
-    id: number;
-    email: string;
-    full_name: string;
-    avatar_url?: string;
-    city?: string;
-    role: string;
-    created_at: string;
-    posts_count: number;
-    comments_count: number;
-    followers_count: number;
-    following_count: number;
-  }>('/users/profile');
-}
-
-async updateProfile(profileData: {
-  full_name: string;
-  city?: string;
-  avatar_url?: string;
-}) {
-  return this.request<{ message: string; user: any }>('/users/profile', {
-    method: 'PUT',
-    body: JSON.stringify(profileData),
-  });
-}
-
-async updatePassword(passwordData: {
-  old_password: string;
-  new_password: string;
-  confirm_password: string;
-}) {
-  return this.request<{ message: string; user: any }>('/users/password', {
-    method: 'PUT',
-    body: JSON.stringify(passwordData),
-  });
-}
-
-  async getUserPosts(userId: number, params?: {
-    page?: number;
-    limit?: number;
-  }) {
-    const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
-
-    const queryString = searchParams.toString();
-    const endpoint = queryString ? `/users/${userId}/posts?${queryString}` : `/users/${userId}/posts`;
-
-    return this.request<{
-      posts: Array<{
-        id: number;
-        user_id: number;
-        title: string;
-        content: string;
-        category: string;
-        image_url?: string;
-        likes_count: number;
-        comments_count: number;
-        created_at: string;
-        author_name: string;
-        author_avatar?: string;
-        is_liked: boolean;
-      }>;
-      pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        pages: number;
-      };
-    }>(endpoint);
-  }
-
-  // ===== ADMIN POSTS =====
-  async getAllPostsForAdmin() {
-    const response = await this.request<any>('/admin/posts');
-    // Support pour les deux formats: tableau direct ou objet avec posts
-    return Array.isArray(response) ? response : (response.posts || []);
-  }
-
-  // ===== ADMIN USERS =====
-  async getAllUsersForAdmin() {
-    const response = await this.request<{
-      users: Array<{
-        id: number;
-        email: string;
-        full_name: string;
-        role: string;
-        is_active: boolean;
-        created_at: string;
-      }>;
-      pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        pages: number;
-      };
-    }>('/admin/users');
-    return response.users;
-  }
-
-  // ===== ADMIN NEWS =====
-  async getAllNewsForAdmin() {
-    const response = await this.request<{
-      news: Array<{
-        id: number;
-        title: string;
-        content: string;
-        excerpt?: string;
-        category: string;
-        status: 'draft' | 'published' | 'archived';
-        priority: number;
-        featured: boolean;
-        image_url?: string;
-        publication_date?: string;
-        views_count: number;
-        created_at: string;
-        updated_at: string;
-        author: {
-          id: number;
-          full_name: string;
-        };
-      }>;
-      pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        pages: number;
-      };
-    }>('/news/admin/all');
-    return response.news;
-  }
-
-  async createNews(data: {
-    title: string;
-    content: string;
-    excerpt?: string;
-    category?: string;
-    status?: 'draft' | 'published' | 'archived';
-    priority?: number;
-    featured?: boolean;
-    image_url?: string;
-    publication_date?: string;
-  }) {
-    // Nettoyer les données avant envoi
-    const cleanedData: any = {
-      title: data.title.trim(),
-      content: data.content.trim(),
-      excerpt: data.excerpt ? data.excerpt.trim() : null,
-      category: data.category || 'actualite',
-      status: data.status || 'draft',
-      priority: data.priority || 0,
-      featured: data.featured || false,
-      publication_date: data.publication_date || null
-    };
-    
-    // Pour image_url, seulement envoyer si c'est une URL valide ou null
-    if (data.image_url && data.image_url.trim() && (data.image_url.startsWith('http://') || data.image_url.startsWith('https://'))) {
-      cleanedData.image_url = data.image_url.trim();
-    } else {
-      cleanedData.image_url = null;
-    }
-
-    return this.request<{
-      message: string;
-      news: any;
-    }>('/news/admin', {
-      method: 'POST',
-      body: JSON.stringify(cleanedData),
-    });
-  }
-
-  async updateNews(newsId: number, data: {
-    title?: string;
-    content?: string;
-    excerpt?: string;
-    category?: string;
-    status?: 'draft' | 'published' | 'archived';
-    priority?: number;
-    featured?: boolean;
-    image_url?: string;
-    publication_date?: string;
-  }) {
-    // Nettoyer les données avant envoi
-    const cleanedData: any = {};
-    
-    if (data.title && data.title.trim().length >= 5) {
-      cleanedData.title = data.title.trim();
-    }
-    
-    if (data.content && data.content.trim().length >= 10) {
-      cleanedData.content = data.content.trim();
-    }
-    
-    if (data.excerpt !== undefined) {
-      cleanedData.excerpt = data.excerpt ? data.excerpt.trim() : null;
-    }
-    
-    if (data.category) {
-      cleanedData.category = data.category;
-    }
-    
-    if (data.status) {
-      cleanedData.status = data.status;
-    }
-    
-    if (data.priority !== undefined) {
-      cleanedData.priority = data.priority;
-    }
-    
-    if (data.featured !== undefined) {
-      cleanedData.featured = data.featured;
-    }
-    
-    // Pour image_url, seulement envoyer si c'est une URL valide ou null
-    if (data.image_url !== undefined) {
-      if (data.image_url && data.image_url.trim() && (data.image_url.startsWith('http://') || data.image_url.startsWith('https://'))) {
-        cleanedData.image_url = data.image_url.trim();
-      } else {
-        cleanedData.image_url = null;
-      }
-    }
-    
-    if (data.publication_date !== undefined) {
-      cleanedData.publication_date = data.publication_date || null;
-    }
-
-    return this.request<{
-      message: string;
-      news: any;
-    }>(`/news/admin/${newsId}`, {
-      method: 'PUT',
-      body: JSON.stringify(cleanedData),
-    });
-  }
-
-  async deleteNews(newsId: number) {
-    return this.request<{ message: string }>(`/news/admin/${newsId}`, {
-      method: 'DELETE',
-    });
-  }
-
   // Bot - Recherche web sur Kaolack
   async searchKaolackInfo(query: string) {
     return this.request<{ success: boolean; answer: string; source: string }>('/bot/search', {
@@ -1254,7 +957,6 @@ async updatePassword(passwordData: {
       body: JSON.stringify({ query }),
     });
   }
-
 }
 
 // Instance singleton

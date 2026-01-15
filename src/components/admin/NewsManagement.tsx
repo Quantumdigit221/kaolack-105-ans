@@ -40,6 +40,7 @@ const categories = [
   { value: 'culture', label: 'Culture' },
   { value: 'economie', label: 'Économie' },
   { value: 'social', label: 'Social' },
+  { value: 'vie-quotidienne', label: 'Vie quotidienne' },
 ];
 
 export const NewsManagement = () => {
@@ -157,7 +158,8 @@ export const NewsManagement = () => {
 
       // Upload via fetch
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3003/api/upload/image', {
+      const baseUrl = window.location.origin;
+      const response = await fetch(`${baseUrl}/api/upload/image`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
