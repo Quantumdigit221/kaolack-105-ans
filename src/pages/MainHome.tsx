@@ -4,10 +4,9 @@ import Navigation from "@/components/Navigation";
 import Logo105 from "@/components/Logo105";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Building2, TrendingUp, Landmark, FileText, Briefcase, FileCheck, Home, BookOpen } from "lucide-react";
+import { ArrowRight, Building2, TrendingUp, Landmark, FileText, Briefcase, FileCheck, Home } from "lucide-react";
 import { apiService } from "@/services/api";
 import { useQuery } from '@tanstack/react-query';
-import { normalizeImageUrl, handleImageError } from '@/utils/imageUtils';
 import kaolackHero from "@/assets/kaolack-hero.jpg";
 import kaolackMarche from "@/assets/kaolack-marche-vintage.jpg";
 import kaolackMosquee from "@/assets/kaolack-mosquee-heritage.jpg";
@@ -87,10 +86,13 @@ function SimpleSlider() {
           {/* Image d'arrière-plan */}
           {slide.image && (
             <img 
-              src={normalizeImageUrl(slide.image) || ''}
+              src={slide.image.startsWith('http') ? slide.image : `https://portail.kaolackcommune.sn${slide.image}`}
               alt={slide.title} 
               className="w-full h-full object-cover object-center" 
-              onError={(e) => handleImageError(e, slide.image)}
+              onError={(e) => {
+                console.error('Erreur de chargement image slide:', slide.image);
+                e.currentTarget.style.display = 'none';
+              }}
             />
           )}
           {/* Overlay gradient si pas d'image ou pour améliorer la lisibilité */}
@@ -169,12 +171,6 @@ const MainHome = () => {
       title: "Services aux Citoyens",
       description: "État civil, demandes de terrains et services administratifs",
       color: "green"
-    },
-    {
-      icon: BookOpen,
-      title: "Catalogue Numérique",
-      description: "Bibliothèque numérique des personnalités de Kaolack",
-      color: "yellow"
     }
   ];
 
