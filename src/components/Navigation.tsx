@@ -26,10 +26,10 @@ const COMMUNE_MENU_ITEMS = [
     icon: "MessageSquare"
   },
   { 
-    path: "https://demat.kaolack.mairie.sn/terrain/", 
+    path: "/affaires-domaniales", 
     label: "Affaires Domoniales", 
     icon: "MapPin",
-    external: true
+    external: false
   },
   { 
     path: "/etat-civil", 
