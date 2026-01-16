@@ -1,7 +1,7 @@
 // Service API pour remplacer Supabase
-// Détection automatique de l'environnement
+// Dtection automatique de l'environnement
 const getApiBaseUrl = () => {
-  // Si VITE_API_URL est définie, l'utiliser
+  // Si VITE_API_URL est dfinie, l'utiliser
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
@@ -11,7 +11,7 @@ const getApiBaseUrl = () => {
     return 'https://portail.kaolackcommune.sn/api';
   }
   
-  // Sinon, utiliser localhost pour le développement (port 3001 par défaut du backend)
+  // Sinon, utiliser localhost pour le dveloppement (port 3001 par dfaut du backend)
   return 'http://localhost:3001/api';
 };
 
@@ -19,7 +19,7 @@ const API_BASE_URL = getApiBaseUrl();
 
 class ApiService {
     /**
-     * Définit le token d'authentification et le stocke dans localStorage.
+     * Dfinit le token d'authentification et le stocke dans localStorage.
      * @param token Le token JWT ou null pour supprimer
      */
     setToken(token: string | null) {
@@ -72,7 +72,7 @@ class ApiService {
 
 
 
-  // Méthode pour obtenir les headers avec authentification
+  // Mthode pour obtenir les headers avec authentification
   private getHeaders(): HeadersInit {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ class ApiService {
     return headers;
   }
 
-  // Méthode générique pour les requêtes
+  // Mthode gnrique pour les requtes
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -100,56 +100,56 @@ class ApiService {
       },
     };
 
-    // Log de la requête pour debug
-    console.log(`🌐 [API] ${options.method || 'GET'} ${url}`);
-    console.log('🌐 [API] Headers:', config.headers);
+    // Log de la requte pour debug
+    console.log(` [API] ${options.method || 'GET'} ${url}`);
+    console.log(' [API] Headers:', config.headers);
     if (config.body) {
-      console.log('🌐 [API] Body:', config.body);
+      console.log(' [API] Body:', config.body);
     }
 
     try {
       const response = await fetch(url, config);
       
-      console.log(`🌐 [API] Réponse: ${response.status} ${response.statusText}`);
+      console.log(` [API] Rponse: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error(`🌐 [API] Erreur ${response.status}:`, errorData);
+        console.error(` [API] Erreur ${response.status}:`, errorData);
         
-        // Gestion spéciale des erreurs d'authentification
-        if (response.status === 403 && errorData.error?.includes('Token expiré')) {
-          // Token expiré - déconnexion automatique
-          console.warn('🚨 Token expiré - déconnexion automatique');
+        // Gestion spciale des erreurs d'authentification
+        if (response.status === 403 && errorData.error?.includes('Token expir')) {
+          // Token expir - dconnexion automatique
+          console.warn(' Token expir - dconnexion automatique');
           this.logout();
           
-          // Émettre un événement personnalisé pour informer l'application
+          // mettre un vnement personnalis pour informer l'application
           window.dispatchEvent(new CustomEvent('auth:token-expired', {
-            detail: { message: 'Votre session a expiré. Veuillez vous reconnecter.' }
+            detail: { message: 'Votre session a expir. Veuillez vous reconnecter.' }
           }));
           
-          // Créer une erreur spécifique pour cette situation
-          const error = new Error('Session expirée') as any;
+          // Crer une erreur spcifique pour cette situation
+          const error = new Error('Session expire') as any;
           error.code = 'TOKEN_EXPIRED';
           error.response = { status: 403, data: errorData };
           throw error;
         }
         
         if (response.status === 401) {
-          console.warn('🚨 Non autorisé - token invalide ou manquant');
+          console.warn(' Non autoris - token invalide ou manquant');
           this.logout();
           
-          // Émettre un événement pour non autorisé
+          // mettre un vnement pour non autoris
           window.dispatchEvent(new CustomEvent('auth:unauthorized', {
-            detail: { message: 'Accès non autorisé. Veuillez vous connecter.' }
+            detail: { message: 'Accs non autoris. Veuillez vous connecter.' }
           }));
           
-          const error = new Error('Non autorisé') as any;
+          const error = new Error('Non autoris') as any;
           error.code = 'UNAUTHORIZED';
           error.response = { status: 401, data: errorData };
           throw error;
         }
         
-        // Créer une erreur avec plus de détails
+        // Crer une erreur avec plus de dtails
         const error = new Error(errorData.error || `HTTP ${response.status}`) as any;
         error.response = {
           status: response.status,
@@ -159,10 +159,10 @@ class ApiService {
       }
 
       const data = await response.json();
-      console.log(`🌐 [API] Succès:`, data);
+      console.log(` [API] Succs:`, data);
       return data;
     } catch (error) {
-      console.error(`🌐 [API] Erreur (${endpoint}):`, error);
+      console.error(` [API] Erreur (${endpoint}):`, error);
       throw error;
     }
   }
@@ -578,7 +578,7 @@ class ApiService {
     });
   }
 
-  // ===== ACTUALITÉS/NEWS =====
+  // ===== ACTUALITS/NEWS =====
 
   async getNews(params?: { 
     page?: number; 
@@ -663,7 +663,7 @@ class ApiService {
         id: number;
         full_name: string;
       };
-    }(`/news/${id}`);
+    }>(`/news/${id}`);
   }
 
   // Admin News
@@ -708,7 +708,11 @@ class ApiService {
 
   // ===== NEWS =====
 
-  async getAllNews() {
+  
+  async getAllNewsForAdmin() {
+    const searchParams = new URLSearchParams();
+    const endpoint = `/news/admin/all?${searchParams.toString()}`;
+    
     return this.request<{
       message: string;
       data: Array<{
@@ -736,11 +740,7 @@ class ApiService {
         total: number;
         pages: number;
       };
-    }>('/news/admin');
-  }
-
-  async getAllNewsForAdmin() {
-    return this.getAllNews();
+    }>(endpoint);
   }
 
   async createNews(data: {
@@ -833,7 +833,7 @@ class ApiService {
     }>('/users/profile');
   }
 
-  // ===== CATALOGUE NUMÉRIQUE =====
+  // ===== CATALOGUE NUMRIQUE =====
 
   async getCatalogues(params?: { 
     page?: number; 
@@ -996,7 +996,7 @@ export interface Post {
     full_name: string;
     avatar_url?: string;
   };
-  // Anciens champs pour compatibilité
+  // Anciens champs pour compatibilit
   author_name?: string;
   author_avatar?: string;
   is_liked?: boolean;

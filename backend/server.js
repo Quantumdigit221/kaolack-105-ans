@@ -108,6 +108,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check routes
+const healthRoutes = require('./health-check');
+app.use('/api', healthRoutes);
+
 // Routes API
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -117,10 +121,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/slides', slidesRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/bot', botRoutes);
 
 // Routes de test (temporaire)
 app.use('/api/test', require('./routes/test'));
-app.use('/api/bot', botRoutes);
 
 // Route de santé
 app.get('/api/health', (req, res) => {

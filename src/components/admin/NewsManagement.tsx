@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
+import { News } from '@/models/news';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -33,14 +34,12 @@ interface NewsItem {
 }
 
 const categories = [
-  { value: 'actualite', label: 'Actualité' },
-  { value: 'evenement', label: 'Événement' },
-  { value: 'annonce', label: 'Annonce' },
-  { value: 'urgence', label: 'Urgence' },
-  { value: 'culture', label: 'Culture' },
-  { value: 'economie', label: 'Économie' },
-  { value: 'social', label: 'Social' },
-  { value: 'vie-quotidienne', label: 'Vie quotidienne' },
+  { value: 'annonce-officielle', label: 'Annonce officielle' },
+  { value: 'communique-municipal', label: 'Communiqué municipal' },
+  { value: 'evenement-officiel', label: 'Événement officiel' },
+  { value: 'service-public', label: 'Service public' },
+  { value: 'projet-municipal', label: 'Projet municipal' },
+  { value: 'information-citoyen', label: 'Information citoyen' },
 ];
 
 export const NewsManagement = () => {

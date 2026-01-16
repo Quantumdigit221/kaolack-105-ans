@@ -52,7 +52,7 @@ const Admin = () => {
                 onClick={() => setActiveTab('news')}
               >
                 <Newspaper className="h-4 w-4 mr-2" />
-                Actualités
+                Annonces Officielles
               </Button>
               <Button
                 variant={activeTab === 'personalities' ? 'default' : 'ghost'}
@@ -99,8 +99,8 @@ const Admin = () => {
 
             {activeTab === 'news' && (
               <div>
-                <h2 className="text-xl font-semibold mb-4">Gestion des Actualités</h2>
-                <p className="text-gray-600 mb-6">Actualités et annonces officielles de la mairie</p>
+                <h2 className="text-xl font-semibold mb-4">Gestion des Annonces Officielles</h2>
+                <p className="text-gray-600 mb-6">Annonces officielles et communications municipales</p>
                 <NewsManagement />
               </div>
             )}

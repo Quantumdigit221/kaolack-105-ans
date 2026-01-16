@@ -49,8 +49,34 @@ router.get('/', async (req, res) => {
       offset: offset
     });
 
+    // Transformer les URLs des images pour le développement
+    const transformedPosts = result.rows.map(post => {
+      const postData = post.toJSON();
+      
+      // Gérer les deux formats de champs: image_url et imageUrl
+      ['image_url', 'imageUrl'].forEach(field => {
+        if (postData[field]) {
+          // Remplacer l'ancien domaine par localhost:3001
+          postData[field] = postData[field].replace(
+            /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
+            'http://127.0.0.1:3001/uploads/'
+          );
+          // Corriger les URLs qui commencent par :3003/
+          if (postData[field].startsWith(':3003/')) {
+            postData[field] = postData[field].replace(':3003/', 'http://127.0.0.1:3001/');
+          }
+          // Corriger les URLs qui ont http://localhost:3003/
+          if (postData[field].startsWith('http://localhost:3003/')) {
+            postData[field] = postData[field].replace('http://localhost:3003/', 'http://127.0.0.1:3001/');
+          }
+        }
+      });
+      
+      return postData;
+    });
+
     const response = {
-      posts: result.rows,
+      posts: transformedPosts,
       pagination: {
         page,
         limit,

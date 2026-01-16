@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import kaolackHero from "@/assets/kaolack-hero.jpg";
 import kaolackMarche from "@/assets/kaolack-marche-vintage.jpg";
 import kaolackMosquee from "@/assets/kaolack-mosquee-heritage.jpg";
+import mairePhoto from "@/assets/maire-kaolack.png";
 import { KaolackHistoryBot } from "@/components/KaolackHistoryBot";
 
 // Slides par défaut si l'API ne retourne rien
@@ -200,11 +201,11 @@ const MainHome = () => {
   
   // État pour les données du maire
   const [maireData, setMaireData] = useState({
-    name: 'Mamadou Ndiaye',
+    name: 'Serigne MBOUP',
     role: 'Maire de la Commune de Kaolack',
     message: `"Chères Kaolackoises, chers Kaolackois,
 c'est un honneur de servir notre magnifique commune et d'accompagner sa transformation au quotidien. Ensemble, faisons rayonner Kaolack haut et fort !"`,
-    imageUrl: ''
+    imageUrl: mairePhoto
   });
   
   // Récupérer le contenu édité (titre/sous-titre) depuis le localStorage (CMS demo)
