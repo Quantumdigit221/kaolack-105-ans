@@ -56,18 +56,22 @@ router.get('/', async (req, res) => {
       // Gérer les deux formats de champs: image_url et imageUrl
       ['image_url', 'imageUrl'].forEach(field => {
         if (postData[field]) {
-          // Remplacer l'ancien domaine par localhost:3001
+          // Remplacer l'ancien domaine par localhost:3001 en HTTPS
           postData[field] = postData[field].replace(
             /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
-            'http://127.0.0.1:3001/uploads/'
+            'https://127.0.0.1:3001/uploads/'
           );
           // Corriger les URLs qui commencent par :3003/
           if (postData[field].startsWith(':3003/')) {
-            postData[field] = postData[field].replace(':3003/', 'http://127.0.0.1:3001/');
+            postData[field] = postData[field].replace(':3003/', 'https://127.0.0.1:3001/');
           }
           // Corriger les URLs qui ont http://localhost:3003/
           if (postData[field].startsWith('http://localhost:3003/')) {
-            postData[field] = postData[field].replace('http://localhost:3003/', 'http://127.0.0.1:3001/');
+            postData[field] = postData[field].replace('http://localhost:3003/', 'https://127.0.0.1:3001/');
+          }
+          // Corriger les URLs HTTP en HTTPS pour localhost:3001
+          if (postData[field].startsWith('http://127.0.0.1:3001/')) {
+            postData[field] = postData[field].replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/');
           }
         }
       });
@@ -127,7 +131,7 @@ router.post('/', authenticateToken, validatePost, async (req, res) => {
         title: postWithAuthor.title,
         content: postWithAuthor.content,
         category: postWithAuthor.category,
-        image_url: postWithAuthor.imageUrl,
+        image_url: postWithAuthor.imageUrl ? postWithAuthor.imageUrl.replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/') : null,
         likes_count: postWithAuthor.likesCount,
         comments_count: postWithAuthor.commentsCount,
         created_at: postWithAuthor.createdAt,
@@ -170,7 +174,7 @@ router.get('/:id', async (req, res) => {
       title: post.title,
       content: post.content,
       category: post.category,
-      image_url: post.imageUrl,
+      image_url: post.imageUrl ? post.imageUrl.replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/') : null,
       likes_count: post.likesCount,
       comments_count: post.commentsCount,
       created_at: post.createdAt,

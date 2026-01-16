@@ -3,16 +3,16 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    // Modifier l'ENUM pour ajouter 'pending' et 'blocked'
+    // Fixer l'ENUM pour inclure 'pending' qui est manquant
     await queryInterface.sequelize.query(
       "ALTER TABLE posts MODIFY COLUMN status ENUM('pending', 'draft', 'published', 'blocked', 'archived') DEFAULT 'pending'"
     );
   },
 
   async down (queryInterface, Sequelize) {
-    // Remettre l'ENUM original
+    // Revenir à l'ENUM sans 'pending'
     await queryInterface.sequelize.query(
-      "ALTER TABLE posts MODIFY COLUMN status ENUM('draft', 'published', 'archived') DEFAULT 'published'"
+      "ALTER TABLE posts MODIFY COLUMN status ENUM('draft', 'published', 'blocked', 'archived') DEFAULT 'published'"
     );
   }
 };
