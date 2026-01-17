@@ -21,7 +21,7 @@ BACKUP_PORT="3003"
 FRONTEND_PORT="80"
 DOMAIN="portail.kaolackcommune.sn"
 REPO_URL="https://github.com/Quantumdigit221/kaolack-105-ans.git"
-BRANCH="fix/backend-errors"
+BRANCH="main"
 
 # Fonctions de logging
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
