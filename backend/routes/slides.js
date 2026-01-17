@@ -9,7 +9,21 @@ router.get('/', async (req, res) => {
     const slides = await Slide.findAll({
       order: [['id', 'ASC']]
     });
-    res.json(slides);
+    
+    // Transformer les URLs des images pour le développement
+    const transformedSlides = slides.map(slide => {
+      const slideData = slide.toJSON();
+      if (slideData.image) {
+        // Remplacer l'ancien domaine par localhost:3001
+        slideData.image = slideData.image.replace(
+          /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
+          'http://127.0.0.1:3001/uploads/'
+        );
+      }
+      return slideData;
+    });
+    
+    res.json(transformedSlides);
   } catch (error) {
     console.error('❌ [SLIDES] Erreur lors de la récupération des slides:', error);
     res.status(500).json({ error: 'Erreur lors de la récupération des slides' });
@@ -25,7 +39,21 @@ router.get('/admin', authenticateToken, async (req, res) => {
     const slides = await Slide.findAll({
       order: [['id', 'ASC']]
     });
-    res.json(slides);
+    
+    // Transformer les URLs des images pour le développement
+    const transformedSlides = slides.map(slide => {
+      const slideData = slide.toJSON();
+      if (slideData.image) {
+        // Remplacer l'ancien domaine par localhost:3001
+        slideData.image = slideData.image.replace(
+          /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
+          'http://127.0.0.1:3001/uploads/'
+        );
+      }
+      return slideData;
+    });
+    
+    res.json(transformedSlides);
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des slides' });
   }

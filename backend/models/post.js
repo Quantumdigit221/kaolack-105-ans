@@ -56,9 +56,9 @@ module.exports = (sequelize, DataTypes) => {
       field: 'comments_count'
     },
     status: {
-      type: DataTypes.ENUM('draft', 'published', 'blocked', 'archived'),
+      type: DataTypes.ENUM('pending', 'draft', 'published', 'blocked', 'archived'),
       allowNull: false,
-      defaultValue: 'published'
+      defaultValue: 'pending'
     }
 
   }, {

@@ -24,10 +24,13 @@ export const PostsManagement = () => {
     }
   });
 
-  const { data: posts = [], isLoading, error } = useQuery({
+  const { data: response = { posts: [], pagination: { page: 1, limit: 10, total: 0, pages: 0 } }, isLoading, error } = useQuery({
     queryKey: ['admin-posts'],
-    queryFn: () => apiService.getAllPostsForAdmin(),
+    queryFn: () => apiService.getAdminPosts(),
   });
+
+  // Extraire le tableau des posts de la réponse
+  const posts = response?.posts || [];
 
   // Séparer les posts en attente et publiés
   const pendingPosts = posts.filter((post: any) => post.status !== 'published');

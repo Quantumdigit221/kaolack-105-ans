@@ -1,0 +1,51 @@
+# ============================================
+# Commandes à exécuter sur le VPS pour créer le fichier .env
+# ============================================
+
+# 1. Aller dans le dossier backend
+cd ~/kaolack-105-ans/backend
+
+# 2. Créer le fichier .env avec les valeurs de base
+# REMPLACEZ les valeurs entre crochets par vos vraies valeurs !
+
+cat > .env << 'EOF'
+# Configuration de la base de données MySQL
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=VOTRE_MOT_DE_PASSE_MYSQL
+DB_NAME=kaolack_stories_connect
+DB_PORT=3306
+
+# Configuration du serveur
+PORT=3001
+NODE_ENV=production
+
+# JWT Secret (généré automatiquement - changez-le en production)
+JWT_SECRET=$(openssl rand -base64 32)
+
+# Configuration des fichiers uploadés
+UPLOAD_DIR=/var/www/kaolack/uploads
+MAX_FILE_SIZE=52428800
+
+# Configuration CORS
+FRONTEND_URL=https://portail.kaolackcommune.sn
+CORS_ORIGIN=https://portail.kaolackcommune.sn
+
+# Configuration de sécurité
+BCRYPT_ROUNDS=12
+SESSION_EXPIRY=86400
+JWT_EXPIRY=7d
+EOF
+
+# 3. Générer un JWT_SECRET sécurisé
+JWT_SECRET=$(openssl rand -base64 32)
+sed -i "s|JWT_SECRET=\$(openssl rand -base64 32)|JWT_SECRET=${JWT_SECRET}|" .env
+
+# 4. Vérifier le contenu (sans le mot de passe)
+cat .env | grep -v "PASSWORD" | grep -v "SECRET"
+
+# 5. IMPORTANT: Éditer le fichier pour mettre votre vrai mot de passe MySQL
+nano .env
+
+# Dans nano, modifiez la ligne DB_PASSWORD avec votre vrai mot de passe MySQL
+# Sauvegardez avec Ctrl+O, puis Entrée, puis quittez avec Ctrl+X

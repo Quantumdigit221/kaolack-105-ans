@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../models');
+const db = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 
 // Middleware pour vérifier le rôle admin
@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
       };
     }
 
-    const { count, rows: news } = await db.News.findAndCountAll({
+    const { count, rows: news } = await db.news.findAndCountAll({
       where: whereClause,
       include: [{
         model: db.User,
@@ -141,15 +141,34 @@ router.use(requireAdmin);
 
 // GET /api/news/admin/all - Toutes les actualités pour l'admin
 router.get('/admin/all', async (req, res) => {
+  console.log('📰 [NEWS ADMIN] Requête reçue:', {
+    method: req.method,
+    url: req.url,
+    query: req.query,
+    headers: req.headers,
+    user: req.user ? 'présent' : 'absent'
+  });
+  
   try {
-    const { page = 1, limit = 20, status, category } = req.query;
+    const { page = 1, limit = 20, status, category, search } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
     
     const whereClause = {};
     if (status) whereClause.status = status;
     if (category) whereClause.category = category;
+    if (search) {
+      whereClause[db.Sequelize.Op.or] = [
+        { title: { [db.Sequelize.Op.like]: `%${search}%` } },
+        { content: { [db.Sequelize.Op.like]: `%${search}%` } },
+        { excerpt: { [db.Sequelize.Op.like]: `%${search}%` } }
+      ];
+    }
 
-    const { count, rows: news } = await db.News.findAndCountAll({
+    console.log('📰 [NEWS ADMIN] whereClause:', whereClause);
+    console.log('📰 [NEWS ADMIN] db.news:', db.news);
+    console.log('📰 [NEWS ADMIN] db.News:', db.News);
+    
+    const { count, rows: news } = await db.news.findAndCountAll({
       where: whereClause,
       include: [{
         model: db.User,
@@ -160,6 +179,8 @@ router.get('/admin/all', async (req, res) => {
       limit: parseInt(limit),
       offset
     });
+    
+    console.log('📰 [NEWS ADMIN] résultat:', { count, rows: news.length });
 
     res.json({
       news,

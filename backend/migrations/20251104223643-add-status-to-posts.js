@@ -3,9 +3,9 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    // Modifier l'ENUM pour ajouter 'blocked'
+    // Modifier l'ENUM pour ajouter 'pending' et 'blocked'
     await queryInterface.sequelize.query(
-      "ALTER TABLE posts MODIFY COLUMN status ENUM('draft', 'published', 'blocked', 'archived') DEFAULT 'published'"
+      "ALTER TABLE posts MODIFY COLUMN status ENUM('pending', 'draft', 'published', 'blocked', 'archived') DEFAULT 'pending'"
     );
   },
 

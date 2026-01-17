@@ -15,7 +15,8 @@ router.post('/register', async (req, res) => {
       username, 
       bio, 
       full_name, 
-      city 
+      city,
+      role = 'user'
     } = req.body;
 
     // Validation
@@ -46,6 +47,10 @@ router.post('/register', async (req, res) => {
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
+    // Valider le rôle
+    const validRoles = ['user', 'moderator', 'admin'];
+    const finalRole = validRoles.includes(role) ? role : 'user';
+
     // Créer l'utilisateur avec une requête SQL directe pour éviter les problèmes de colonnes
     // (first_name, last_name, username ont été supprimés dans les migrations)
     const insertSql = `
@@ -60,7 +65,7 @@ router.post('/register', async (req, res) => {
         full_name || finalUsername,
         city ? city.trim() : null,
         bio || null,
-        'user',
+        finalRole,
         true
       ]
     });
@@ -152,18 +157,19 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email et mot de passe requis' });
     }
 
-    // Récupérer l'utilisateur (uniquement les colonnes existantes)
-    const user = await User.findOne({
-      where: { 
-        email: email,
-        is_active: true 
-      },
-      attributes: ['id', 'email', 'password_hash', 'full_name', 'city', 'avatar_url', 'username', 'role', 'is_active', 'created_at', 'updated_at']
-    });
+    // Récupérer l'utilisateur avec une requête SQL directe pour éviter les problèmes de colonnes
+    const [userRows] = await db.sequelize.query(
+      'SELECT id, email, password_hash, full_name, city, role, is_active, created_at, updated_at FROM users WHERE email = ? AND is_active = 1',
+      {
+        replacements: [email.toLowerCase().trim()]
+      }
+    );
 
-    if (!user) {
+    if (!userRows || userRows.length === 0) {
       return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
     }
+
+    const user = userRows[0];
 
     // Vérifier le mot de passe
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
@@ -171,9 +177,6 @@ router.post('/login', async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
     }
-
-    // Mettre à jour la dernière connexion
-    await user.update({ last_login_at: new Date() });
 
     // Générer le token JWT
     const token = jwt.sign(
@@ -193,15 +196,11 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        username: user.username,
         full_name: user.full_name,
-        city: user.city,
-        bio: user.bio,
-        avatar_url: user.avatar_url,
+        city: user.city || null,
         role: user.role,
         is_active: user.is_active,
-        created_at: user.created_at,
-        last_login_at: user.last_login_at
+        created_at: user.created_at
       }
     });
   } catch (error) {

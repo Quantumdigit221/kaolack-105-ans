@@ -4,12 +4,13 @@ import Navigation from "@/components/Navigation";
 import Logo105 from "@/components/Logo105";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Building2, FileText, Landmark, TrendingUp, Briefcase, FileCheck, Home } from "lucide-react";
+import { ArrowRight, Building2, TrendingUp, Landmark, FileText, Briefcase, FileCheck, Home } from "lucide-react";
 import { apiService } from "@/services/api";
 import { useQuery } from '@tanstack/react-query';
 import kaolackHero from "@/assets/kaolack-hero.jpg";
 import kaolackMarche from "@/assets/kaolack-marche-vintage.jpg";
 import kaolackMosquee from "@/assets/kaolack-mosquee-heritage.jpg";
+import mairePhoto from "@/assets/maire-kaolack.png";
 import { KaolackHistoryBot } from "@/components/KaolackHistoryBot";
 
 // Slides par défaut si l'API ne retourne rien
@@ -86,9 +87,13 @@ function SimpleSlider() {
           {/* Image d'arrière-plan */}
           {slide.image && (
             <img 
-              src={slide.image} 
+              src={slide.image.startsWith('http') ? slide.image : `https://portail.kaolackcommune.sn${slide.image}`}
               alt={slide.title} 
               className="w-full h-full object-cover object-center" 
+              onError={(e) => {
+                console.error('Erreur de chargement image slide:', slide.image);
+                e.currentTarget.style.display = 'none';
+              }}
             />
           )}
           {/* Overlay gradient si pas d'image ou pour améliorer la lisibilité */}
@@ -196,11 +201,11 @@ const MainHome = () => {
   
   // État pour les données du maire
   const [maireData, setMaireData] = useState({
-    name: 'Mamadou Ndiaye',
+    name: 'Serigne MBOUP',
     role: 'Maire de la Commune de Kaolack',
     message: `"Chères Kaolackoises, chers Kaolackois,
 c'est un honneur de servir notre magnifique commune et d'accompagner sa transformation au quotidien. Ensemble, faisons rayonner Kaolack haut et fort !"`,
-    imageUrl: ''
+    imageUrl: mairePhoto
   });
   
   // Récupérer le contenu édité (titre/sous-titre) depuis le localStorage (CMS demo)
@@ -278,17 +283,19 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
                 const iconColor = colorClasses[area.color as keyof typeof colorClasses] || "bg-green-500 text-white";
                 
                 return (
-                  <Card key={index} className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="p-4 sm:p-6">
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${iconColor} flex items-center justify-center mb-3 sm:mb-4`}>
-                        <area.icon className="h-5 w-5 sm:h-6 sm:w-6" />
-                      </div>
-                      <CardTitle className="text-lg sm:text-xl">{area.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 sm:p-6 pt-0">
-                      <p className="text-muted-foreground text-sm sm:text-base">{area.description}</p>
-                    </CardContent>
-                  </Card>
+                  <Link to="/catalogue-numerique">
+                    <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                      <CardHeader className="p-4 sm:p-6">
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${iconColor} flex items-center justify-center mb-3 sm:mb-4`}>
+                          <area.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                        </div>
+                        <CardTitle className="text-lg sm:text-xl">{area.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 sm:p-6 pt-0">
+                        <p className="text-muted-foreground text-sm sm:text-base">{area.description}</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 );
               })}
             </div>

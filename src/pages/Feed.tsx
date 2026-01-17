@@ -21,10 +21,10 @@ const Feed = () => {
 
   const categories = [
     { value: "all", label: "Toutes les catégories" },
-    { value: "patrimoine", label: "Patrimoine" },
-    { value: "vie-quotidienne", label: "Vie quotidienne" },
-    { value: "evenements", label: "Événements" },
-    { value: "personnalites", label: "Personnalités" },
+    { value: "temoignages", label: "Témoignages" },
+    { value: "experiences", label: "Expériences" },
+    { value: "suggestions", label: "Suggestions" },
+    { value: "actualites-citoyennes", label: "Actualités citoyennes" },
   ];
 
   const loadPosts = React.useCallback(async (page = 1, category = "all", reset = false) => {

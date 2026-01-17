@@ -49,8 +49,58 @@ router.get('/', async (req, res) => {
       offset: offset
     });
 
+    // Transformer les URLs des images pour le développement
+    const transformedPosts = result.rows.map(post => {
+      const postData = post.toJSON();
+      
+      // Gérer les deux formats de champs: image_url et imageUrl
+      ['image_url', 'imageUrl'].forEach(field => {
+        if (postData[field]) {
+          // En production, utiliser le domaine HTTPS
+          if (process.env.NODE_ENV === 'production') {
+            postData[field] = postData[field].replace(
+              /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
+              'https://portail.kaolackcommune.sn/uploads/'
+            );
+            // Corriger les URLs qui commencent par :3003/
+            if (postData[field].startsWith(':3003/')) {
+              postData[field] = postData[field].replace(':3003/', 'https://portail.kaolackcommune.sn/uploads/');
+            }
+            // Corriger les URLs qui ont http://localhost:3003/
+            if (postData[field].startsWith('http://localhost:3003/')) {
+              postData[field] = postData[field].replace('http://localhost:3003/', 'https://portail.kaolackcommune.sn/uploads/');
+            }
+            // Corriger les URLs HTTP en HTTPS pour le domaine
+            if (postData[field].startsWith('http://portail.kaolackcommune.sn/')) {
+              postData[field] = postData[field].replace('http://portail.kaolackcommune.sn/', 'https://portail.kaolackcommune.sn/');
+            }
+          } else {
+            // En développement, utiliser localhost
+            postData[field] = postData[field].replace(
+              /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
+              'https://127.0.0.1:3001/uploads/'
+            );
+            // Corriger les URLs qui commencent par :3003/
+            if (postData[field].startsWith(':3003/')) {
+              postData[field] = postData[field].replace(':3003/', 'https://127.0.0.1:3001/');
+            }
+            // Corriger les URLs qui ont http://localhost:3003/
+            if (postData[field].startsWith('http://localhost:3003/')) {
+              postData[field] = postData[field].replace('http://localhost:3003/', 'https://127.0.0.1:3001/');
+            }
+            // Corriger les URLs HTTP en HTTPS pour localhost:3001
+            if (postData[field].startsWith('http://127.0.0.1:3001/')) {
+              postData[field] = postData[field].replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/');
+            }
+          }
+        }
+      });
+      
+      return postData;
+    });
+
     const response = {
-      posts: result.rows,
+      posts: transformedPosts,
       pagination: {
         page,
         limit,
@@ -81,11 +131,7 @@ router.post('/', authenticateToken, validatePost, async (req, res) => {
       title: title.trim(),
       content: content.trim(),
       category,
-      imageUrl: image_url || null,
-      likesCount: 0,
-      commentsCount: 0,
-      isFeatured: false,
-      status: 'pending'
+      imageUrl: image_url || null
     });
 
     // Récupérer le post créé avec les informations de l'auteur
@@ -105,7 +151,9 @@ router.post('/', authenticateToken, validatePost, async (req, res) => {
         title: postWithAuthor.title,
         content: postWithAuthor.content,
         category: postWithAuthor.category,
-        image_url: postWithAuthor.imageUrl,
+        image_url: postWithAuthor.imageUrl ? (process.env.NODE_ENV === 'production' ? 
+          postWithAuthor.imageUrl.replace('http://127.0.0.1:3001/', 'https://portail.kaolackcommune.sn/') :
+          postWithAuthor.imageUrl.replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/')) : null,
         likes_count: postWithAuthor.likesCount,
         comments_count: postWithAuthor.commentsCount,
         created_at: postWithAuthor.createdAt,
@@ -148,7 +196,9 @@ router.get('/:id', async (req, res) => {
       title: post.title,
       content: post.content,
       category: post.category,
-      image_url: post.imageUrl,
+      image_url: post.imageUrl ? (process.env.NODE_ENV === 'production' ? 
+        post.imageUrl.replace('http://127.0.0.1:3001/', 'https://portail.kaolackcommune.sn/') :
+        post.imageUrl.replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/')) : null,
       likes_count: post.likesCount,
       comments_count: post.commentsCount,
       created_at: post.createdAt,

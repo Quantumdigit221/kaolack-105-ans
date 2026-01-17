@@ -5,7 +5,6 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const { testConnection, syncDatabase } = require('./config/database');
 const db = require('./models');
 
 // Import des routes
@@ -108,6 +107,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check routes
+const healthRoutes = require('./health-check');
+app.use('/api', healthRoutes);
+
 // Routes API
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -117,10 +120,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/slides', slidesRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/bot', botRoutes);
 
 // Routes de test (temporaire)
 app.use('/api/test', require('./routes/test'));
-app.use('/api/bot', botRoutes);
 
 // Route de santé
 app.get('/api/health', (req, res) => {
@@ -231,17 +234,15 @@ async function checkDatabaseStructure() {
 async function startServer() {
   try {
     console.log('🔌 Test de connexion à la base de données...');
-    const dbConnected = await testConnection();
-    if (!dbConnected) {
-      console.error('❌ Impossible de se connecter à la base de données');
-      process.exit(1);
-    }
+    await db.sequelize.authenticate();
+    console.log('✅ Connexion à la base de données réussie');
+    
+    // Synchroniser les modèles
+    await db.sequelize.sync({ force: false });
+    console.log('✅ Base de données synchronisée');
 
     console.log('🔄 Vérification de la structure de la base de données...');
     await checkDatabaseStructure();
-
-    console.log('🔄 Synchronisation de la base de données...');
-    await syncDatabase(process.env.NODE_ENV === 'development');
     
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`\n🚀 Serveur démarré avec succès !`);

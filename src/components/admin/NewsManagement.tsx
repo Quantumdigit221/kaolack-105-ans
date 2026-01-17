@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
+import { News } from '@/models/news';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -33,13 +34,12 @@ interface NewsItem {
 }
 
 const categories = [
-  { value: 'actualite', label: 'Actualité' },
-  { value: 'evenement', label: 'Événement' },
-  { value: 'annonce', label: 'Annonce' },
-  { value: 'urgence', label: 'Urgence' },
-  { value: 'culture', label: 'Culture' },
-  { value: 'economie', label: 'Économie' },
-  { value: 'social', label: 'Social' },
+  { value: 'annonce-officielle', label: 'Annonce officielle' },
+  { value: 'communique-municipal', label: 'Communiqué municipal' },
+  { value: 'evenement-officiel', label: 'Événement officiel' },
+  { value: 'service-public', label: 'Service public' },
+  { value: 'projet-municipal', label: 'Projet municipal' },
+  { value: 'information-citoyen', label: 'Information citoyen' },
 ];
 
 export const NewsManagement = () => {
@@ -157,7 +157,8 @@ export const NewsManagement = () => {
 
       // Upload via fetch
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3003/api/upload/image', {
+      const baseUrl = window.location.origin;
+      const response = await fetch(`${baseUrl}/api/upload/image`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

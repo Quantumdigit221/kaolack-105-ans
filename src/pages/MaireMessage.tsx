@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Quote } from "lucide-react";
 import { Link } from "react-router-dom";
+import mairePhoto from "@/assets/maire-kaolack.png";
 
 const MaireMessage = () => {
   // Vous pouvez remplacer ces données avec une vraie photo et discours du maire
   const maireData = {
-    nom: "Honorable Maire de Kaolack",
+    nom: "Serigne MBOUP",
     titre: "Maire de la Commune de Kaolack",
-    photo: "https://via.placeholder.com/400x500/1f2937/ffffff?text=Photo+du+Maire",
+    photo: mairePhoto,
     discours: `Chères et chers concitoyens de Kaolack,
 
 C'est avec une immense fierté et une profonde émotion que je m'adresse à vous aujourd'hui, en ce moment historique où notre belle ville de Kaolack célèbre ses 105 ans d'existence.

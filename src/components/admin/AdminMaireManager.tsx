@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiService } from '@/services/api';
+import mairePhoto from '@/assets/maire-kaolack.png';
 
 interface MaireData {
   name: string;
@@ -17,11 +18,11 @@ interface MaireData {
 
 export const AdminMaireManager = () => {
   const [formData, setFormData] = useState<MaireData>({
-    name: 'Mamadou Ndiaye',
+    name: 'Serigne MBOUP',
     role: 'Maire de la Commune de Kaolack',
     message: `"Chères Kaolackoises, chers Kaolackois,
 c'est un honneur de servir notre magnifique commune et d'accompagner sa transformation au quotidien. Ensemble, faisons rayonner Kaolack haut et fort !"`,
-    imageUrl: ''
+    imageUrl: mairePhoto
   });
 
   const [imagePreview, setImagePreview] = useState<string>('');

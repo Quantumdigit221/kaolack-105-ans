@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiService } from '@/services/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiService } from "@/services/api";
 import Logo105 from "@/components/Logo105";
 import { Button } from "@/components/ui/button";
 
@@ -130,10 +130,14 @@ export const AdminSlidesManager = () => {
               {/* Image d'arrière-plan en full cover */}
               {slide.image && (
                 <img
-                  src={slide.image}
+                  src={slide.image.startsWith('http') ? slide.image : `https://portail.kaolackcommune.sn${slide.image}`}
                   alt="bannière"
                   className="absolute inset-0 w-full h-full object-cover z-0"
                   style={{ borderRadius: 'inherit' }}
+                  onError={(e) => {
+                    console.error('Erreur de chargement image slide admin:', slide.image);
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
               )}
               {/* Contenu du slide */}

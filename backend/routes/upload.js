@@ -53,7 +53,7 @@ router.post('/image', authenticateToken, upload.single('image'), (req, res) => {
       return res.status(400).json({ error: 'Aucun fichier uploadé' });
     }
 
-    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    const imageUrl = `http://127.0.0.1:3001/uploads/${req.file.filename}`;
 
     res.json({
       message: 'Image uploadée avec succès',
@@ -75,7 +75,7 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), (req, res) =>
       return res.status(400).json({ error: 'Aucun fichier uploadé' });
     }
 
-    const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    const avatarUrl = `http://127.0.0.1:3001/uploads/${req.file.filename}`;
 
     res.json({
       message: 'Avatar uploadé avec succès',

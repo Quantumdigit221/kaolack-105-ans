@@ -66,6 +66,12 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.associate = function(models) {
+    // Un utilisateur peut avoir plusieurs actualités
+    User.hasMany(models.News, {
+      foreignKey: 'author_id',
+      as: 'news'
+    });
+    
     // Un utilisateur peut avoir plusieurs posts
     User.hasMany(models.Post, {
       foreignKey: 'user_id',
