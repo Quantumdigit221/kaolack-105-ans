@@ -150,12 +150,19 @@ router.get('/admin/all', async (req, res) => {
   });
   
   try {
-    const { page = 1, limit = 20, status, category } = req.query;
+    const { page = 1, limit = 20, status, category, search } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
     
     const whereClause = {};
     if (status) whereClause.status = status;
     if (category) whereClause.category = category;
+    if (search) {
+      whereClause[db.Sequelize.Op.or] = [
+        { title: { [db.Sequelize.Op.like]: `%${search}%` } },
+        { content: { [db.Sequelize.Op.like]: `%${search}%` } },
+        { excerpt: { [db.Sequelize.Op.like]: `%${search}%` } }
+      ];
+    }
 
     console.log('📰 [NEWS ADMIN] whereClause:', whereClause);
     console.log('📰 [NEWS ADMIN] db.news:', db.news);

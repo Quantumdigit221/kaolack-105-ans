@@ -52,7 +52,23 @@ async function syncDatabase(force = false) {
 }
 
 module.exports = {
-  sequelize,
-  testConnection,
-  syncDatabase
+  database: process.env.DB_NAME || 'kaolack_stories',
+  username: process.env.DB_USER || 'kaolack_user',
+  password: process.env.DB_PASSWORD || '',
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: process.env.DB_PORT || 3306,
+  dialect: 'mysql',
+  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  pool: {
+    max: 10,
+    min: 0,
+    idle: 30000,
+    acquire: 60000
+  },
+  define: {
+    timestamps: true,
+    underscored: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+  }
 };
