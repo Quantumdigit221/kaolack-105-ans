@@ -11,8 +11,8 @@ const getApiBaseUrl = () => {
     return 'https://portail.kaolackcommune.sn/api';
   }
   
-  // Sinon, utiliser localhost pour le développement (port 3001 par défaut du backend)
-  return 'http://localhost:3001/api';
+  // Sinon, utiliser localhost pour le développement (port 3003 pour correspondre au backend)
+  return 'http://localhost:3003/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();

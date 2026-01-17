@@ -56,7 +56,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
       // Upload via fetch directement car apiService peut ne pas supporter FormData
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/upload/image', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3003/api'}/upload/image`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

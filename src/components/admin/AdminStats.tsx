@@ -67,7 +67,7 @@ const AdminStats = () => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/admin/dashboard', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3003/api'}/admin/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -86,7 +86,7 @@ const AdminStats = () => {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3001/api/admin/analytics?period=${period}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3003/api'}/admin/analytics?period=${period}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

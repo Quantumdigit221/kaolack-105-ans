@@ -21,7 +21,7 @@ export const StatsCards: React.FC = () => {
     const fetchAdminStats = async () => {
       try {
         const token = localStorage.getItem('auth_token');
-        const response = await fetch('http://localhost:3001/api/admin/dashboard', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3003/api'}/admin/dashboard`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
