@@ -49,9 +49,13 @@ router.get('/', async (req, res) => {
       offset: offset
     });
 
-    // Transformer les URLs des images pour le développement
+    // Transformer les URLs des images et normaliser les dates pour le développement
     const transformedPosts = result.rows.map(post => {
       const postData = post.toJSON();
+      
+      // Normaliser les dates pour éviter les erreurs frontend
+      postData.created_at = postData.createdAt ? new Date(postData.createdAt).toISOString() : new Date().toISOString();
+      postData.updated_at = postData.updatedAt ? new Date(postData.updatedAt).toISOString() : new Date().toISOString();
       
       // Gérer les deux formats de champs: image_url et imageUrl
       ['image_url', 'imageUrl'].forEach(field => {
@@ -156,7 +160,7 @@ router.post('/', authenticateToken, validatePost, async (req, res) => {
           postWithAuthor.imageUrl.replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/')) : null,
         likes_count: postWithAuthor.likesCount,
         comments_count: postWithAuthor.commentsCount,
-        created_at: postWithAuthor.createdAt,
+        created_at: postWithAuthor.createdAt ? new Date(postWithAuthor.createdAt).toISOString() : new Date().toISOString(),
         author_name: postWithAuthor.author.full_name,
         author_avatar: postWithAuthor.author.avatar_url,
         is_liked: false
@@ -201,8 +205,8 @@ router.get('/:id', async (req, res) => {
         post.imageUrl.replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/')) : null,
       likes_count: post.likesCount,
       comments_count: post.commentsCount,
-      created_at: post.createdAt,
-      updated_at: post.updatedAt,
+      created_at: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
+      updated_at: post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date().toISOString(),
       author_name: post.author.full_name,
       author_avatar: post.author.avatar_url,
       is_liked: false // TODO: Vérifier si l'utilisateur connecté a liké ce post

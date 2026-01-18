@@ -77,10 +77,24 @@ const PostCard = ({ post, onPostUpdate }: PostCardProps) => {
   };
 
   const formatTimeAgo = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), {
-      addSuffix: true,
-      locale: fr,
-    });
+    if (!dateString) {
+      return "Date inconnue";
+    }
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Date invalide";
+      }
+      
+      return formatDistanceToNow(date, {
+        addSuffix: true,
+        locale: fr,
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error, 'Input:', dateString);
+      return "Date erreur";
+    }
   };
 
   const handleReadMore = () => {
