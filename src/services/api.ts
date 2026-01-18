@@ -11,8 +11,8 @@ const getApiBaseUrl = () => {
     return 'https://portail.kaolackcommune.sn/api';
   }
   
-  // Sinon, utiliser localhost pour le développement (port 3003 pour correspondre au backend)
-  return 'http://localhost:3003/api';
+  // Sinon, utiliser localhost pour le développement (port 3001 pour correspondre au backend)
+  return 'http://localhost:3001/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -113,7 +113,13 @@ class ApiService {
       console.log(` [API] Rponse: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        let errorData: any = {};
+        try {
+          errorData = await response.json();
+        } catch (jsonError) {
+          // If response is not JSON, use status text
+          errorData = { error: response.statusText || `HTTP ${response.status}` };
+        }
         console.error(` [API] Erreur ${response.status}:`, errorData);
         
         // Gestion spciale des erreurs d'authentification
@@ -158,7 +164,16 @@ class ApiService {
         throw error;
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error(' [API] Erreur de parsing JSON:', jsonError);
+        // If response is not JSON, return empty object or text
+        const text = await response.text();
+        data = text ? { data: text } : {};
+      }
+      
       console.log(` [API] Succs:`, data);
       return data;
     } catch (error) {

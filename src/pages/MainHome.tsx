@@ -153,7 +153,8 @@ const MainHome = () => {
       icon: Building2,
       title: "Urbanisme et Infrastructure",
       description: "Développement et modernisation des infrastructures urbaines de Kaolack",
-      color: "green"
+      color: "green",
+      key: 1 // Add a unique key to each area
     },
     {
       icon: TrendingUp,
@@ -177,27 +178,50 @@ const MainHome = () => {
 
   const recentNews = [
     {
+      id: 1,
       title: "Célébration des 105 ans de Kaolack",
       date: "Décembre 2025",
       description: "Lancement de la plateforme participative pour célébrer notre histoire collective",
-      image: kaolackHero
+      content: "Lancement de la plateforme participative pour célébrer notre histoire collective",
+      excerpt: "Lancement de la plateforme participative pour célébrer notre histoire collective",
+      category: "evenement",
+      status: "published",
+      image_url: kaolackHero,
+      created_at: "2025-12-01T10:00:00Z",
+      author: { id: 1, full_name: "Mairie de Kaolack" }
     },
     {
+      id: 2,
       title: "Modernisation du marché central",
       date: "Novembre 2025",
       description: "Projet de rénovation et d'amélioration des infrastructures commerciales",
-      image: kaolackMarche
+      content: "Projet de rénovation et d'amélioration des infrastructures commerciales",
+      excerpt: "Projet de rénovation et d'amélioration des infrastructures commerciales",
+      category: "economie",
+      status: "published",
+      image_url: kaolackMarche,
+      created_at: "2025-11-15T14:30:00Z",
+      author: { id: 1, full_name: "Mairie de Kaolack" }
     },
     {
+      id: 3,
       title: "Patrimoine religieux valorisé",
       date: "Octobre 2025",
       description: "Programme de restauration des sites historiques et religieux",
-      image: kaolackMosquee
+      content: "Programme de restauration des sites historiques et religieux",
+      excerpt: "Programme de restauration des sites historiques et religieux",
+      category: "culture",
+      status: "published",
+      image_url: kaolackMosquee,
+      created_at: "2025-10-20T09:15:00Z",
+      author: { id: 1, full_name: "Mairie de Kaolack" }
     }
   ];
 
   // État pour les actualités dynamiques
   const [dynamicNews, setDynamicNews] = useState([]);
+  const [newsError, setNewsError] = useState(false);
+  const [isLoadingNews, setIsLoadingNews] = useState(true);
   
   // État pour les données du maire
   const [maireData, setMaireData] = useState({
@@ -235,21 +259,38 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
     }
   }, []);
 
-  // Charger les actualités depuis l'API
+  // Charger les actualités depuis l'API avec retry
   useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await apiService.getNews();
-        // Prendre les 3 premières actualités publiées pour l'affichage
-        setDynamicNews(response.news.slice(0, 3));
-      } catch (error) {
-        console.error('Erreur lors du chargement des actualités:', error);
-        // En cas d'erreur, garder un tableau vide
-        setDynamicNews([]);
+    const fetchNewsWithRetry = async (retries = 2) => {
+      setIsLoadingNews(true);
+      setNewsError(false);
+      
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const response = await apiService.getNews();
+          // Prendre les 3 premières actualités publiées pour l'affichage
+          setDynamicNews(response.news?.slice(0, 3) || []);
+          setNewsError(false);
+          break; // Success, exit retry loop
+        } catch (error) {
+          console.error(`Tentative ${attempt}/${retries} - Erreur lors du chargement des actualités:`, error);
+          
+          if (attempt === retries) {
+            // Last attempt failed - utiliser les actualités par défaut
+            console.log('📰 Utilisation des actualités par défaut');
+            setDynamicNews(recentNews);
+            setNewsError(false); // Ne pas montrer l'erreur, utiliser les défauts
+          } else {
+            // Wait before retry (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        }
       }
+      
+      setIsLoadingNews(false);
     };
 
-    fetchNews();
+    fetchNewsWithRetry();
   }, []);
 
   return (
@@ -283,8 +324,8 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
                 const iconColor = colorClasses[area.color as keyof typeof colorClasses] || "bg-green-500 text-white";
                 
                 return (
-                  <Link to="/catalogue-numerique">
-                    <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <Link to="/catalogue-numerique" key={area.title}>
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                       <CardHeader className="p-4 sm:p-6">
                         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${iconColor} flex items-center justify-center mb-3 sm:mb-4`}>
                           <area.icon className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -450,9 +491,28 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
               </p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {dynamicNews.length > 0 ? (
+              {isLoadingNews ? (
+                // Loading state
+                <>
+                  {[1, 2, 3].map((i) => (
+                    <Card key={`skeleton-${i}`} className="animate-pulse">
+                      <div className="aspect-video w-full bg-gray-200" />
+                      <CardHeader className="p-4 sm:p-6">
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                        <div className="h-3 bg-gray-200 rounded w-1/2" />
+                      </CardHeader>
+                      <CardContent className="p-4 sm:p-6 pt-0">
+                        <div className="space-y-2">
+                          <div className="h-3 bg-gray-200 rounded" />
+                          <div className="h-3 bg-gray-200 rounded w-5/6" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              ) : dynamicNews.length > 0 ? (
                 dynamicNews.map((newsItem) => (
-                  <Card key={newsItem.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                  <Card key={`news-${newsItem.id}`} className="hover:shadow-lg transition-shadow overflow-hidden">
                     {newsItem.image_url && (
                       <div className="aspect-video w-full overflow-hidden">
                         <img 
@@ -494,8 +554,31 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
                     </CardContent>
                   </Card>
                 ))
+              ) : newsError ? (
+                // Error state
+                <div className="col-span-full text-center py-12">
+                  <div className="text-red-500 mb-4">
+                    <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-muted-foreground text-lg mb-2">
+                    Impossible de charger les actualités
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Une erreur technique est survenue. Veuillez réessayer plus tard.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => window.location.reload()}
+                    className="text-xs sm:text-sm"
+                  >
+                    Réessayer
+                  </Button>
+                </div>
               ) : (
-                // Fallback si aucune actualité n'est disponible
+                // Empty state
                 <div className="col-span-full text-center py-12">
                   <p className="text-muted-foreground text-lg">
                     Aucune actualité disponible pour le moment.
