@@ -903,6 +903,26 @@ class ApiService {
     }>(`/catalogue/${id}`);
   }
 
+  async getPersonalities() {
+    return this.request<{
+      personalities: Array<{
+        id: number;
+        name: string;
+        category: string;
+        role: string;
+        description: string;
+        image: string;
+        contributions: string[];
+        votes: number;
+        status: 'pending' | 'approved';
+        proposedBy: string;
+        createdAt: string;
+        updatedAt: string;
+      }>;
+      total: number;
+    }>('/personalities');
+  }
+
   async getAdminCatalogues(status?: string, search?: string) {
     const searchParams = new URLSearchParams();
     if (status && status !== 'all') searchParams.append('status', status);

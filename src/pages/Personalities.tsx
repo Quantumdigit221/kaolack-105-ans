@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PlusCircle, Award, Heart, BookOpen, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from '@tanstack/react-query';
+import { apiService } from '@/services/api';
 import personnalite1 from "@/assets/personnalite-politique-1.jpg";
 import personnalite2 from "@/assets/personnalite-politique-2.jpg";
 
@@ -27,7 +29,6 @@ interface Personality {
 
 const Personalities = () => {
   const [open, setOpen] = useState(false);
-  const [proposals, setProposals] = useState<Personality[]>([]);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const [likedPersonalities, setLikedPersonalities] = useState<Set<number | string>>(new Set());
@@ -41,17 +42,16 @@ const Personalities = () => {
     contributions: "",
   });
 
+  // Récupérer les personnalités depuis l'API
+  const { data: personalitiesData, isLoading, error } = useQuery({
+    queryKey: ['personalities'],
+    queryFn: () => apiService.getPersonalities(),
+  });
+
+  const personalities = personalitiesData?.data || [];
+
+  // Charger les personnalités aimées depuis localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("personality_proposals");
-    if (saved) {
-      try {
-        setProposals(JSON.parse(saved));
-      } catch (err) {
-        console.error("Erreur lors du chargement des propositions", err);
-      }
-    }
-    
-    // Charger les personnalités aimées
     const savedLikes = localStorage.getItem("personality_likes");
     if (savedLikes) {
       try {
@@ -61,14 +61,6 @@ const Personalities = () => {
       }
     }
   }, []);
-
-  // Afficher toutes les personnalités : approuvées + propositions de l'utilisateur
-  const allPersonalities = [
-    // Personnalités approuvées (non-propositions)
-    ...proposals.filter(p => p.status === 'approved' && !p.isProposal),
-    // Propositions en attente (uniquement celles créées)
-    ...proposals.filter(p => p.isProposal)
-  ];
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,39 +101,61 @@ const Personalities = () => {
     setSubmitting(true);
 
     try {
-      const newProposal: Personality = {
-        id: `proposal_${Date.now()}`,
+      // Upload de l'image
+      const imageFormData = new FormData();
+      const blob = await (await fetch(imagePreview)).blob();
+      imageFormData.append('image', blob, 'personality.jpg');
+      
+      const uploadResponse = await fetch('https://portail.kaolackcommune.sn/api/upload/image', {
+        method: 'POST',
+        body: imageFormData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Erreur lors de l'upload de l'image");
+      }
+
+      const uploadResult = await uploadResponse.json();
+      const imageUrl = uploadResult.url;
+
+      // Création de la personnalité
+      const personalityData = {
         name: formData.name,
         category: formData.category,
         role: formData.role,
         description: formData.description,
-        image: imagePreview,
+        image: imageUrl,
         contributions: formData.contributions
           .split("\n")
           .filter(line => line.trim())
           .map(line => line.trim()),
-        votes: 1,
         status: 'pending',
-        isProposal: true,
         proposedBy: "Anonyme",
       };
 
-      const updatedProposals = [...proposals, newProposal];
-      setProposals(updatedProposals);
-
-      localStorage.setItem("personality_proposals", JSON.stringify(updatedProposals));
-
-      setFormData({
-        name: "",
-        category: "",
-        role: "",
-        description: "",
-        contributions: "",
+      const response = await fetch('https://portail.kaolackcommune.sn/api/personalities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(personalityData),
       });
-      setImagePreview("");
-      setOpen(false);
 
-      toast.success("🎉 Personnalité proposée avec succès ! Elle figure maintenant dans la liste.");
+      if (response.ok) {
+        toast.success("🎉 Personnalité proposée avec succès ! En attente d'approbation.");
+        setFormData({
+          name: "",
+          category: "",
+          role: "",
+          description: "",
+          contributions: "",
+        });
+        setImagePreview("");
+        setOpen(false);
+      } else {
+        toast.error("Erreur lors de la soumission");
+      }
     } catch (error) {
       console.error("Erreur lors de la soumission", error);
       toast.error("Erreur lors de la soumission");
@@ -150,39 +164,39 @@ const Personalities = () => {
     }
   };
 
-  const removeProposal = (id: number | string) => {
-    const updated = proposals.filter(p => p.id !== id);
-    setProposals(updated);
-    localStorage.setItem("personality_proposals", JSON.stringify(updated));
-    toast.success("Proposition supprimée");
-  };
+  const handleLike = async (person: Personality) => {
+    try {
+      const response = await fetch(`https://portail.kaolackcommune.sn/api/personalities/${person.id}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-  const handleLike = (person: Personality) => {
-    const isLiked = likedPersonalities.has(person.id);
-    const newLikedSet = new Set(likedPersonalities);
-    
-    if (isLiked) {
-      newLikedSet.delete(person.id);
-      // Décrémenter les votes
-      const updated = proposals.map(p => 
-        p.id === person.id ? { ...p, votes: Math.max(0, p.votes - 1) } : p
-      );
-      setProposals(updated);
-      localStorage.setItem("personality_proposals", JSON.stringify(updated));
-      toast.success("Vous n'aimez plus cette personnalité");
-    } else {
-      newLikedSet.add(person.id);
-      // Incrémenter les votes
-      const updated = proposals.map(p => 
-        p.id === person.id ? { ...p, votes: p.votes + 1 } : p
-      );
-      setProposals(updated);
-      localStorage.setItem("personality_proposals", JSON.stringify(updated));
-      toast.success("Vous aimez cette personnalité !");
+      if (response.ok) {
+        const isLiked = likedPersonalities.has(person.id);
+        const newLikedSet = new Set(likedPersonalities);
+        
+        if (isLiked) {
+          newLikedSet.delete(person.id);
+          toast.success("Vous n'aimez plus cette personnalité");
+        } else {
+          newLikedSet.add(person.id);
+          toast.success("Vous aimez cette personnalité !");
+        }
+        
+        setLikedPersonalities(newLikedSet);
+        localStorage.setItem("personality_likes", JSON.stringify(Array.from(newLikedSet)));
+        
+        // Rafraîchir les données
+        window.location.reload();
+      } else {
+        toast.error("Erreur lors du vote");
+      }
+    } catch (error) {
+      console.error("Erreur lors du vote:", error);
+      toast.error("Erreur lors du vote");
     }
-    
-    setLikedPersonalities(newLikedSet);
-    localStorage.setItem("personality_likes", JSON.stringify(Array.from(newLikedSet)));
   };
 
   const handleReadMore = (person: Personality) => {
@@ -325,36 +339,41 @@ const Personalities = () => {
           </Dialog>
         </div>
 
-        {proposals.length > 0 && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              ✨ <strong>{proposals.length}</strong> personnalité{proposals.length > 1 ? "s" : ""} proposée{proposals.length > 1 ? "s" : ""} figurent dans la liste ci-dessous
+        {isLoading && (
+          <div className="text-center py-8">
+            <p>Chargement des personnalités...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center py-8 text-red-600">
+            <p>Erreur lors du chargement des personnalités</p>
+          </div>
+        )}
+
+        {personalities.length > 0 && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-800">
+              ✨ <strong>{personalities.length}</strong> personnalité{personalities.length > 1 ? "s" : ""} approuvée{personalities.length > 1 ? "s" : ""} disponible{personalities.length > 1 ? "s" : ""}
             </p>
           </div>
         )}
 
         <div className="grid md:grid-cols-2 gap-8">
-          {allPersonalities.map((person) => (
+          {personalities.map((person) => (
             <Card 
               key={person.id} 
-              className={`overflow-hidden hover:shadow-xl transition-shadow ${
-                person.isProposal ? "border-blue-200 bg-blue-50/30" : ""
-              }`}
+              className="overflow-hidden hover:shadow-xl transition-shadow"
             >
               <div className="relative h-64 overflow-hidden">
                 <img
-                  src={person.image}
+                  src={person.image.startsWith('http') ? person.image : `https://portail.kaolackcommune.sn${person.image}`}
                   alt={person.name}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full">
                   <span className="text-sm font-semibold">{person.category}</span>
                 </div>
-                {person.isProposal && (
-                  <div className="absolute top-4 left-4 bg-blue-500/90 text-white px-3 py-1 rounded-full">
-                    <span className="text-xs font-semibold">✨ PROPOSITION</span>
-                  </div>
-                )}
               </div>
               
               <CardHeader>
@@ -365,7 +384,7 @@ const Personalities = () => {
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">{person.description}</p>
                 
-                {person.contributions.length > 0 && (
+                {person.contributions && person.contributions.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm font-semibold">
                       <Award className="h-4 w-4 text-primary" />
@@ -399,16 +418,6 @@ const Personalities = () => {
                       <BookOpen className="h-4 w-4" />
                       Lire plus
                     </Button>
-                    {person.isProposal && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => removeProposal(person.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
                 </div>
               </CardContent>
@@ -441,7 +450,7 @@ const Personalities = () => {
               <div className="space-y-6">
                 <div className="relative h-64 overflow-hidden rounded-lg">
                   <img
-                    src={selectedPersonality.image}
+                    src={selectedPersonality.image.startsWith('http') ? selectedPersonality.image : `https://portail.kaolackcommune.sn${selectedPersonality.image}`}
                     alt={selectedPersonality.name}
                     className="w-full h-full object-cover"
                   />
@@ -455,7 +464,7 @@ const Personalities = () => {
                   <p className="text-muted-foreground leading-relaxed">{selectedPersonality.description}</p>
                 </div>
 
-                {selectedPersonality.contributions.length > 0 && (
+                {selectedPersonality.contributions && selectedPersonality.contributions.length > 0 && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-lg font-semibold">
                       <Award className="h-5 w-5 text-primary" />

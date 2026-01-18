@@ -17,6 +17,7 @@ const uploadRoutes = require('./routes/upload');
 const adminRoutes = require('./routes/admin-simple');
 const slidesRoutes = require('./routes/slides');
 const newsRoutes = require('./routes/news');
+const personalitiesRoutes = require('./routes/personalities');
 
 const app = express();
 
@@ -86,6 +87,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/slides', slidesRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/personalities', personalitiesRoutes);
 
 // Gestion d'erreur globale
 app.use((err, req, res, next) => {
