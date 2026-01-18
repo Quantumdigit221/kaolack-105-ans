@@ -216,4 +216,51 @@ router.get('/admin/all', async (req, res) => {
   }
 });
 
+// DELETE /api/news/:id - Supprimer une actualité
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log('📰 [NEWS DELETE] Requête reçue:', req.params.id);
+    
+    const newsId = parseInt(req.params.id);
+    const userId = req.user.id;
+
+    if (!newsId) {
+      return res.status(400).json({ 
+        error: 'ID d\'actualité invalide' 
+      });
+    }
+
+    // Vérifier que l'actualité existe
+    const news = await db.News.findByPk(newsId);
+    if (!news) {
+      return res.status(404).json({ 
+        error: 'Actualité non trouvée' 
+      });
+    }
+
+    // Vérifier que l'utilisateur est admin ou l'auteur
+    if (req.user.role !== 'admin' && news.author_id !== userId) {
+      return res.status(403).json({ 
+        error: 'Accès non autorisé' 
+      });
+    }
+
+    // Supprimer l'actualité
+    await news.destroy();
+
+    console.log('✅ [NEWS DELETE] Actualité supprimée:', newsId);
+
+    res.json({
+      message: 'Actualité supprimée avec succès'
+    });
+
+  } catch (error) {
+    console.error('📰 [NEWS DELETE] Erreur:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors de la suppression de l\'actualité',
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;
