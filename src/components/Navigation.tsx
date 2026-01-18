@@ -217,9 +217,10 @@ const Navigation = () => {
 
         {/* Bouton menu mobile */}
         <button
-          className="md:hidden p-2 rounded hover:bg-muted transition"
+          className="md:hidden p-3 rounded-lg hover:bg-muted transition touch-target"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Menu"
+          aria-expanded={isMobileMenuOpen}
         >
           {isMobileMenuOpen ? (
             <X className="h-6 w-6" />

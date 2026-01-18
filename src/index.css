@@ -206,6 +206,33 @@ All colors MUST be HSL.
     .mobile-text {
       @apply text-base leading-relaxed;
     }
+    
+    /* Optimisations pour mobile */
+    body {
+      @apply text-sm;
+    }
+    
+    /* Réduction des animations sur mobile */
+    * {
+      animation-duration: 0.2s !important;
+      transition-duration: 0.2s !important;
+    }
+    
+    /* Scroll fluide mobile */
+    html {
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Éviter le zoom sur input focus */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+    
+    /* Container optimisé mobile */
+    .container {
+      @apply px-4;
+    }
   }
 
   /* Animation pour le menu mobile */
