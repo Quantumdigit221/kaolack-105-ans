@@ -216,6 +216,38 @@ router.get('/admin/all', async (req, res) => {
   }
 });
 
+// PUT /api/news/:id - Mettre à jour une actualité
+router.put('/:id', authenticateToken, async (req, res) => {
+  try {
+    const newsId = parseInt(req.params.id);
+    const userId = req.user.id;
+    const updates = req.body;
+
+    if (!newsId) {
+      return res.status(400).json({ error: 'ID invalide' });
+    }
+
+    const news = await db.News.findByPk(newsId);
+    if (!news) {
+      return res.status(404).json({ error: 'Actualité non trouvée' });
+    }
+
+    if (req.user.role !== 'admin' && news.author_id !== userId) {
+      return res.status(403).json({ error: 'Accès non autorisé' });
+    }
+
+    await news.update(updates);
+
+    const updatedNews = await db.News.findByPk(newsId, {
+      include: [{ model: db.User, as: 'author', attributes: ['id', 'full_name'] }]
+    });
+
+    res.json({ message: 'Actualité mise à jour', news: updatedNews });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur mise à jour', details: error.message });
+  }
+});
+
 // DELETE /api/news/:id - Supprimer une actualité
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
