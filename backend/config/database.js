@@ -52,6 +52,9 @@ async function syncDatabase(force = false) {
 }
 
 module.exports = {
+  sequelize,
+  testConnection,
+  syncDatabase,
   database: process.env.DB_NAME || 'kaolack_stories',
   username: process.env.DB_USER || 'kaolack_user',
   password: process.env.DB_PASSWORD || '',

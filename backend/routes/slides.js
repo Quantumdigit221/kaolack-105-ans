@@ -10,15 +10,27 @@ router.get('/', async (req, res) => {
       order: [['id', 'ASC']]
     });
     
-    // Transformer les URLs des images pour le développement
+    // Transformer les URLs des images selon l'environnement
     const transformedSlides = slides.map(slide => {
       const slideData = slide.toJSON();
       if (slideData.image) {
-        // Remplacer l'ancien domaine par localhost:3001
-        slideData.image = slideData.image.replace(
-          /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
-          'http://127.0.0.1:3001/uploads/'
-        );
+        // En production, utiliser le domaine HTTPS
+        if (process.env.NODE_ENV === 'production') {
+          slideData.image = slideData.image.replace(
+            /http:\/\/127\.0\.0\.1:3001\/uploads\//g,
+            'https://portail.kaolackcommune.sn/uploads/'
+          );
+          // Corriger les URLs HTTP en HTTPS pour le domaine
+          if (slideData.image.startsWith('http://portail.kaolackcommune.sn/')) {
+            slideData.image = slideData.image.replace('http://portail.kaolackcommune.sn/', 'https://portail.kaolackcommune.sn/');
+          }
+        } else {
+          // En développement, utiliser localhost en HTTPS
+          slideData.image = slideData.image.replace(
+            /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
+            'https://127.0.0.1:3001/uploads/'
+          );
+        }
       }
       return slideData;
     });
@@ -40,15 +52,27 @@ router.get('/admin', authenticateToken, async (req, res) => {
       order: [['id', 'ASC']]
     });
     
-    // Transformer les URLs des images pour le développement
+    // Transformer les URLs des images selon l'environnement
     const transformedSlides = slides.map(slide => {
       const slideData = slide.toJSON();
       if (slideData.image) {
-        // Remplacer l'ancien domaine par localhost:3001
-        slideData.image = slideData.image.replace(
-          /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
-          'http://127.0.0.1:3001/uploads/'
-        );
+        // En production, utiliser le domaine HTTPS
+        if (process.env.NODE_ENV === 'production') {
+          slideData.image = slideData.image.replace(
+            /http:\/\/127\.0\.0\.1:3001\/uploads\//g,
+            'https://portail.kaolackcommune.sn/uploads/'
+          );
+          // Corriger les URLs HTTP en HTTPS pour le domaine
+          if (slideData.image.startsWith('http://portail.kaolackcommune.sn/')) {
+            slideData.image = slideData.image.replace('http://portail.kaolackcommune.sn/', 'https://portail.kaolackcommune.sn/');
+          }
+        } else {
+          // En développement, utiliser localhost en HTTPS
+          slideData.image = slideData.image.replace(
+            /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
+            'https://127.0.0.1:3001/uploads/'
+          );
+        }
       }
       return slideData;
     });
