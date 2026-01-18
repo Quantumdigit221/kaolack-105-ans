@@ -1,23 +1,18 @@
 #!/bin/bash
 
-# =========================================
-# SCRIPT DE MISE À JOUR VPS - KAOLACK 105 ANS
-# =========================================
+# ========================================
+# Script de Mise à Jour VPS - Kaolack 105 Ans
+# VPS: ubuntu@51.68.70.83
+# ========================================
 
-set -e  # Arrêter en cas d'erreur
+set -e
 
-# Couleurs pour les logs
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Variables de configuration
-PROJECT_NAME="kaolack-105-ans"
-DEPLOY_DIR="/var/www/kaolack"
-BACKUP_DIR="/var/backups/kaolack"
-BACKUP_PORT="3003"
+# Variables
+VPS_USER="ubuntu"
+VPS_IP="51.68.70.83"
+VPS_HOST="$VPS_USER@$VPS_IP"
+DOMAIN="portail.kaolackcommune.sn"
+PROJECT_DIR="/var/www/kaolack"
 FRONTEND_PORT="80"
 DOMAIN="portail.kaolackcommune.sn"
 REPO_URL="https://github.com/Quantumdigit221/kaolack-105-ans.git"

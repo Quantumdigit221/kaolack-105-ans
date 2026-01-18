@@ -110,6 +110,12 @@ const CreatePostModal = () => {
         console.log('📤 [CreatePost] Upload d\'image en cours...');
         const uploadResponse = await apiService.uploadImage(imageFile);
         imageUrl = uploadResponse.imageUrl;
+        
+        // Corriger l'URL pour la production
+        if (imageUrl && imageUrl.includes('http://127.0.0.1:3001')) {
+          imageUrl = imageUrl.replace('http://127.0.0.1:3001', 'https://portail.kaolackcommune.sn');
+        }
+        
         console.log('✅ [CreatePost] Image uploadée:', imageUrl);
       }
 
