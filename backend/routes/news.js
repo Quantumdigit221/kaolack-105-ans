@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models');
+const { authenticateToken } = require('../middleware/auth');
 
 // GET /api/news - Liste des actualités (public)
 router.get('/', async (req, res) => {
@@ -75,6 +76,76 @@ router.get('/', async (req, res) => {
     console.error('📰 [NEWS] Stack:', error.stack);
     res.status(500).json({ 
       error: 'Erreur lors de la récupération des actualités',
+      details: error.message 
+    });
+  }
+});
+
+// POST /api/news - Créer une nouvelle actualité
+router.post('/', authenticateToken, async (req, res) => {
+  try {
+    console.log('📰 [NEWS CREATE] Requête reçue:', req.body);
+    
+    const {
+      title,
+      content,
+      excerpt,
+      category,
+      status = 'draft',
+      priority = 0,
+      featured = false,
+      image_url,
+      publication_date
+    } = req.body;
+
+    // Validation
+    if (!title || !content) {
+      return res.status(400).json({ 
+        error: 'Le titre et le contenu sont obligatoires' 
+      });
+    }
+
+    if (!category) {
+      return res.status(400).json({ 
+        error: 'La catégorie est obligatoire' 
+      });
+    }
+
+    const userId = req.user.id;
+    
+    const news = await db.News.create({
+      title: title.trim(),
+      content: content.trim(),
+      excerpt: excerpt ? excerpt.trim() : null,
+      category,
+      status,
+      priority: parseInt(priority),
+      featured: Boolean(featured),
+      image_url: image_url || null,
+      publication_date: publication_date ? new Date(publication_date) : null,
+      author_id: userId
+    });
+
+    console.log('✅ [NEWS CREATE] Actualité créée:', news.id);
+
+    // Récupérer l'actualité avec l'auteur
+    const newsWithAuthor = await db.News.findByPk(news.id, {
+      include: [{
+        model: db.User,
+        as: 'author',
+        attributes: ['id', 'full_name']
+      }]
+    });
+
+    res.status(201).json({
+      message: 'Actualité créée avec succès',
+      news: newsWithAuthor
+    });
+
+  } catch (error) {
+    console.error('📰 [NEWS CREATE] Erreur:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors de la création de l\'actualité',
       details: error.message 
     });
   }
