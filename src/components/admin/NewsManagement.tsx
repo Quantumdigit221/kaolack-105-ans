@@ -66,10 +66,12 @@ export const NewsManagement = () => {
   const [imagePreview, setImagePreview] = useState<string>('');
 
   // Récupération des actualités
-  const { data: news = [], isLoading, error } = useQuery({
+  const { data: newsData, isLoading, error } = useQuery({
     queryKey: ['admin-news'],
     queryFn: () => apiService.getAllNewsForAdmin(),
   });
+  
+  const news = newsData?.news || [];
 
   // Mutations
   const createNewsMutation = useMutation({
