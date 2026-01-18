@@ -8,6 +8,7 @@ interface Logo105Props {
   showText?: boolean;
   variant?: "default" | "white-bg" | "rounded" | "shadow";
   animate?: boolean; // Ajout pour l'animation
+  animationType?: "spin" | "zoom"; // Type d'animation
 }
 
 const Logo105: React.FC<Logo105Props> = ({ 
@@ -15,7 +16,8 @@ const Logo105: React.FC<Logo105Props> = ({
   size = "md", 
   showText = false, 
   variant = "default",
-  animate = false
+  animate = false,
+  animationType = "zoom"
 }) => {
   const sizeClasses = {
     sm: "h-8 w-auto",
@@ -35,7 +37,7 @@ const Logo105: React.FC<Logo105Props> = ({
     "object-contain transition-transform hover:scale-105",
     sizeClasses[size],
     variantClasses[variant],
-    animate && "animate-spin-slow",
+    animate && (animationType === "zoom" ? "animate-zoom-slow" : "animate-spin-slow"),
     className
   );
 

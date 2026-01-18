@@ -48,7 +48,7 @@ export default function Kaolack105Slides() {
           <div className="relative z-10 w-full flex flex-col items-center">
             {slide.logo && (
               <div className="mb-6 flex justify-center">
-                <Logo105 size="xl" variant="white-bg" className="drop-shadow-lg" animate={true} />
+                <Logo105 size="xl" variant="white-bg" className="drop-shadow-lg" animate={true} animationType="zoom" />
               </div>
             )}
             <h2 className="text-3xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-2" style={{ textShadow: '0 2px 8px #000' }}>{slide.title}</h2>
