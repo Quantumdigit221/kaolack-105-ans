@@ -79,22 +79,24 @@ router.get('/', async (req, res) => {
               postData[field] = postData[field].replace('http://portail.kaolackcommune.sn/', 'https://portail.kaolackcommune.sn/');
             }
           } else {
-            // En développement, utiliser localhost
+            // En développement, utiliser localhost avec le bon port
+            const devUrl = `https://127.0.0.1:${process.env.PORT || 3001}/uploads/`;
             postData[field] = postData[field].replace(
               /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
-              'https://127.0.0.1:3001/uploads/'
+              devUrl
             );
             // Corriger les URLs qui commencent par :3003/
             if (postData[field].startsWith(':3003/')) {
-              postData[field] = postData[field].replace(':3003/', 'https://127.0.0.1:3001/');
+              postData[field] = postData[field].replace(':3003/', devUrl);
             }
             // Corriger les URLs qui ont http://localhost:3003/
             if (postData[field].startsWith('http://localhost:3003/')) {
-              postData[field] = postData[field].replace('http://localhost:3003/', 'https://127.0.0.1:3001/');
+              postData[field] = postData[field].replace('http://localhost:3003/', devUrl);
             }
             // Corriger les URLs HTTP en HTTPS pour localhost:3001
-            if (postData[field].startsWith('http://127.0.0.1:3001/')) {
-              postData[field] = postData[field].replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/');
+            const httpDevUrl = `http://127.0.0.1:${process.env.PORT || 3001}/`;
+            if (postData[field].startsWith(httpDevUrl)) {
+              postData[field] = postData[field].replace(httpDevUrl, devUrl);
             }
           }
         }
@@ -156,8 +158,8 @@ router.post('/', authenticateToken, validatePost, async (req, res) => {
         content: postWithAuthor.content,
         category: postWithAuthor.category,
         image_url: postWithAuthor.imageUrl ? (process.env.NODE_ENV === 'production' ? 
-          postWithAuthor.imageUrl.replace('http://127.0.0.1:3001/', 'https://portail.kaolackcommune.sn/') :
-          postWithAuthor.imageUrl.replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/')) : null,
+          postWithAuthor.imageUrl.replace(`http://127.0.0.1:${process.env.PORT || 3001}/`, 'https://portail.kaolackcommune.sn/') :
+          postWithAuthor.imageUrl.replace(`http://127.0.0.1:${process.env.PORT || 3001}/`, `https://127.0.0.1:${process.env.PORT || 3001}/`)) : null,
         likes_count: postWithAuthor.likesCount,
         comments_count: postWithAuthor.commentsCount,
         created_at: postWithAuthor.createdAt ? new Date(postWithAuthor.createdAt).toISOString() : new Date().toISOString(),
@@ -201,8 +203,8 @@ router.get('/:id', async (req, res) => {
       content: post.content,
       category: post.category,
       image_url: post.imageUrl ? (process.env.NODE_ENV === 'production' ? 
-        post.imageUrl.replace('http://127.0.0.1:3001/', 'https://portail.kaolackcommune.sn/') :
-        post.imageUrl.replace('http://127.0.0.1:3001/', 'https://127.0.0.1:3001/')) : null,
+        post.imageUrl.replace(`http://127.0.0.1:${process.env.PORT || 3001}/`, 'https://portail.kaolackcommune.sn/') :
+        post.imageUrl.replace(`http://127.0.0.1:${process.env.PORT || 3001}/`, `https://127.0.0.1:${process.env.PORT || 3001}/`)) : null,
       likes_count: post.likesCount,
       comments_count: post.commentsCount,
       created_at: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),

@@ -53,7 +53,11 @@ router.post('/image', authenticateToken, upload.single('image'), (req, res) => {
       return res.status(400).json({ error: 'Aucun fichier uploadé' });
     }
 
-    const imageUrl = `http://127.0.0.1:3001/uploads/${req.file.filename}`;
+    // Générer l'URL de l'image en fonction de l'environnement
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://portail.kaolackcommune.sn'
+      : `http://127.0.0.1:${process.env.PORT || 3001}`;
+    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
     res.json({
       message: 'Image uploadée avec succès',
@@ -75,7 +79,11 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), (req, res) =>
       return res.status(400).json({ error: 'Aucun fichier uploadé' });
     }
 
-    const avatarUrl = `http://127.0.0.1:3001/uploads/${req.file.filename}`;
+    // Générer l'URL de l'avatar en fonction de l'environnement
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://portail.kaolackcommune.sn'
+      : `http://127.0.0.1:${process.env.PORT || 3001}`;
+    const avatarUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
     res.json({
       message: 'Avatar uploadé avec succès',

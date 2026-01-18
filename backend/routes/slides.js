@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
           // En développement, utiliser localhost en HTTPS
           slideData.image = slideData.image.replace(
             /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
-            'https://127.0.0.1:3001/uploads/'
+            `https://127.0.0.1:${process.env.PORT || 3001}/uploads/`
           );
         }
       }
@@ -70,7 +70,7 @@ router.get('/admin', authenticateToken, async (req, res) => {
           // En développement, utiliser localhost en HTTPS
           slideData.image = slideData.image.replace(
             /https:\/\/portail\.kaolackcommune\.sn\/uploads\//g,
-            'https://127.0.0.1:3001/uploads/'
+            `https://127.0.0.1:${process.env.PORT || 3001}/uploads/`
           );
         }
       }

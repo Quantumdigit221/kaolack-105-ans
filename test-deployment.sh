@@ -14,8 +14,8 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-API_URL="https://api.kaolack.sn"
-FRONTEND_URL="https://kaolack.sn"
+API_URL="https://portail.kaolackcommune.sn/api"
+FRONTEND_URL="https://portail.kaolackcommune.sn"
 
 log_test() {
     echo -e "${BLUE}[TEST]${NC} $1"

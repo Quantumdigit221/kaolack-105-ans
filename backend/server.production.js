@@ -3,7 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env.production') });
 
 const { testConnection, syncDatabase } = require('./config/database');
 const db = require('./models');
@@ -50,7 +50,7 @@ app.use(limiter);
 // Configuration CORS pour la production
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.CORS_ORIGIN, 'https://mairie.quantum221.com', 'https://www.mairie.quantum221.com']
+    ? [process.env.FRONTEND_URL, process.env.CORS_ORIGIN, 'https://portail.kaolackcommune.sn']
     : ['http://localhost:8080', 'http://localhost:3000', 'http://127.0.0.1:8080'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
