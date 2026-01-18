@@ -46,8 +46,8 @@ router.get('/admin', authenticateToken, async (req, res) => {
   }
 });
 
-// POST /api/personalities - Créer une nouvelle personnalité
-router.post('/', authenticateToken, async (req, res) => {
+// POST /api/personalities - Créer une nouvelle personnalité (publique)
+router.post('/', async (req, res) => {
   try {
     const {
       name,

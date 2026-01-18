@@ -46,8 +46,8 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
-// 📌 Route upload image
-router.post('/image', authenticateToken, upload.single('image'), (req, res) => {
+// 📌 Route upload image (publique pour les personnalités)
+router.post('/image', upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Aucun fichier uploadé' });

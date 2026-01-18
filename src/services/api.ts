@@ -905,7 +905,7 @@ class ApiService {
 
   async getPersonalities() {
     return this.request<{
-      personalities: Array<{
+      data: Array<{
         id: number;
         name: string;
         category: string;

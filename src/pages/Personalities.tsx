@@ -137,7 +137,6 @@ const Personalities = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify(personalityData),
       });
@@ -227,6 +226,10 @@ const Personalities = () => {
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Proposer une personnalité à honorer</DialogTitle>
+                <DialogDescription>
+                  Proposez une personnalité qui a marqué l'histoire de Kaolack. 
+                  Votre proposition sera examinée par l'administrateur avant d'être publiée.
+                </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto">
                 <div className="space-y-2">
