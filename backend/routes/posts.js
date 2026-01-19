@@ -102,6 +102,13 @@ router.get('/', async (req, res) => {
         }
       });
       
+      // S'assurer que image_url est bien présent (priorité à imageUrl)
+      if (postData.imageUrl && !postData.image_url) {
+        postData.image_url = postData.imageUrl;
+      } else if (postData.image_url && !postData.imageUrl) {
+        postData.imageUrl = postData.image_url;
+      }
+      
       return postData;
     });
 
