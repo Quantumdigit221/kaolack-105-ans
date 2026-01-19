@@ -49,6 +49,8 @@ router.get('/admin', authenticateToken, async (req, res) => {
 // POST /api/personalities - Créer une nouvelle personnalité (publique)
 router.post('/', async (req, res) => {
   try {
+    console.log('Request body:', req.body);
+    
     const {
       name,
       category,
@@ -60,8 +62,11 @@ router.post('/', async (req, res) => {
       proposedBy = 'Admin'
     } = req.body;
 
+    console.log('Extracted data:', { name, category, role, description, image, contributions, status, proposedBy });
+
     // Validation
     if (!name || !category || !role || !description || !image) {
+      console.log('Validation failed - missing fields');
       return res.status(400).json({
         success: false,
         error: "Tous les champs obligatoires doivent être remplis"

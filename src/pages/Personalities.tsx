@@ -116,7 +116,9 @@ const Personalities = () => {
       }
 
       const uploadResult = await uploadResponse.json();
-      const imageUrl = uploadResult.url;
+      console.log('Upload result:', uploadResult);
+      const imageUrl = uploadResult.imageUrl;
+      console.log('Image URL:', imageUrl);
 
       // Création de la personnalité
       const personalityData = {
@@ -132,6 +134,8 @@ const Personalities = () => {
         status: 'pending',
         proposedBy: "Anonyme",
       };
+
+      console.log('Personality data:', personalityData);
 
       const response = await fetch('https://portail.kaolackcommune.sn/api/personalities', {
         method: 'POST',
