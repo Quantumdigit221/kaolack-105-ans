@@ -76,9 +76,9 @@ export const PostsManagement = () => {
                 {/* Image */}
                 <div className="md:col-span-1">
                   <div className="relative h-48 md:h-full bg-gray-100">
-                    {post.imageUrl ? (
+                    {post.image_url ? (
                       <img
-                        src={post.imageUrl.startsWith('http') ? post.imageUrl : `https://portail.kaolackcommune.sn${post.imageUrl}`}
+                        src={post.image_url.startsWith('http') ? post.image_url : `https://portail.kaolackcommune.sn${post.image_url}`}
                         alt={post.title}
                         className="w-full h-full object-cover"
                       />
@@ -125,11 +125,11 @@ export const PostsManagement = () => {
                         {approvePostMutation.isPending ? 'Approbation...' : 'Approuver'}
                       </Button>
                       
-                      {post.imageUrl && (
+                      {post.image_url && (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(post.imageUrl.startsWith('http') ? post.imageUrl : `https://portail.kaolackcommune.sn${post.imageUrl}`, '_blank')}
+                          onClick={() => window.open(post.image_url.startsWith('http') ? post.image_url : `https://portail.kaolackcommune.sn${post.image_url}`, '_blank')}
                           className="flex items-center gap-2"
                         >
                           <Eye className="h-4 w-4" />
@@ -165,9 +165,9 @@ export const PostsManagement = () => {
                 {/* Image */}
                 <div className="md:col-span-1">
                   <div className="relative h-48 md:h-full bg-gray-100">
-                    {post.imageUrl ? (
+                    {post.image_url ? (
                       <img
-                        src={post.imageUrl.startsWith('http') ? post.imageUrl : `https://portail.kaolackcommune.sn${post.imageUrl}`}
+                        src={post.image_url.startsWith('http') ? post.image_url : `https://portail.kaolackcommune.sn${post.image_url}`}
                         alt={post.title}
                         className="w-full h-full object-cover"
                       />
