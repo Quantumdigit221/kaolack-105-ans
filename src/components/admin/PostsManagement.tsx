@@ -111,7 +111,7 @@ export const PostsManagement = () => {
                     </div>
 
                     <div className="flex items-center text-sm text-gray-500">
-                      <span>Date: {new Date(post.created_at).toLocaleDateString('fr-FR')}</span>
+                      <span>Date: {post.created_at ? new Date(post.created_at).toLocaleDateString('fr-FR') : 'Date inconnue'}</span>
                     </div>
 
                     <div className="flex items-center gap-3 pt-4 border-t">
@@ -200,15 +200,15 @@ export const PostsManagement = () => {
                     </div>
 
                     <div className="flex items-center text-sm text-gray-500">
-                      <span>Date: {new Date(post.created_at).toLocaleDateString('fr-FR')}</span>
+                      <span>Date: {post.created_at ? new Date(post.created_at).toLocaleDateString('fr-FR') : 'Date inconnue'}</span>
                     </div>
 
-                    {post.imageUrl && (
+                    {post.image_url && (
                       <div className="flex items-center gap-3 pt-4 border-t">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(post.imageUrl.startsWith('http') ? post.imageUrl : `https://portail.kaolackcommune.sn${post.imageUrl}`, '_blank')}
+                          onClick={() => window.open(post.image_url.startsWith('http') ? post.image_url : `https://portail.kaolackcommune.sn${post.image_url}`, '_blank')}
                           className="flex items-center gap-2"
                         >
                           <Eye className="h-4 w-4" />
