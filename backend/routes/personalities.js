@@ -174,6 +174,42 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// PATCH /api/personalities/:id/approve - Approuver une personnalité
+router.patch('/:id/approve', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const personality = await Personality.findByPk(id);
+
+    if (!personality) {
+      return res.status(404).json({
+        success: false,
+        error: "Personnalité non trouvée"
+      });
+    }
+
+    if (personality.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        error: "Cette personnalité n'est pas en attente d'approbation"
+      });
+    }
+
+    await personality.update({ status: 'approved' });
+
+    res.json({
+      success: true,
+      data: personality,
+      message: "Personnalité approuvée avec succès"
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'approbation de la personnalité:', error);
+    res.status(500).json({
+      success: false,
+      error: "Erreur lors de l'approbation de la personnalité"
+    });
+  }
+});
+
 // POST /api/personalities/:id/vote - Voter pour une personnalité
 router.post('/:id/vote', async (req, res) => {
   try {
