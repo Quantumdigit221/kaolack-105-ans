@@ -88,8 +88,10 @@ const Personalities = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('Form submitted with data:', formData);
+    console.log('=== SUBMIT START ===');
+    console.log('Form data:', formData);
     console.log('Image preview exists:', !!imagePreview);
+    console.log('Image preview length:', imagePreview.length);
 
     if (!formData.name || !formData.category || !formData.role || !formData.description) {
       toast.error("Tous les champs texte sont obligatoires");
@@ -104,37 +106,43 @@ const Personalities = () => {
     setSubmitting(true);
 
     try {
-      // Test simple upload
-      console.log('Starting image upload...');
+      // Test upload SANS conversion blob
+      console.log('=== UPLOAD TEST ===');
       
       const imageFormData = new FormData();
-      const blob = await (await fetch(imagePreview)).blob();
-      imageFormData.append('image', blob, 'personality.jpg');
       
-      console.log('FormData created, sending request...');
+      // Créer un fichier depuis l'URL data
+      const response_img = await fetch(imagePreview);
+      const blob = await response_img.blob();
+      const file = new File([blob], 'personality.jpg', { type: 'image/jpeg' });
+      
+      imageFormData.append('image', file);
+      
+      console.log('FormData created, file size:', file.size);
+      console.log('File type:', file.type);
       
       const uploadResponse = await fetch('https://portail.kaolackcommune.sn/api/upload/image', {
         method: 'POST',
         body: imageFormData,
       });
 
-      console.log('Upload response status:', uploadResponse.status);
-      console.log('Upload response ok:', uploadResponse.ok);
+      console.log('Upload status:', uploadResponse.status);
+      console.log('Upload ok:', uploadResponse.ok);
 
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        console.error('Upload error response:', errorText);
-        throw new Error("Erreur lors de l'upload de l'image");
+        console.error('Upload error:', errorText);
+        throw new Error(`Upload failed: ${uploadResponse.status} - ${errorText}`);
       }
 
       const uploadResult = await uploadResponse.json();
-      console.log('Upload result:', uploadResult);
+      console.log('Upload success:', uploadResult);
+      
       const imageUrl = uploadResult.imageUrl;
-      console.log('Image URL:', imageUrl);
+      console.log('Final image URL:', imageUrl);
 
       if (!imageUrl) {
-        console.error('Image URL is undefined!');
-        throw new Error("URL de l'image non reçue");
+        throw new Error("Image URL non reçue du serveur");
       }
 
       // Création de la personnalité
