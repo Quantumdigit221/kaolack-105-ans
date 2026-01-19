@@ -88,6 +88,9 @@ const Personalities = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log('Form submitted with data:', formData);
+    console.log('Image preview exists:', !!imagePreview);
+
     if (!formData.name || !formData.category || !formData.role || !formData.description) {
       toast.error("Tous les champs texte sont obligatoires");
       return;
@@ -101,17 +104,26 @@ const Personalities = () => {
     setSubmitting(true);
 
     try {
-      // Upload de l'image
+      // Test simple upload
+      console.log('Starting image upload...');
+      
       const imageFormData = new FormData();
       const blob = await (await fetch(imagePreview)).blob();
       imageFormData.append('image', blob, 'personality.jpg');
+      
+      console.log('FormData created, sending request...');
       
       const uploadResponse = await fetch('https://portail.kaolackcommune.sn/api/upload/image', {
         method: 'POST',
         body: imageFormData,
       });
 
+      console.log('Upload response status:', uploadResponse.status);
+      console.log('Upload response ok:', uploadResponse.ok);
+
       if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error('Upload error response:', errorText);
         throw new Error("Erreur lors de l'upload de l'image");
       }
 
@@ -119,6 +131,11 @@ const Personalities = () => {
       console.log('Upload result:', uploadResult);
       const imageUrl = uploadResult.imageUrl;
       console.log('Image URL:', imageUrl);
+
+      if (!imageUrl) {
+        console.error('Image URL is undefined!');
+        throw new Error("URL de l'image non reçue");
+      }
 
       // Création de la personnalité
       const personalityData = {
