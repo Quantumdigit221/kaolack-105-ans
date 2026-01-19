@@ -136,6 +136,21 @@ export const PostsManagement = () => {
                           Voir l'image
                         </Button>
                       )}
+                      
+                      {/* Debug: Afficher toujours le bouton pour tester */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          console.log('Debug - post.image_url:', post.image_url);
+                          const url = post.image_url || 'https://portail.kaolackcommune.sn/uploads/post-1768845504416-98930750.jpeg';
+                          window.open(url, '_blank');
+                        }}
+                        className="flex items-center gap-2 bg-red-50"
+                      >
+                        <Eye className="h-4 w-4" />
+                        Debug Voir
+                      </Button>
                     </div>
                   </div>
                 </div>
