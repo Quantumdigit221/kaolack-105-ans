@@ -10,7 +10,7 @@ import Kaolack105Home from "./pages/Kaolack105Home";
 import Feed from "./pages/Feed";
 import Gallery from "./pages/Gallery";
 import Timeline from "./pages/Timeline";
-import Personalities from "./pages/Personalities";
+import Personalities from "./pages/PersonalitiesPage";
 import Economy from "./pages/Economy";
 import Auth from "./pages/Auth";
 import Auth105 from "./pages/Auth105";
