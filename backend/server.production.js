@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+// const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env.production') });
 
@@ -38,15 +38,15 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Rate limiting plus strict en production
-const limiter = rateLimit({
-  windowMs: process.env.NODE_ENV === 'production' ? 15 * 60 * 1000 : 60 * 1000, // 15 min en prod, 1 min en dev
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000,
-  message: 'Trop de requêtes depuis cette IP',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// const limiter = rateLimit({
+//   windowMs: process.env.NODE_ENV === 'production' ? 15 * 60 * 1000 : 60 * 1000, // 15 min en prod, 1 min en dev
+//   max: process.env.NODE_ENV === 'production' ? 100 : 1000,
+//   message: 'Trop de requêtes depuis cette IP',
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
 
-app.use(limiter);
+// app.use(limiter);
 
 // Configuration CORS pour la production
 const corsOptions = {
