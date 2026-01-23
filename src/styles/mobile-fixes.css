@@ -1,0 +1,96 @@
+/* Corrections spécifiques Android et mobile */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Éviter le zoom sur Android */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  /* Corriger les débordements */
+  img, video {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Améliorer le tap target */
+  button, a {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Corriger les textes trop longs */
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+  
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+  
+  .text-3xl {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Espacement mobile */
+  .py-16 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  
+  .py-12 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+}
+
+/* Corrections pour les très petits écrans */
+@media (max-width: 320px) {
+  .text-xl {
+    font-size: 1rem !important;
+  }
+  
+  .text-2xl {
+    font-size: 1.125rem !important;
+  }
+  
+  .text-3xl {
+    font-size: 1.25rem !important;
+  }
+  
+  .container {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+}
+
+/* Corrections spécifiques Android Chrome */
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (max-width: 640px) {
+  select {
+    background-image: none !important;
+  }
+  
+  /* Éviter le scroll horizontal */
+  body {
+    overflow-x: hidden !important;
+  }
+  
+  /* Corriger les animations sur mobile */
+  .group:hover .group-hover\:scale-105 {
+    transform: none !important;
+  }
+}
+
+/* Amélioration du menu mobile */
+@media (max-width: 768px) {
+  .fixed.inset-0.z-50 {
+    backdrop-filter: blur(4px);
+  }
+  
+  .touch-target {
+    touch-action: manipulation;
+  }
+}

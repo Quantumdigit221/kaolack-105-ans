@@ -232,54 +232,30 @@ const Navigation = () => {
 
       {/* Menu mobile */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t bg-card/95 backdrop-blur">
-          <div className="container px-4 py-4 space-y-2">
-            {dynamicMenu.map((item, idx) => {
-              const Icon = ICONS[item.icon as keyof typeof ICONS] || Home;
-              if ((item as any).external) {
-                return (
-                  <a
-                    key={idx}
-                    href={item.path}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center px-3 py-3 rounded hover:bg-muted transition w-full"
-                    onClick={closeMobileMenu}
-                  >
-                    <Icon className="h-5 w-5 mr-3" />
-                    <span>{item.label}</span>
-                  </a>
-                );
-              }
-              return (
-                <a
-                  key={idx}
-                  href={item.path}
-                  className="flex items-center px-3 py-3 rounded hover:bg-muted transition w-full"
-                  onClick={closeMobileMenu}
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden">
+          <div className="fixed right-0 top-0 h-full w-72 bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
+            <div className="p-4 border-b">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-lg">Menu</span>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 rounded-md hover:bg-gray-100"
                 >
-                  <Icon className="h-5 w-5 mr-3" />
-                  <span>{item.label}</span>
-                </a>
-              );
-            })}
-
-            {/* Menu LA COMMUNE pour mobile */}
-            <div className="border-t pt-2 mt-2">
-              <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">
-                LA COMMUNE
+                  <X className="h-6 w-6" />
+                </button>
               </div>
-              {COMMUNE_MENU_ITEMS.map((item, idx) => {
-                const Icon = ICONS[item.icon as keyof typeof ICONS] || Landmark;
-                
-                if (item.external) {
+            </div>
+            <div className="p-4 space-y-2 overflow-y-auto h-full pb-20">
+              {dynamicMenu.map((item, idx) => {
+                const Icon = ICONS[item.icon as keyof typeof ICONS] || Home;
+                if ((item as any).external) {
                   return (
                     <a
                       key={idx}
                       href={item.path}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center px-6 py-3 rounded hover:bg-muted transition w-full"
+                      className="flex items-center px-3 py-3 rounded hover:bg-muted transition w-full"
                       onClick={closeMobileMenu}
                     >
                       <Icon className="h-5 w-5 mr-3" />
@@ -287,28 +263,11 @@ const Navigation = () => {
                     </a>
                   );
                 }
-                
-                if (item.onClick) {
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        item.onClick!();
-                        closeMobileMenu();
-                      }}
-                      className="flex items-center px-6 py-3 rounded hover:bg-muted transition w-full text-left"
-                    >
-                      <Icon className="h-5 w-5 mr-3" />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                }
-                
                 return (
                   <a
                     key={idx}
                     href={item.path}
-                    className="flex items-center px-6 py-3 rounded hover:bg-muted transition w-full"
+                    className="flex items-center px-3 py-3 rounded hover:bg-muted transition w-full"
                     onClick={closeMobileMenu}
                   >
                     <Icon className="h-5 w-5 mr-3" />
@@ -316,28 +275,82 @@ const Navigation = () => {
                   </a>
                 );
               })}
+
+              {/* Menu LA COMMUNE pour mobile */}
+              <div className="border-t pt-2 mt-2">
+                <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">
+                  LA COMMUNE
+                </div>
+                {COMMUNE_MENU_ITEMS.map((item, idx) => {
+                  const Icon = ICONS[item.icon as keyof typeof ICONS] || Landmark;
+                  
+                  if (item.external) {
+                    return (
+                      <a
+                        key={idx}
+                        href={item.path}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-6 py-3 rounded hover:bg-muted transition w-full"
+                        onClick={closeMobileMenu}
+                      >
+                        <Icon className="h-5 w-5 mr-3" />
+                        <span>{item.label}</span>
+                      </a>
+                    );
+                  }
+                  
+                  if (item.onClick) {
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          item.onClick!();
+                          closeMobileMenu();
+                        }}
+                        className="flex items-center px-6 py-3 rounded hover:bg-muted transition w-full text-left"
+                      >
+                        <Icon className="h-5 w-5 mr-3" />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  }
+                  
+                  return (
+                    <a
+                      key={idx}
+                      href={item.path}
+                      className="flex items-center px-6 py-3 rounded hover:bg-muted transition w-full"
+                      onClick={closeMobileMenu}
+                    >
+                      <Icon className="h-5 w-5 mr-3" />
+                      <span>{item.label}</span>
+                    </a>
+                  );
+                })}
+              </div>
+              
+              {/* Bouton Administration mobile pour admin */}
+              {isAuthenticated && user?.role === 'admin' && (
+                <a
+                  href="/admin"
+                  className="flex items-center px-3 py-3 rounded bg-blue-600 text-white hover:bg-blue-700 transition w-full"
+                  onClick={closeMobileMenu}
+                >
+                  <Shield className="h-5 w-5 mr-3" />
+                  <span>Administration</span>
+                </a>
+              )}
+              
+              {isAuthenticated && (
+                <button
+                  className="flex items-center px-3 py-3 rounded bg-destructive text-white hover:bg-destructive/80 transition w-full"
+                  onClick={handleLogout}
+                >
+                  <span>Déconnexion</span>
+                </button>
+              )}
             </div>
-            
-            {/* Bouton Administration mobile pour admin */}
-            {isAuthenticated && user?.role === 'admin' && (
-              <a
-                href="/admin"
-                className="flex items-center px-3 py-3 rounded bg-blue-600 text-white hover:bg-blue-700 transition w-full"
-                onClick={closeMobileMenu}
-              >
-                <Shield className="h-5 w-5 mr-3" />
-                <span>Administration</span>
-              </a>
-            )}
-            
-            {isAuthenticated && (
-              <button
-                className="flex items-center px-3 py-3 rounded bg-destructive text-white hover:bg-destructive/80 transition w-full"
-                onClick={handleLogout}
-              >
-                <span>Déconnexion</span>
-              </button>
-            )}
           </div>
         </div>
       )}

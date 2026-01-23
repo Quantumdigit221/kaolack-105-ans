@@ -14,6 +14,7 @@ import mairePhoto from "@/assets/maire-kaolack.png";
 import { KaolackHistoryBot } from "@/components/KaolackHistoryBot";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import '../styles/mobile-fixes.css';
 
 // Slides par défaut si l'API ne retourne rien
 const defaultSlides = [
@@ -71,7 +72,7 @@ function SimpleSlider() {
 
   if (isLoading) {
     return (
-      <div className="relative h-[250px] sm:h-[300px] md:h-[400px] lg:h-[500px] w-full overflow-hidden flex items-center justify-center bg-gray-100">
+      <div className="relative h-[200px] sm:h-[250px] md:h-[350px] lg:h-[450px] w-full overflow-hidden flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="text-sm sm:text-base md:text-lg text-gray-600">Chargement des slides...</div>
         </div>
@@ -80,7 +81,7 @@ function SimpleSlider() {
   }
 
   return (
-    <div className="relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] w-full overflow-hidden group">
+    <div className="relative h-[250px] sm:h-[350px] md:h-[450px] lg:h-[550px] xl:h-[650px] w-full overflow-hidden group">
       {/* Background animated gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-kaolack-green via-kaolack-green-light to-kaolack-orange opacity-90" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
@@ -149,7 +150,7 @@ function SimpleSlider() {
             )}
             
             <motion.div className="space-y-2 sm:space-y-3 md:space-y-4">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black drop-shadow-2xl leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/90">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black drop-shadow-2xl leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/90">
                 {slide.title}
               </h2>
               {slide.subtitle && (
@@ -157,7 +158,7 @@ function SimpleSlider() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
-                  className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl drop-shadow-lg leading-relaxed text-white/95 max-w-lg"
+                  className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl drop-shadow-lg leading-relaxed text-white/95 max-w-lg"
                 >
                   {slide.subtitle}
                 </motion.p>
@@ -381,7 +382,7 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
           <SimpleSlider />
         </section>
 
-        <div className="container py-8 sm:py-12 md:py-16 space-y-8 sm:space-y-12 md:space-y-16 px-4 sm:px-6">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 space-y-8 sm:space-y-12 md:space-y-16">
           {/* Axes d'intervention - Design moderne */}
           <section className="relative">
             {/* Background décoratif */}
@@ -483,7 +484,7 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
               </p>
             </motion.div>
             
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 relative z-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 relative z-10">
               {/* Bureau économique local */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
