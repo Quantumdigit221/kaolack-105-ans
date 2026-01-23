@@ -88,6 +88,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/slides', slidesRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/personalities', personalitiesRoutes);
+app.use('/api/axes-intervention', require('./routes/axes-intervention'));
 
 // Gestion d'erreur globale
 app.use((err, req, res, next) => {

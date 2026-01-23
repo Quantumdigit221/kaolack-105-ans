@@ -5,14 +5,15 @@ import { PostsManagement } from '@/components/admin/PostsManagement';
 import { UsersManagement } from '@/components/admin/UsersManagement';
 import { NewsManagement } from '@/components/admin/NewsManagement';
 import { Button } from '@/components/ui/button';
-import { FileText, Users, Newspaper, UserCheck, Image as ImageIcon, UserCircle } from 'lucide-react';
+import { FileText, Users, Newspaper, UserCheck, Image as ImageIcon, UserCircle, Building2 } from 'lucide-react';
 import { AdminSlidesManager } from '@/components/admin/AdminSlidesManager';
 import PersonalitiesManagement from '@/components/admin/PersonalitiesManagement';
 import { AdminMaireManager } from '@/components/admin/AdminMaireManager';
+import AxesInterventionManager from '@/components/admin/AxesInterventionManager';
 
 const Admin = () => {
   const { user, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'posts' | 'users' | 'news' | 'personalities' | 'slides' | 'maire'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'users' | 'news' | 'personalities' | 'slides' | 'maire' | 'axes'>('posts');
 
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/" replace />;
@@ -70,6 +71,22 @@ const Admin = () => {
                 <ImageIcon className="h-4 w-4 mr-2" />
                 Slides Accueil
               </Button>
+              <Button
+                variant={activeTab === 'maire' ? 'default' : 'ghost'}
+                className="py-4 px-1 border-b-2 border-transparent data-[state=active]:border-blue-500"
+                onClick={() => setActiveTab('maire')}
+              >
+                <UserCircle className="h-4 w-4 mr-2" />
+                Maire
+              </Button>
+              <Button
+                variant={activeTab === 'axes' ? 'default' : 'ghost'}
+                className="py-4 px-1 border-b-2 border-transparent data-[state=active]:border-blue-500"
+                onClick={() => setActiveTab('axes')}
+              >
+                <Building2 className="h-4 w-4 mr-2" />
+                Axes d'Intervention
+              </Button>
             </nav>
           </div>
           {activeTab === 'slides' && (
@@ -118,6 +135,14 @@ const Admin = () => {
                 <h2 className="text-xl font-semibold mb-4">Gestion de la Présentation du Maire</h2>
                 <p className="text-gray-600 mb-6">Modifiez les informations et la photo du maire affichées sur la page d'accueil</p>
                 <AdminMaireManager />
+              </div>
+            )}
+
+            {activeTab === 'axes' && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Gestion des Axes d'Intervention</h2>
+                <p className="text-gray-600 mb-6">Modifiez le contenu des pages d'axes d'intervention</p>
+                <AxesInterventionManager />
               </div>
             )}
           </div>

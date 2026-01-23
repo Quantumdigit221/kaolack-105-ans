@@ -44,6 +44,20 @@ const defaultSlides = [
 function SimpleSlider() {
   const [current, setCurrent] = useState(0);
   
+  // Détecter si on est sur mobile
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
   // Charger les slides depuis l'API
   const { data: apiSlides = [], isLoading } = useQuery({
     queryKey: ['home-slides'],
@@ -81,25 +95,46 @@ function SimpleSlider() {
   }
 
   return (
-    <div className="relative h-[250px] sm:h-[350px] md:h-[450px] lg:h-[550px] xl:h-[650px] w-full overflow-hidden group">
-      {/* Background animated gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-kaolack-green via-kaolack-green-light to-kaolack-orange opacity-90" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-      
-      {/* Animated particles background */}
+    <div className="relative h-[200px] sm:h-[250px] md:h-[350px] lg:h-[450px] xl:h-[500px] w-full overflow-hidden group">
+      {/* Background moderne avec dégradé animé */}
       <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 4}s`
-            }}
-          />
-        ))}
+        <div className="absolute inset-0 bg-gradient-to-br from-kaolack-green via-kaolack-green-light to-kaolack-orange opacity-95" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        
+        {/* Pattern moderne subtil - optimisé mobile */}
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+        
+        {/* Formes géométriques modernes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 right-10 w-20 h-20 bg-white/5 rounded-full blur-2xl animate-pulse" />
+          <div className="absolute bottom-10 left-10 w-32 h-32 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-white/5 rounded-full blur-xl animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
+        
+        {/* Particules animées optimisées */}
+        <div className="absolute inset-0">
+          {[...Array(isMobile ? 6 : 15)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-white/30 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${3 + Math.random() * 4}s`
+              }}
+            />
+          ))}
+        </div>
       </div>
       
       {slides.map((slide: any, idx: number) => (
@@ -113,12 +148,12 @@ function SimpleSlider() {
           transition={{ duration: 0.8, ease: "easeInOut" }}
           className={`absolute inset-0 ${idx === current ? 'z-10' : 'z-0'}`}
         >
-          {/* Image d'arrière-plan */}
+          {/* Image d'arrière-plan avec effet moderne */}
           {slide.image && (
             <img 
               src={slide.image.startsWith('http') ? slide.image : `https://portail.kaolackcommune.sn${slide.image}`}
               alt={slide.title} 
-              className="w-full h-full object-cover object-center" 
+              className="w-full h-full object-cover object-center opacity-85 mix-blend-overlay filter brightness-110" 
               onError={(e) => {
                 console.error('Erreur de chargement image slide:', slide.image);
                 e.currentTarget.style.display = 'none';
@@ -126,14 +161,17 @@ function SimpleSlider() {
             />
           )}
           {/* Overlay gradient moderne */}
-          <div className="absolute inset-0 bg-gradient-to-r from-kaolack-green/90 via-kaolack-green-light/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-kaolack-green/75 via-kaolack-green-light/55 to-transparent" />
           
-          {/* Contenu du slide - Responsive avec animations */}
+          {/* Ajout d'un overlay moderne avec effet de verre */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+          
+          {/* Contenu du slide - Design moderne responsive */}
           <motion.div 
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: idx === current ? 0 : -50, opacity: idx === current ? 1 : 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="absolute left-4 sm:left-6 md:left-8 lg:left-12 top-1/4 sm:top-1/3 md:top-1/3 text-white max-w-[90%] sm:max-w-md md:max-w-xl lg:max-w-2xl z-10 px-2 sm:px-0"
+            className="absolute left-3 sm:left-4 md:left-6 lg:left-8 top-1/3 sm:top-1/3 md:top-1/3 text-white max-w-[95%] sm:max-w-md md:max-w-xl lg:max-w-2xl z-10"
           >
             {/* Logo 105 ans si activé */}
             {slide.logo && !('cta' in slide) && (
@@ -141,16 +179,16 @@ function SimpleSlider() {
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="mb-3 sm:mb-4 md:mb-6 flex justify-start"
+                className="mb-2 sm:mb-3 md:mb-4 flex justify-start"
               >
-                <div className="rounded-2xl overflow-hidden bg-white/10 backdrop-blur-md p-3 sm:p-4 md:p-5 border border-white/20 shadow-2xl">
-                  <Logo105 size="xl" variant="white-bg" className="drop-shadow-2xl h-16 w-auto sm:h-20 md:h-24 lg:h-28" animate={false} />
+                <div className="rounded-xl sm:rounded-2xl overflow-hidden bg-white/20 backdrop-blur-md p-2 sm:p-3 md:p-4 border border-white/30 shadow-2xl ring-2 ring-white/10">
+                  <Logo105 size="lg" variant="white-bg" className="drop-shadow-2xl h-12 w-auto sm:h-16 md:h-20 lg:h-24" animate={false} />
                 </div>
               </motion.div>
             )}
             
-            <motion.div className="space-y-2 sm:space-y-3 md:space-y-4">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black drop-shadow-2xl leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/90">
+            <motion.div className="space-y-1 sm:space-y-2 md:space-y-3">
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-black drop-shadow-2xl leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/95">
                 {slide.title}
               </h2>
               {slide.subtitle && (
@@ -158,31 +196,31 @@ function SimpleSlider() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
-                  className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl drop-shadow-lg leading-relaxed text-white/95 max-w-lg"
+                  className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl drop-shadow-lg leading-relaxed text-white/90 max-w-lg"
                 >
                   {slide.subtitle}
                 </motion.p>
               )}
             </motion.div>
             
-            {/* CTA seulement pour les slides par défaut */}
+            {/* CTA moderne seulement pour les slides par défaut */}
             {'cta' in slide && slide.cta && slide.link && (
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="mt-4 sm:mt-6 md:mt-8"
+                className="mt-3 sm:mt-4 md:mt-6"
               >
                 <Link to={slide.link} className="inline-block group">
                   <Button 
-                    size="lg" 
-                    className="bg-white text-kaolack-green font-bold shadow-2xl hover:bg-white/90 hover:shadow-3xl hover:scale-105 transition-all duration-300 text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full border-2 border-white/20 backdrop-blur-sm"
+                    size={isMobile ? "sm" : "lg"} 
+                    className="bg-white/95 backdrop-blur-sm text-kaolack-green font-bold shadow-2xl hover:bg-white hover:shadow-3xl hover:scale-105 transition-all duration-300 text-xs sm:text-sm md:text-base lg:text-lg px-3 sm:px-6 md:px-8 lg:px-10 py-2 sm:py-3 md:py-4 rounded-full border-2 border-white/40 ring-2 ring-white/20"
                   >
-                    <span className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
-                      <span className="hidden sm:inline">{slide.cta}</span>
-                      <span className="sm:hidden">Voir</span>
-                      <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                    <span className="flex items-center gap-1 sm:gap-2">
+                      <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                      <span className="hidden xs:inline sm:inline">{slide.cta}</span>
+                      <span className="xs:hidden sm:hidden">{isMobile ? "Voir" : "Découvrir"}</span>
+                      <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </Button>
                 </Link>
@@ -194,24 +232,34 @@ function SimpleSlider() {
       
       {/* Navigation dots modernes */}
       {slides.length > 1 && (
-        <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-20">
+        <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5 md:gap-2 z-20">
           {slides.map((_: any, idx: number) => (
             <motion.button
               key={idx}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: isMobile ? 1.05 : 1.1 }}
+              whileTap={{ scale: isMobile ? 0.95 : 0.9 }}
               onClick={() => setCurrent(idx)}
               className={cn(
-                "w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 rounded-full border-2 transition-all duration-300",
+                "w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 rounded-full border transition-all duration-300",
                 idx === current 
-                  ? "bg-white border-white shadow-lg shadow-white/50 scale-125" 
-                  : "bg-white/30 border-white/60 hover:bg-white/50"
+                  ? "bg-white border-white shadow-lg shadow-white/50 scale-150" 
+                  : "bg-white/20 border-white/40 hover:bg-white/40"
               )}
               aria-label={`Aller au slide ${idx + 1}`}
             />
           ))}
         </div>
       )}
+      
+      {/* Progress bar moderne */}
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 sm:h-1 bg-white/10">
+        <motion.div 
+          className="h-full bg-gradient-to-r from-white to-white/80"
+          initial={{ width: 0 }}
+          animate={{ width: `${((current + 1) / slides.length) * 100}%` }}
+          transition={{ duration: 0.5 }}
+        />
+      </div>
     </div>
   );
 }
@@ -409,6 +457,22 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 relative z-10">
               {interventionAreas.map((area, index) => {
+                // Définir les routes pour chaque axe d'intervention
+                const getRouteForArea = (title: string) => {
+                  switch (title) {
+                    case "Urbanisme et Infrastructure":
+                      return "/urbanisme-infrastructure";
+                    case "Développement Économique":
+                      return "/developpement-economique";
+                    case "Culture et Patrimoine":
+                      return "/culture-patrimoine";
+                    case "Services aux Citoyens":
+                      return "/services-citoyens";
+                    default:
+                      return "/catalogue-numerique";
+                  }
+                };
+
                 return (
                   <motion.div
                     key={area.title}
@@ -418,7 +482,7 @@ c'est un honneur de servir notre magnifique commune et d'accompagner sa transfor
                     viewport={{ once: true }}
                     whileHover={{ y: -5 }}
                   >
-                    <Link to="/catalogue-numerique">
+                    <Link to={getRouteForArea(area.title)}>
                       <Card className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50 h-full">
                         {/* Background gradient */}
                         <div className={`absolute inset-0 bg-gradient-to-br ${area.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />

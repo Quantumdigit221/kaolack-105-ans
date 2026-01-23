@@ -24,6 +24,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import MobileMenuDemo from "./components/MobileMenuDemo";
 import DemandeTerrain from "./pages/DemandeTerrain";
+import UrbanismeInfrastructure from "./pages/UrbanismeInfrastructure";
+import DeveloppementEconomique from "./pages/DeveloppementEconomique";
+import CulturePatrimoine from "./pages/CulturePatrimoine";
+import ServicesCitoyens from "./pages/ServicesCitoyens";
+import ServicesCitoyensSimple from "./pages/ServicesCitoyensSimple";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -49,6 +54,12 @@ const App = () => {
             <Route path="/mots-du-maire" element={<MaireMessage />} />
             <Route path="/mobile-demo" element={<MobileMenuDemo />} />
             <Route path="/affaires-domaniales" element={<DemandeTerrain />} />
+            
+            {/* Pages des Axes d'Intervention */}
+            <Route path="/urbanisme-infrastructure" element={<UrbanismeInfrastructure />} />
+            <Route path="/developpement-economique" element={<DeveloppementEconomique />} />
+            <Route path="/culture-patrimoine" element={<CulturePatrimoine />} />
+            <Route path="/services-citoyens" element={<ServicesCitoyensSimple />} />
             
             {/* Module 105 de Kaolack - Protected routes */}
             <Route path="/kaolack-105" element={<ProtectedRoute><Kaolack105Home /></ProtectedRoute>} />
