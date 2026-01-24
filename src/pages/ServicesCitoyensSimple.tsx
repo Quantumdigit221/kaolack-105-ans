@@ -91,39 +91,41 @@ const ServicesCitoyens = () => {
             Nos Services Municipaux
           </h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {services.length > 0 ? (
               services.map((service, index) => (
-                <Card key={index} className="hover:shadow-xl transition-all duration-300 border-0 shadow-md group">
-                  <CardHeader className="text-center pb-4">
-                    <div className={`mx-auto p-4 bg-gradient-to-br ${service.color} rounded-2xl text-white mb-4 group-hover:scale-110 transition-transform`}>
-                      {service.icon}
+                <Card key={index} className="hover:shadow-lg transition-all duration-300 border-0 shadow-md group w-full">
+                  <CardHeader className="text-center pb-4 px-4 sm:px-6">
+                    <div className={`mx-auto p-3 sm:p-4 bg-gradient-to-br ${service.color} rounded-xl sm:rounded-2xl text-white mb-3 sm:mb-4 transition-transform`}>
+                      <div className="w-6 h-6 sm:w-8 sm:h-8">
+                        {service.icon}
+                      </div>
                     </div>
-                    <CardTitle className="text-xl">{service.titre}</CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardTitle className="text-lg sm:text-xl">{service.titre}</CardTitle>
+                    <CardDescription className="text-gray-600 text-sm sm:text-base">
                       {service.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-4">
+                  <CardContent className="pt-0 px-4 sm:px-6">
+                    <div className="space-y-3 sm:space-y-4">
                       <div>
-                        <h5 className="font-medium text-gray-900 mb-2">Services proposés</h5>
+                        <h5 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">Services proposés</h5>
                         <ul className="space-y-1">
                           {service.services.map((item, idx) => (
-                            <li key={idx} className="text-sm text-gray-600 flex items-start">
-                              <CheckCircle className="h-3 w-3 text-teal-600 mr-2 mt-0.5 flex-shrink-0" />
-                              {item}
+                            <li key={idx} className="text-xs sm:text-sm text-gray-600 flex items-start">
+                              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-teal-600 mr-2 mt-0.5 flex-shrink-0" />
+                              <span className="leading-tight">{item}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
                       
-                      <div className="text-sm text-gray-600">
+                      <div className="text-xs sm:text-sm text-gray-600 space-y-1">
                         <p><strong>Horaires:</strong> {service.horaires}</p>
                         <p><strong>Contact:</strong> {service.contact}</p>
                       </div>
                       
-                      <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                      <Button className="w-full bg-teal-600 hover:bg-teal-700 text-sm sm:text-base py-2 sm:py-2.5">
                         Contacter le service
                       </Button>
                     </div>
@@ -145,20 +147,22 @@ const ServicesCitoyens = () => {
             Numéros d'Urgence
           </h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {urgences.length > 0 ? (
               urgences.map((urgence, index) => (
-                <div key={index} className="bg-white rounded-lg p-6 border border-red-200 shadow-md hover:shadow-lg transition-shadow">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-red-100 rounded-lg text-red-600">
-                      {urgence.icon}
+                <div key={index} className="bg-white rounded-lg p-4 sm:p-6 border border-red-200 shadow-md hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                    <div className="p-1.5 sm:p-2 bg-red-100 rounded-lg text-red-600">
+                      <div className="w-4 h-4 sm:w-6 sm:h-6">
+                        {urgence.icon}
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{urgence.service}</h4>
-                      <p className="text-2xl font-bold text-red-600">{urgence.numero}</p>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{urgence.service}</h4>
+                      <p className="text-lg sm:text-2xl font-bold text-red-600">{urgence.numero}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">{urgence.description}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 leading-tight">{urgence.description}</p>
                   <p className="text-xs text-gray-500 mt-1">Disponible 24h/24</p>
                 </div>
               ))

@@ -153,19 +153,19 @@ const UrbanismeInfrastructure = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-0 shadow-lg">
-                    <div className="md:flex">
-                      <div className="md:w-1/3 bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white">
+                    <div className="flex flex-col sm:flex-row">
+                      <div className="sm:w-1/3 bg-gradient-to-br from-blue-500 to-blue-600 p-4 sm:p-6 text-white">
                         <div className="flex items-center justify-between mb-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatutColor(projet.statut)} text-gray-900`}>
+                          <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatutColor(projet.statut)} text-gray-900`}>
                             {getStatutText(projet.statut)}
                           </span>
-                          <Building2 className="h-8 w-8 opacity-50" />
+                          <Building2 className="h-6 w-6 sm:h-8 sm:w-8 opacity-50" />
                         </div>
                         
-                        <h3 className="text-xl font-bold mb-3">{projet.titre}</h3>
-                        <p className="text-blue-100 text-sm mb-4">{projet.description}</p>
+                        <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">{projet.titre}</h3>
+                        <p className="text-blue-100 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3">{projet.description}</p>
                         
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                           <div className="flex justify-between">
                             <span className="text-blue-200">Budget:</span>
                             <span className="font-medium">{projet.budget}</span>
@@ -176,31 +176,31 @@ const UrbanismeInfrastructure = () => {
                           </div>
                         </div>
                         
-                        <div className="mt-4">
-                          <div className="flex justify-between text-sm mb-1">
+                        <div className="mt-3 sm:mt-4">
+                          <div className="flex justify-between text-xs sm:text-sm mb-1">
                             <span>Progression</span>
                             <span>{projet.progression}%</span>
                           </div>
-                          <div className="w-full bg-blue-800 rounded-full h-2">
+                          <div className="w-full bg-blue-800 rounded-full h-1.5 sm:h-2">
                             <div 
-                              className="bg-white rounded-full h-2 transition-all duration-500"
+                              className="bg-white rounded-full h-1.5 sm:h-2 transition-all duration-500"
                               style={{ width: `${projet.progression}%` }}
                             />
                           </div>
                         </div>
                       </div>
                       
-                      <div className="md:w-2/3 p-6">
-                        <div className="mb-6">
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                            <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                      <div className="sm:w-2/3 p-4 sm:p-6">
+                        <div className="mb-4 sm:mb-6">
+                          <h4 className="font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
+                            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 mr-2" />
                             Détails du projet
                           </h4>
-                          <ul className="space-y-2">
+                          <ul className="space-y-1 sm:space-y-2">
                             {projet.details.map((detail, idx) => (
                               <li key={idx} className="flex items-start">
-                                <ChevronRight className="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                                <span className="text-gray-700">{detail}</span>
+                                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-gray-700 leading-tight">{detail}</span>
                               </li>
                             ))}
                           </ul>
@@ -254,7 +254,7 @@ const UrbanismeInfrastructure = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {services.map((service, index) => (
                 <motion.div
                   key={index}
@@ -348,7 +348,7 @@ const UrbanismeInfrastructure = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {actualites.map((actualite, index) => (
                 <motion.div
                   key={actualite.id}

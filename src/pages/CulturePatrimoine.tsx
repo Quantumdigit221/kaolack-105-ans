@@ -112,8 +112,7 @@ const CulturePatrimoine = () => {
           <div className="flex space-x-1 overflow-x-auto">
             {[
               { id: "patrimoine", label: "Patrimoine", icon: <Landmark className="h-4 w-4" /> },
-              { id: "evenements", label: "Événements", icon: <Calendar className="h-4 w-4" /> },
-              { id: "artistes", label: "Artistes", icon: <Star className="h-4 w-4" /> }
+              { id: "evenements", label: "Événements", icon: <Calendar className="h-4 w-4" /> }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -282,7 +281,7 @@ const CulturePatrimoine = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
               {evenementsCulturels.length > 0 ? (
                 evenementsCulturels.map((event, index) => (
                 <motion.div
@@ -291,54 +290,56 @@ const CulturePatrimoine = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-md group cursor-pointer">
-                    <div className={`h-48 bg-gradient-to-br ${event.color} relative overflow-hidden`}>
+                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-md group cursor-pointer w-full">
+                    <div className={`h-32 sm:h-48 bg-gradient-to-br ${event.color} relative overflow-hidden`}>
                       <div className="absolute inset-0 bg-black/20" />
-                      <div className="absolute top-4 left-4">
-                        <span className={`px-3 py-1 bg-white/90 text-gray-900 rounded-full text-xs font-medium`}>
+                      <div className="absolute top-2 sm:top-4 left-2 sm:left-4">
+                        <span className={`px-2 sm:px-3 py-1 bg-white/90 text-gray-900 rounded-full text-xs font-medium`}>
                           {getStatutText(event.statut)}
                         </span>
                       </div>
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm inline-block">
-                          {event.icon}
+                      <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4">
+                        <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm inline-block">
+                          <div className="w-4 h-4 sm:w-6 sm:h-6">
+                            {event.icon}
+                          </div>
                         </div>
-                        <p className="text-white font-medium mt-2">{event.date}</p>
-                        <p className="text-white/90 text-sm">{event.lieu}</p>
+                        <p className="text-white font-medium mt-1 sm:mt-2 text-xs sm:text-sm">{event.date}</p>
+                        <p className="text-white/90 text-xs sm:text-sm">{event.lieu}</p>
                       </div>
                     </div>
-                    <CardContent className="p-6">
-                      <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                    <CardContent className="p-4 sm:p-6">
+                      <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors text-sm sm:text-base">
                         {event.titre}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-4">
+                      <p className="text-gray-600 text-xs sm:text-sm mb-4 line-clamp-2">
                         {event.description}
                       </p>
                       
                       <div className="mb-4">
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
-                          <Users className="h-4 w-4 mr-2" />
+                        <div className="flex items-center text-xs sm:text-sm text-gray-600 mb-2">
+                          <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                           <span>{event.participants} participants attendus</span>
                         </div>
                       </div>
                       
                       <div className="mb-4">
-                        <h5 className="font-medium text-gray-900 mb-2">Programme</h5>
+                        <h5 className="font-medium text-gray-900 mb-2 text-xs sm:text-sm">Programme</h5>
                         <ul className="space-y-1">
                           {event.programme.slice(0, 2).map((item, idx) => (
-                            <li key={idx} className="text-sm text-gray-600 flex items-center">
-                              <ChevronRight className="h-3 w-3 text-purple-600 mr-2" />
-                              {item}
+                            <li key={idx} className="text-xs sm:text-sm text-gray-600 flex items-center">
+                              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 mr-2" />
+                              <span className="line-clamp-1">{item}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
                       
                       <div className="mb-4">
-                        <h5 className="font-medium text-gray-900 mb-2">Tarifs</h5>
+                        <h5 className="font-medium text-gray-900 mb-2 text-xs sm:text-sm">Tarifs</h5>
                         <div className="space-y-1">
                           {Object.entries(event.tarifs).slice(0, 2).map(([key, value]) => (
-                            <div key={key} className="flex justify-between text-sm">
+                            <div key={key} className="flex justify-between text-xs sm:text-sm">
                               <span className="text-gray-600 capitalize">{key.replace('_', ' ')}:</span>
                               <span className="font-medium text-purple-600">{value}</span>
                             </div>
@@ -347,11 +348,11 @@ const CulturePatrimoine = () => {
                       </div>
                       
                       <div className="flex gap-2">
-                        <Button className="flex-1 bg-purple-600 hover:bg-purple-700">
+                        <Button className="flex-1 bg-purple-600 hover:bg-purple-700 text-xs sm:text-sm py-2">
                           Réserver
                         </Button>
-                        <Button variant="outline" size="sm">
-                          <Share2 className="h-4 w-4" />
+                        <Button variant="outline" size="sm" className="p-2">
+                          <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -365,120 +366,6 @@ const CulturePatrimoine = () => {
                 </div>
               )}
             </div>
-          </motion.div>
-        )}
-
-        {/* Onglet Artistes */}
-        {activeTab === "artistes" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                Artistes Locaux
-              </h2>
-              <p className="text-gray-600">
-                Découvrez les talents qui font la richesse culturelle de Kaolack
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {initiativesCulturelles.length > 0 ? (
-                initiativesCulturelles.map((artiste, index) => (
-                <motion.div
-                  key={artiste.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card className="hover:shadow-xl transition-all duration-300 border-0 shadow-md group">
-                    <CardHeader className="text-center pb-4">
-                      <div className={`mx-auto p-4 bg-gradient-to-br ${artiste.color} rounded-2xl text-white mb-4 group-hover:scale-110 transition-transform`}>
-                        {artiste.icon}
-                      </div>
-                      <CardTitle className="text-xl">{artiste.nom}</CardTitle>
-                      <CardDescription className="text-purple-600 font-medium">
-                        {artiste.specialite}
-                      </CardDescription>
-                      <CardDescription className="text-gray-600">
-                        {artiste.style}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4 text-center">
-                          <div>
-                            <p className="text-2xl font-bold text-gray-900">{artiste.oeuvres}</p>
-                            <p className="text-sm text-gray-600">Œuvres</p>
-                          </div>
-                          <div>
-                            <p className="text-2xl font-bold text-gray-900">{artiste.expositions}</p>
-                            <p className="text-sm text-gray-600">Expositions</p>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h5 className="font-medium text-gray-900 mb-2">Biographie</h5>
-                          <p className="text-sm text-gray-600">{artiste.biographie}</p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-gray-600">Distinction</p>
-                            <p className="text-sm font-medium text-purple-600">{artiste.prix}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                            <BookOpen className="h-4 w-4 mr-2" />
-                            Voir les œuvres
-                          </Button>
-                          <Button variant="outline" className="w-full">
-                            Contacter l'artiste
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-gray-500 text-lg">Aucun artiste local référencé pour le moment.</p>
-                  <p className="text-gray-400 text-sm mt-2">Contactez-nous pour mettre en valeur nos talents culturels.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Section d'appel à action */}
-            <Card className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Star className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-2">Vous êtes artiste ?</h4>
-                    <p className="text-gray-600 mb-4">
-                      Rejoignez notre communauté d'artistes locaux et bénéficiez d'une visibilité 
-                      accrue ainsi que de soutien pour vos projets culturels.
-                    </p>
-                    <div className="flex gap-3">
-                      <Button className="bg-purple-600 hover:bg-purple-700">
-                        S'inscrire comme artiste
-                      </Button>
-                      <Button variant="outline">
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        Découvrir le programme
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </motion.div>
         )}
       </main>
@@ -502,7 +389,6 @@ const CulturePatrimoine = () => {
               <ul className="space-y-2 text-gray-400">
                 <li><Link to="#" className="hover:text-white transition-colors">Sites patrimoniaux</Link></li>
                 <li><Link to="#" className="hover:text-white transition-colors">Événements</Link></li>
-                <li><Link to="#" className="hover:text-white transition-colors">Artistes</Link></li>
               </ul>
             </div>
             

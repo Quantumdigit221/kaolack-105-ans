@@ -262,7 +262,7 @@ const DeveloppementEconomique = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
               {statistiques.map((stat, index) => (
                 <motion.div
                   key={index}
@@ -271,20 +271,15 @@ const DeveloppementEconomique = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <Card className="hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-                    <CardContent className="p-6 text-center">
-                      <div className={`mx-auto p-3 rounded-2xl bg-gray-100 ${stat.color} mb-4`}>
-                        {stat.icon}
+                    <CardContent className="p-4 sm:p-6 text-center">
+                      <div className={`mx-auto p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gray-100 ${stat.color} mb-3 sm:mb-4`}>
+                        <div className="w-6 h-6 sm:w-8 sm:h-8">
+                          {stat.icon}
+                        </div>
                       </div>
-                      <div className="text-2xl font-bold text-gray-900 mb-1">
-                        {stat.valeur}
-                      </div>
-                      <div className="text-sm text-gray-600 mb-2">
-                        {stat.titre}
-                      </div>
-                      <div className="flex items-center justify-center text-sm">
-                        <span className="text-green-600 font-medium">{stat.evolution}</span>
-                        <span className="text-gray-400 ml-1">vs {stat.periode}</span>
-                      </div>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{stat.valeur}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600">{stat.label}</p>
+                      <span className="text-gray-400 ml-1">vs {stat.periode}</span>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -320,7 +315,7 @@ const DeveloppementEconomique = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {secteurs.map((secteur, index) => (
                 <motion.div
                   key={index}
@@ -410,7 +405,7 @@ const DeveloppementEconomique = () => {
                             </span>
                           </div>
                           <p className="text-gray-600 mb-4">{opportunite.description}</p>
-                          <div className="grid md:grid-cols-3 gap-4 mb-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                             <div>
                               <p className="text-sm text-gray-600">Date limite</p>
                               <p className="font-medium text-gray-900">{opportunite.deadline}</p>
